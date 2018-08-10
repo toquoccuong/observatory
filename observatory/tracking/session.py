@@ -22,6 +22,13 @@ class TrackingSession:
     def record_metric(self, name, value):
         """
         Records a metric value on the server
+
+        Parameters
+        ----------
+        name : string
+            The name of the metric to record
+        value : float
+            The value of the metric to records
         """
         timestamp = int(time())
 
