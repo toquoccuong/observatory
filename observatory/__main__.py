@@ -6,9 +6,9 @@ sub_parsers = parser.add_subparsers(dest='command')
 
 server_parser = sub_parsers.add_parser('server', help='server --help')
 server_parser.add_argument('--port', default=5001, help='The port to listen on')
-
+server_parser.add_argument('--es-node', dest='seed_nodes', default=['localhost'], nargs='+')
 args = parser.parse_args()
 
 if args.command == 'server':
     import observatory.server
-    observatory.server.run_server(args.port)
+    observatory.server.run_server(args.port, args.seed_nodes)

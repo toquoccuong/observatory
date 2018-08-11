@@ -46,10 +46,23 @@ message RecordSettingsRequest {
     int32 version = 2;
     string experiment = 3;
     string run_id = 4;
-    map<string, string> settings = 5;
+    string data = 5;
 }
 
 message RecordSettingsResponse {
+    int32 status = 1;
+}
+
+message Chunk {
+    string model = 1;
+    int32 version = 2;
+    string experiment = 3;
+    string run_id = 4;
+    string filename = 5;
+    bytes buffer = 6;
+}
+
+message RecordOutputResponse {
     int32 status = 1;
 }
 
@@ -58,4 +71,5 @@ service TrackingService {
     rpc RecordSessionStart(RecordSessionStartRequest) returns (RecordSessionStartResponse);
     rpc RecordSessionCompletion(RecordSessionCompletionRequest) returns (RecordSessionCompletionResponse);
     rpc RecordSettings(RecordSettingsRequest) returns (RecordSettingsResponse);
+    rpc RecordOutput(stream Chunk) returns (RecordOutputResponse);
 }

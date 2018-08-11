@@ -34,6 +34,11 @@ class TrackingServiceStub(object):
         request_serializer=observatory_dot_protobuf_dot_observatory__pb2.RecordSettingsRequest.SerializeToString,
         response_deserializer=observatory_dot_protobuf_dot_observatory__pb2.RecordSettingsResponse.FromString,
         )
+    self.RecordOutput = channel.stream_unary(
+        '/observatory.protobuf.TrackingService/RecordOutput',
+        request_serializer=observatory_dot_protobuf_dot_observatory__pb2.Chunk.SerializeToString,
+        response_deserializer=observatory_dot_protobuf_dot_observatory__pb2.RecordOutputResponse.FromString,
+        )
 
 
 class TrackingServiceServicer(object):
@@ -68,6 +73,13 @@ class TrackingServiceServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def RecordOutput(self, request_iterator, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_TrackingServiceServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -90,6 +102,11 @@ def add_TrackingServiceServicer_to_server(servicer, server):
           servicer.RecordSettings,
           request_deserializer=observatory_dot_protobuf_dot_observatory__pb2.RecordSettingsRequest.FromString,
           response_serializer=observatory_dot_protobuf_dot_observatory__pb2.RecordSettingsResponse.SerializeToString,
+      ),
+      'RecordOutput': grpc.stream_unary_rpc_method_handler(
+          servicer.RecordOutput,
+          request_deserializer=observatory_dot_protobuf_dot_observatory__pb2.Chunk.FromString,
+          response_serializer=observatory_dot_protobuf_dot_observatory__pb2.RecordOutputResponse.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

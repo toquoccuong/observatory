@@ -1,5 +1,8 @@
+import json
 from time import time
 from observatory.protobuf import observatory_pb2, observatory_pb2_grpc
+
+CHUNK_SIZE = 1024 * 1024
 
 
 class TrackingSession:
@@ -12,6 +15,19 @@ class TrackingSession:
         """
         Initializes the tracking session with the necessary tracking information
         and a pre-initialized tracking client for recording the actual metrics.
+
+        Parameters
+        ----------
+        name : string
+            Name of the model
+        version : int
+            Version number of the model
+        experiment : string
+            Name of the experiment
+        run_id : string
+            ID of the run
+        tracking_stub : object
+            Instance of the tracking service stub
         """
         self.name = name
         self.version = version
@@ -47,17 +63,66 @@ class TrackingSession:
             raise RuntimeError('Failed to record metric')
 
     def record_settings(self, **settings):
+        """
+        Records settings used for the run
+
+        Parameters
+        ----------
+        settings : object
+            A dictionary containing all settings used for the run.
+            This can be passed in as `key=value` pairs.
+        """
         request = observatory_pb2.RecordSettingsRequest(
-            model=self.name, 
+            model=self.name,
             version=self.version,
             experiment=self.experiment,
             run_id=self.run_id,
-            settings=settings)
+            data=json.dumps(settings))
 
         response = self.tracking_stub.RecordSettings(request)
 
         if response.status != 200:
             raise RuntimeError('Failed to record settings')
+
+    def record_output(self, input_file, filename):
+        """
+        Records an output for the current run.
+
+        Parameters
+        ----------
+        input_file : object
+            Filename or handle to input file
+        filename : string
+            Name of the file as it should be stored on the server
+        """
+
+        def chunker(model, version, experiment, run_id, out_file, file):
+            if type(file) == str:
+                file_handle = open(file, 'rb')
+            else:
+                file_handle = input_file
+
+            while True:
+                chunk_data = file_handle.read(CHUNK_SIZE)
+
+                if len(chunk_data) == 0:
+                    return
+
+                chunk = observatory_pb2.Chunk(
+                    model=model,
+                    version=version,
+                    experiment=experiment,
+                    run_id=run_id,
+                    filename=out_file,
+                    buffer=chunk_data)
+
+                yield chunk
+
+        response = self.tracking_stub.RecordOutput(
+            chunker(self.name, self.version, self.experiment, self.run_id, filename, input_file))
+
+        if response.status != 200:
+            raise RuntimeError('Failed to record output')
 
     def __enter__(self):
         timestamp = int(time())
@@ -66,7 +131,7 @@ class TrackingSession:
             model=self.name,
             version=self.version,
             experiment=self.experiment,
-            run_id = self.run_id,
+            run_id=self.run_id,
             timestamp=timestamp
         )
 
@@ -89,7 +154,7 @@ class TrackingSession:
             model=self.name,
             version=self.version,
             experiment=self.experiment,
-            run_id = self.run_id,
+            run_id=self.run_id,
             timestamp=timestamp,
             status=session_status
         )

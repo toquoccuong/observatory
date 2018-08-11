@@ -13,30 +13,43 @@ LABEL_PATTERN = '^(?![0-9]+$)(?!-)[a-zA-Z0-9-]{,63}(?<!-)$'
 server_url = "localhost:5001"
 
 
-def configure(url='localhost:5001'):
+def configure(url):
     """
     Configures the observatory environment.
     The following settings can be configured:
 
-     * url - The URL to connect to on the server, by default localhost:5001
+    Parameters
+    ----------
+    url : string
+        The URL to connect to for tracking session information
     """
     global server_url
 
     server_url = url
 
 
-def start_run(name, version, experiment=None):
+def start_run(name, version, experiment='default'):
     """
     Starts a new run for a specific model version
     """
 
-    assert re.match(LABEL_PATTERN, name)
-    assert (experiment is None) or re.match(LABEL_PATTERN, experiment)
-    assert version > 0
+    if not re.match(LABEL_PATTERN, name):
+        raise AssertionError('name is invalid. It can contain ' +
+                             'lower-case alpha-numeric characters and dashes only.')
+
+    if experiment is None:
+        experiment = 'default'
+
+    if experiment != 'default' and not re.match(LABEL_PATTERN, name):
+        raise AssertionError('experiment is invalid. It can contain ' +
+                             'lower-case alpha-numeric characters and dashes only.')
+
+    if version <= 0:
+        raise AssertionError('version must be greater than zero')
 
     run_id = str(uuid4())
 
     channel = grpc.insecure_channel(server_url)
     tracking_stub = observatory_pb2_grpc.TrackingServiceStub(channel)
 
-    return TrackingSession(name, version, run_id, experiment, tracking_stub)
+    return TrackingSession(name, version, experiment, run_id, tracking_stub)
