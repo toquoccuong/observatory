@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='observatory/protobuf/observatory.proto',
   package='observatory.protobuf',
   syntax='proto3',
-  serialized_pb=_b('\n&observatory/protobuf/observatory.proto\x12\x14observatory.protobuf\"\x8b\x01\n\x13RecordMetricRequest\x12\r\n\x05model\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x12\n\nexperiment\x18\x03 \x01(\t\x12\x0e\n\x06run_id\x18\x04 \x01(\t\x12\x0e\n\x06metric\x18\x05 \x01(\t\x12\x11\n\ttimestamp\x18\x06 \x01(\x03\x12\r\n\x05value\x18\x07 \x01(\x02\"&\n\x14RecordMetricResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\"r\n\x19RecordSessionStartRequest\x12\r\n\x05model\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x12\n\nexperiment\x18\x03 \x01(\t\x12\x0e\n\x06run_id\x18\x04 \x01(\t\x12\x11\n\ttimestamp\x18\x05 \x01(\x03\",\n\x1aRecordSessionStartResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\"\x87\x01\n\x1eRecordSessionCompletionRequest\x12\r\n\x05model\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x12\n\nexperiment\x18\x03 \x01(\t\x12\x0e\n\x06run_id\x18\x04 \x01(\t\x12\x11\n\ttimestamp\x18\x05 \x01(\x03\x12\x0e\n\x06status\x18\x06 \x01(\t\"1\n\x1fRecordSessionCompletionResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\x32\xfa\x02\n\x0fTrackingService\x12\x65\n\x0cRecordMetric\x12).observatory.protobuf.RecordMetricRequest\x1a*.observatory.protobuf.RecordMetricResponse\x12w\n\x12RecordSessionStart\x12/.observatory.protobuf.RecordSessionStartRequest\x1a\x30.observatory.protobuf.RecordSessionStartResponse\x12\x86\x01\n\x17RecordSessionCompletion\x12\x34.observatory.protobuf.RecordSessionCompletionRequest\x1a\x35.observatory.protobuf.RecordSessionCompletionResponseb\x06proto3')
+  serialized_pb=_b('\n&observatory/protobuf/observatory.proto\x12\x14observatory.protobuf\"\x8b\x01\n\x13RecordMetricRequest\x12\r\n\x05model\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x12\n\nexperiment\x18\x03 \x01(\t\x12\x0e\n\x06run_id\x18\x04 \x01(\t\x12\x0e\n\x06metric\x18\x05 \x01(\t\x12\x11\n\ttimestamp\x18\x06 \x01(\x03\x12\r\n\x05value\x18\x07 \x01(\x02\"&\n\x14RecordMetricResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\"r\n\x19RecordSessionStartRequest\x12\r\n\x05model\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x12\n\nexperiment\x18\x03 \x01(\t\x12\x0e\n\x06run_id\x18\x04 \x01(\t\x12\x11\n\ttimestamp\x18\x05 \x01(\x03\",\n\x1aRecordSessionStartResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\"\x87\x01\n\x1eRecordSessionCompletionRequest\x12\r\n\x05model\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x12\n\nexperiment\x18\x03 \x01(\t\x12\x0e\n\x06run_id\x18\x04 \x01(\t\x12\x11\n\ttimestamp\x18\x05 \x01(\x03\x12\x0e\n\x06status\x18\x06 \x01(\t\"1\n\x1fRecordSessionCompletionResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\"\xd9\x01\n\x15RecordSettingsRequest\x12\r\n\x05model\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x12\n\nexperiment\x18\x03 \x01(\t\x12\x0e\n\x06run_id\x18\x04 \x01(\t\x12K\n\x08settings\x18\x05 \x03(\x0b\x32\x39.observatory.protobuf.RecordSettingsRequest.SettingsEntry\x1a/\n\rSettingsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"(\n\x16RecordSettingsResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\x32\xe7\x03\n\x0fTrackingService\x12\x65\n\x0cRecordMetric\x12).observatory.protobuf.RecordMetricRequest\x1a*.observatory.protobuf.RecordMetricResponse\x12w\n\x12RecordSessionStart\x12/.observatory.protobuf.RecordSessionStartRequest\x1a\x30.observatory.protobuf.RecordSessionStartResponse\x12\x86\x01\n\x17RecordSessionCompletion\x12\x34.observatory.protobuf.RecordSessionCompletionRequest\x1a\x35.observatory.protobuf.RecordSessionCompletionResponse\x12k\n\x0eRecordSettings\x12+.observatory.protobuf.RecordSettingsRequest\x1a,.observatory.protobuf.RecordSettingsResponseb\x06proto3')
 )
 
 
@@ -315,12 +315,143 @@ _RECORDSESSIONCOMPLETIONRESPONSE = _descriptor.Descriptor(
   serialized_end=595,
 )
 
+
+_RECORDSETTINGSREQUEST_SETTINGSENTRY = _descriptor.Descriptor(
+  name='SettingsEntry',
+  full_name='observatory.protobuf.RecordSettingsRequest.SettingsEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='observatory.protobuf.RecordSettingsRequest.SettingsEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='observatory.protobuf.RecordSettingsRequest.SettingsEntry.value', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=_descriptor._ParseOptions(descriptor_pb2.MessageOptions(), _b('8\001')),
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=768,
+  serialized_end=815,
+)
+
+_RECORDSETTINGSREQUEST = _descriptor.Descriptor(
+  name='RecordSettingsRequest',
+  full_name='observatory.protobuf.RecordSettingsRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='model', full_name='observatory.protobuf.RecordSettingsRequest.model', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='version', full_name='observatory.protobuf.RecordSettingsRequest.version', index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='experiment', full_name='observatory.protobuf.RecordSettingsRequest.experiment', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='run_id', full_name='observatory.protobuf.RecordSettingsRequest.run_id', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='settings', full_name='observatory.protobuf.RecordSettingsRequest.settings', index=4,
+      number=5, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[_RECORDSETTINGSREQUEST_SETTINGSENTRY, ],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=598,
+  serialized_end=815,
+)
+
+
+_RECORDSETTINGSRESPONSE = _descriptor.Descriptor(
+  name='RecordSettingsResponse',
+  full_name='observatory.protobuf.RecordSettingsResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='status', full_name='observatory.protobuf.RecordSettingsResponse.status', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=817,
+  serialized_end=857,
+)
+
+_RECORDSETTINGSREQUEST_SETTINGSENTRY.containing_type = _RECORDSETTINGSREQUEST
+_RECORDSETTINGSREQUEST.fields_by_name['settings'].message_type = _RECORDSETTINGSREQUEST_SETTINGSENTRY
 DESCRIPTOR.message_types_by_name['RecordMetricRequest'] = _RECORDMETRICREQUEST
 DESCRIPTOR.message_types_by_name['RecordMetricResponse'] = _RECORDMETRICRESPONSE
 DESCRIPTOR.message_types_by_name['RecordSessionStartRequest'] = _RECORDSESSIONSTARTREQUEST
 DESCRIPTOR.message_types_by_name['RecordSessionStartResponse'] = _RECORDSESSIONSTARTRESPONSE
 DESCRIPTOR.message_types_by_name['RecordSessionCompletionRequest'] = _RECORDSESSIONCOMPLETIONREQUEST
 DESCRIPTOR.message_types_by_name['RecordSessionCompletionResponse'] = _RECORDSESSIONCOMPLETIONRESPONSE
+DESCRIPTOR.message_types_by_name['RecordSettingsRequest'] = _RECORDSETTINGSREQUEST
+DESCRIPTOR.message_types_by_name['RecordSettingsResponse'] = _RECORDSETTINGSRESPONSE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 RecordMetricRequest = _reflection.GeneratedProtocolMessageType('RecordMetricRequest', (_message.Message,), dict(
@@ -365,7 +496,31 @@ RecordSessionCompletionResponse = _reflection.GeneratedProtocolMessageType('Reco
   ))
 _sym_db.RegisterMessage(RecordSessionCompletionResponse)
 
+RecordSettingsRequest = _reflection.GeneratedProtocolMessageType('RecordSettingsRequest', (_message.Message,), dict(
 
+  SettingsEntry = _reflection.GeneratedProtocolMessageType('SettingsEntry', (_message.Message,), dict(
+    DESCRIPTOR = _RECORDSETTINGSREQUEST_SETTINGSENTRY,
+    __module__ = 'observatory.protobuf.observatory_pb2'
+    # @@protoc_insertion_point(class_scope:observatory.protobuf.RecordSettingsRequest.SettingsEntry)
+    ))
+  ,
+  DESCRIPTOR = _RECORDSETTINGSREQUEST,
+  __module__ = 'observatory.protobuf.observatory_pb2'
+  # @@protoc_insertion_point(class_scope:observatory.protobuf.RecordSettingsRequest)
+  ))
+_sym_db.RegisterMessage(RecordSettingsRequest)
+_sym_db.RegisterMessage(RecordSettingsRequest.SettingsEntry)
+
+RecordSettingsResponse = _reflection.GeneratedProtocolMessageType('RecordSettingsResponse', (_message.Message,), dict(
+  DESCRIPTOR = _RECORDSETTINGSRESPONSE,
+  __module__ = 'observatory.protobuf.observatory_pb2'
+  # @@protoc_insertion_point(class_scope:observatory.protobuf.RecordSettingsResponse)
+  ))
+_sym_db.RegisterMessage(RecordSettingsResponse)
+
+
+_RECORDSETTINGSREQUEST_SETTINGSENTRY.has_options = True
+_RECORDSETTINGSREQUEST_SETTINGSENTRY._options = _descriptor._ParseOptions(descriptor_pb2.MessageOptions(), _b('8\001'))
 
 _TRACKINGSERVICE = _descriptor.ServiceDescriptor(
   name='TrackingService',
@@ -373,8 +528,8 @@ _TRACKINGSERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=598,
-  serialized_end=976,
+  serialized_start=860,
+  serialized_end=1347,
   methods=[
   _descriptor.MethodDescriptor(
     name='RecordMetric',
@@ -401,6 +556,15 @@ _TRACKINGSERVICE = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_RECORDSESSIONCOMPLETIONREQUEST,
     output_type=_RECORDSESSIONCOMPLETIONRESPONSE,
+    options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='RecordSettings',
+    full_name='observatory.protobuf.TrackingService.RecordSettings',
+    index=3,
+    containing_service=None,
+    input_type=_RECORDSETTINGSREQUEST,
+    output_type=_RECORDSETTINGSRESPONSE,
     options=None,
   ),
 ])

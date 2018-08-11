@@ -11,3 +11,6 @@ class TrackingServiceServicer(observatory_pb2_grpc.TrackingServiceServicer):
 
     def RecordSessionCompletion(self, request, context):
         return observatory_pb2.RecordSessionCompletionResponse(status=200)
+
+    def RecordSettings(self, request, context):
+        return observatory_pb2.RecordSettingsResponse(status=200)

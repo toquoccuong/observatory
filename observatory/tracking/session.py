@@ -46,6 +46,19 @@ class TrackingSession:
         if response.status != 200:
             raise RuntimeError('Failed to record metric')
 
+    def record_settings(self, **settings):
+        request = observatory_pb2.RecordSettingsRequest(
+            model=self.name, 
+            version=self.version,
+            experiment=self.experiment,
+            run_id=self.run_id,
+            settings=settings)
+
+        response = self.tracking_stub.RecordSettings(request)
+
+        if response.status != 200:
+            raise RuntimeError('Failed to record settings')
+
     def __enter__(self):
         timestamp = int(time())
 

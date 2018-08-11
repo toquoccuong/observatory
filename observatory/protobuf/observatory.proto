@@ -41,8 +41,21 @@ message RecordSessionCompletionResponse {
     int32 status = 1;
 }
 
+message RecordSettingsRequest {
+    string model = 1;
+    int32 version = 2;
+    string experiment = 3;
+    string run_id = 4;
+    map<string, string> settings = 5;
+}
+
+message RecordSettingsResponse {
+    int32 status = 1;
+}
+
 service TrackingService {
     rpc RecordMetric(RecordMetricRequest) returns (RecordMetricResponse);
     rpc RecordSessionStart(RecordSessionStartRequest) returns (RecordSessionStartResponse);
     rpc RecordSessionCompletion(RecordSessionCompletionRequest) returns (RecordSessionCompletionResponse);
+    rpc RecordSettings(RecordSettingsRequest) returns (RecordSettingsResponse);
 }
