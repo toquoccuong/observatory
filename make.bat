@@ -13,6 +13,8 @@ set SPHINXPROJ=observatory
 
 if "%1" == "" goto help
 
+if "%1" == "protobuf" goto protobuf
+
 %SPHINXBUILD% >NUL 2>NUL
 if errorlevel 9009 (
 	echo.
@@ -27,6 +29,10 @@ if errorlevel 9009 (
 )
 
 %SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
+goto end
+
+:protobuf
+python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. observatory/protobuf/observatory.proto
 goto end
 
 :help
