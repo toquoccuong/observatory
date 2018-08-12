@@ -1,5 +1,5 @@
-Server commandline reference
+Command line reference
 ============================
-.. argparse::
-    :ref: observatory.create_commandline_parser
+.. click:: observatory.commandline:cli
     :prog: observatory
+    :show-nested:
