@@ -10,7 +10,7 @@ to run the server:
 
  * Start ElasticSearch (usually execute `bin/elasticsearch` from the ElasticSearch folder)
  * Navigate to the folder where you cloned the repository
- * Start the server with `python -m observatory server`
+ * Start the server with `observatory server`
 
 Track metrics from your application
 -----------------------------------
