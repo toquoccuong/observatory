@@ -3,7 +3,7 @@ import time
 from concurrent import futures
 import grpc
 from observatory.protobuf import observatory_pb2, observatory_pb2_grpc
-from observatory.server.tracking_handler import TrackingServiceServicer
+from observatory.server.handlers import TrackingServiceServicer
 import observatory.sink as tracking_sink
 
 
@@ -28,7 +28,7 @@ def run_server(port, elasticsearch_nodes):
     server.add_insecure_port('[::]:{}'.format(port))
     server.start()
 
-    print('Server is started on port [::]:{}'.format(port))
+    print('server is listening on [::]:{}'.format(port))
 
     try:
         while True:

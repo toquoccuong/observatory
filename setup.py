@@ -22,7 +22,9 @@ VERSION = None
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    'grpcio'
+    'grpcio',
+    'click',
+    'protobuf'
 ]
 
 # What packages are optional?
@@ -129,4 +131,8 @@ setup(
     cmdclass={
         'upload': UploadCommand,
     },
+    entry_points='''
+    [console_scripts]
+    observatory=observatory.commandline:cli
+    '''
 )
