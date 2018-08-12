@@ -7,8 +7,12 @@ CHUNK_SIZE = 1024 * 1024
 
 class TrackingSession:
     """
-    Keeps all tracking information for a single training session together in one neat package.
-    You can use this class to record various things about your model.
+    The tracking session is used to track data related to a single training run.
+
+    When you invoke :func:`start_run <observatory.start_run>` this class is instantiated for you
+    with the correct settings to start tracking data.
+
+    Any server connection used by the tracking logic is automatically opened and closed for you.
     """
 
     def __init__(self, name, version, experiment, run_id, tracking_stub):

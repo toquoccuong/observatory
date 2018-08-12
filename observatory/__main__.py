@@ -1,12 +1,7 @@
-import argparse
+import observatory
 
+parser = observatory.create_commandline_parser()
 
-parser = argparse.ArgumentParser(description='Machine Learning Model Management Tool')
-sub_parsers = parser.add_subparsers(dest='command')
-
-server_parser = sub_parsers.add_parser('server', help='server --help')
-server_parser.add_argument('--port', default=5001, help='The port to listen on')
-server_parser.add_argument('--es-node', dest='seed_nodes', default=['localhost'], nargs='+')
 args = parser.parse_args()
 
 if args.command == 'server':
