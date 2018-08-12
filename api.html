@@ -1,0 +1,218 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>API Reference &#8212; observatory 0.1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Server commandline reference" href="commandline.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-observatory">
+<span id="api-reference"></span><h1>API Reference<a class="headerlink" href="#module-observatory" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-observatory.tracking">
+<span id="tracking-module"></span><h2>Tracking module<a class="headerlink" href="#module-observatory.tracking" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="observatory.tracking.configure">
+<code class="descclassname">observatory.tracking.</code><code class="descname">configure</code><span class="sig-paren">(</span><em>url</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.configure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configures the observatory environment.
+The following settings can be configured:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>url</strong> (<a class="reference external" href="https://docs.python.org/3/library/string.html#module-string" title="(in Python v3.7)"><em>string</em></a>) – The URL to connect to for tracking session information</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="observatory.tracking.start_run">
+<code class="descclassname">observatory.tracking.</code><code class="descname">start_run</code><span class="sig-paren">(</span><em>model</em>, <em>version</em>, <em>experiment='default'</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.start_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts a new run for a specific model version.</p>
+<p>You can use this function start start recording data related to a single experiment run.
+The use of experiments is optional, you can leave this parameter out. See the example below for basic usage.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">observatory</span><span class="o">.</span><span class="n">start_run</span><span class="p">(</span><span class="s1">&#39;my_model&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="s1">&#39;my_experiment&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">run</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># Record metrics, outputs and settings</span>
+</pre></div>
+</div>
+<p>A new run is created on the server at the start of the scope.
+It is automatically finalized at the end of the scope.</p>
+<p>Note that when an exception occurs within the scope of a run,
+the run is automatically marked as failed.</p>
+<p>Each time you invoke <cite>start_run</cite> a new run is created with a newly generated UUID.
+This ensures that no runs overlap eachother.</p>
+<p><strong>Please note</strong> it is not possible to resume a run that you started earlier.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>model</strong> (<a class="reference external" href="https://docs.python.org/3/library/string.html#module-string" title="(in Python v3.7)"><em>string</em></a>) – The name of the model</li>
+<li><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The version number of the model</li>
+<li><strong>experiment</strong> (<a class="reference external" href="https://docs.python.org/3/library/string.html#module-string" title="(in Python v3.7)"><em>string</em></a><em>, </em><em>optional</em>) – The experiment you’re working on</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="tracking-session">
+<h2>Tracking session<a class="headerlink" href="#tracking-session" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="observatory.tracking.session.TrackingSession">
+<em class="property">class </em><code class="descclassname">observatory.tracking.session.</code><code class="descname">TrackingSession</code><span class="sig-paren">(</span><em>name</em>, <em>version</em>, <em>experiment</em>, <em>run_id</em>, <em>tracking_stub</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.session.TrackingSession" title="Permalink to this definition">¶</a></dt>
+<dd><p>The tracking session is used to track data related to a single training run.</p>
+<p>When you invoke <code class="xref py py-func docutils literal"><span class="pre">start_run</span></code> this class is instantiated for you
+with the correct settings to start tracking data.</p>
+<p>Any server connection used by the tracking logic is automatically opened and closed for you.</p>
+<dl class="method">
+<dt id="observatory.tracking.session.TrackingSession.record_metric">
+<code class="descname">record_metric</code><span class="sig-paren">(</span><em>name</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.session.TrackingSession.record_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Records a metric value on the server</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/string.html#module-string" title="(in Python v3.7)"><em>string</em></a>) – The name of the metric to record</li>
+<li><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The value of the metric to records</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="observatory.tracking.session.TrackingSession.record_output">
+<code class="descname">record_output</code><span class="sig-paren">(</span><em>input_file</em>, <em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.session.TrackingSession.record_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Records an output for the current run.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>input_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><em>object</em></a>) – Filename or handle to input file</li>
+<li><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/string.html#module-string" title="(in Python v3.7)"><em>string</em></a>) – Name of the file as it should be stored on the server</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="observatory.tracking.session.TrackingSession.record_settings">
+<code class="descname">record_settings</code><span class="sig-paren">(</span><em>**settings</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.session.TrackingSession.record_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Records settings used for the run</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>settings</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><em>object</em></a>) – A dictionary containing all settings used for the run.
+This can be passed in as <cite>key=value</cite> pairs.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">API Reference</a><ul>
+<li><a class="reference internal" href="#module-observatory.tracking">Tracking module</a></li>
+<li><a class="reference internal" href="#tracking-session">Tracking session</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="commandline.html" title="previous chapter">Server commandline reference</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/api.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Willem Meints.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/api.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
