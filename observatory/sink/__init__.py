@@ -5,7 +5,17 @@ es = None
 
 def configure(seed_nodes):
     """
-    Configures the tracking sink to connect to a specific set of seed nodes
+    Configures the tracking sink to connect to a specific set of seed nodes.
+
+    When the sink is configured, it will automatically discover other nodes in the cluster.
+    Also, when the connection is lost, it will be automatically reestablished when the cluster becomes available again.
+
+    Please note that data is still lost when no connection is available to the elastic search cluster.
+
+    Parameters
+    ---------
+    seed_nodes : [string]
+        The list of seed nodes to connect to.
     """
     global es
 
