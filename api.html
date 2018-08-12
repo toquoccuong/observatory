@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>API Reference &#8212; observatory 0.1.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.1.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -30,8 +22,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
@@ -52,7 +43,7 @@ The following settings can be configured:</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>url</strong> (<a class="reference external" href="https://docs.python.org/3/library/string.html#module-string" title="(in Python v3.7)"><em>string</em></a>) – The URL to connect to for tracking session information</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>url</strong> (<em>string</em>) – The URL to connect to for tracking session information</td>
 </tr>
 </tbody>
 </table>
@@ -64,7 +55,7 @@ The following settings can be configured:</p>
 <dd><p>Starts a new run for a specific model version.</p>
 <p>You can use this function start start recording data related to a single experiment run.
 The use of experiments is optional, you can leave this parameter out. See the example below for basic usage.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">observatory</span><span class="o">.</span><span class="n">start_run</span><span class="p">(</span><span class="s1">&#39;my_model&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="s1">&#39;my_experiment&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">run</span><span class="p">:</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">observatory</span><span class="o">.</span><span class="n">start_run</span><span class="p">(</span><span class="s1">&#39;my_model&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="s1">&#39;my_experiment&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">run</span><span class="p">:</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># Record metrics, outputs and settings</span>
 </pre></div>
 </div>
@@ -80,9 +71,9 @@ This ensures that no runs overlap eachother.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>model</strong> (<a class="reference external" href="https://docs.python.org/3/library/string.html#module-string" title="(in Python v3.7)"><em>string</em></a>) – The name of the model</li>
+<li><strong>model</strong> (<em>string</em>) – The name of the model</li>
 <li><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The version number of the model</li>
-<li><strong>experiment</strong> (<a class="reference external" href="https://docs.python.org/3/library/string.html#module-string" title="(in Python v3.7)"><em>string</em></a><em>, </em><em>optional</em>) – The experiment you’re working on</li>
+<li><strong>experiment</strong> (<em>string</em><em>, </em><em>optional</em>) – The experiment you’re working on</li>
 </ul>
 </td>
 </tr>
@@ -97,7 +88,7 @@ This ensures that no runs overlap eachother.</p>
 <dt id="observatory.tracking.session.TrackingSession">
 <em class="property">class </em><code class="descclassname">observatory.tracking.session.</code><code class="descname">TrackingSession</code><span class="sig-paren">(</span><em>name</em>, <em>version</em>, <em>experiment</em>, <em>run_id</em>, <em>tracking_stub</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.session.TrackingSession" title="Permalink to this definition">¶</a></dt>
 <dd><p>The tracking session is used to track data related to a single training run.</p>
-<p>When you invoke <code class="xref py py-func docutils literal"><span class="pre">start_run</span></code> this class is instantiated for you
+<p>When you invoke <code class="xref py py-func docutils literal notranslate"><span class="pre">start_run</span></code> this class is instantiated for you
 with the correct settings to start tracking data.</p>
 <p>Any server connection used by the tracking logic is automatically opened and closed for you.</p>
 <dl class="method">
@@ -109,7 +100,7 @@ with the correct settings to start tracking data.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/string.html#module-string" title="(in Python v3.7)"><em>string</em></a>) – The name of the metric to record</li>
+<li><strong>name</strong> (<em>string</em>) – The name of the metric to record</li>
 <li><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The value of the metric to records</li>
 </ul>
 </td>
@@ -128,7 +119,7 @@ with the correct settings to start tracking data.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>input_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><em>object</em></a>) – Filename or handle to input file</li>
-<li><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/string.html#module-string" title="(in Python v3.7)"><em>string</em></a>) – Name of the file as it should be stored on the server</li>
+<li><strong>filename</strong> (<em>string</em>) – Name of the file as it should be stored on the server</li>
 </ul>
 </td>
 </tr>
@@ -162,14 +153,24 @@ This can be passed in as <cite>key=value</cite> pairs.</td>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">API Reference</a><ul>
-<li><a class="reference internal" href="#module-observatory.tracking">Tracking module</a></li>
-<li><a class="reference internal" href="#tracking-session">Tracking session</a></li>
+<h1 class="logo"><a href="index.html">observatory</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="usage/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commandline.html">Server commandline reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a></li>
 </ul>
-</li>
-</ul>
+
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -178,21 +179,16 @@ This can be passed in as <cite>key=value</cite> pairs.</td>
   </ul></li>
 </ul>
 </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/api.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -203,7 +199,7 @@ This can be passed in as <cite>key=value</cite> pairs.</td>
       &copy;2018, Willem Meints.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
