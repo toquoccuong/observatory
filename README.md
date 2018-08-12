@@ -64,6 +64,19 @@ with observatory.start_run('my_model', 1) as run:
   run.record_settings(hidden_layers=2, learning_rate=0.01)
 ```
 
+## Using the metrics gathered by this tool
+All metrics and other data is recorded in ElasticSearch indices.
+Every model gets its own index `metrics-<model-name>`. This index has two
+types of documents:
+
+ - metric - A series of metric values for each experiment/run
+ - run - A series of runs that you've executed with timings, etc.
+
+Right now, the observatory tool doesn't contain a dashboard. 
+I am planning on building one, but meanwhile I can highly recommend using
+[Kibana](https://www.elastic.co/products/kibana). This dashboard tool makes it really easy to visualize all the aspects
+of your model.
+
 ## Development
 Feel free to fork this repository and send me pull requests.
 I personally recommend using PyCharm and/or Visual Studio Code for writing code.
