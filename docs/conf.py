@@ -44,6 +44,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.napoleon',
+    'sphinx.ext.githubpages',
     'sphinxarg.ext'
 ]
 
