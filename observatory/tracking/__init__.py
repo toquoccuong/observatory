@@ -2,30 +2,11 @@ from concurrent import futures
 import grpc
 
 import re
-from time import time
 from uuid import uuid4
 from observatory.protobuf import observatory_pb2, observatory_pb2_grpc
 from observatory.tracking.session import TrackingSession
-
-
-LABEL_PATTERN = '^(?![0-9]+$)(?!-)[a-zA-Z0-9-]{,63}(?<!-)$'
-
-server_url = "localhost:5001"
-
-
-def configure(url):
-    """
-    Configures the observatory environment.
-    The following settings can be configured:
-
-    Parameters
-    ----------
-    url : string
-        The URL to connect to for tracking session information
-    """
-    global server_url
-
-    server_url = url
+from observatory import settings
+from observatory.constants import LABEL_PATTERN
 
 
 def start_run(model, version, experiment='default'):
@@ -75,7 +56,7 @@ def start_run(model, version, experiment='default'):
 
     run_id = str(uuid4())
 
-    channel = grpc.insecure_channel(server_url)
+    channel = grpc.insecure_channel(settings.server_url)
     tracking_stub = observatory_pb2_grpc.TrackingServiceStub(channel)
 
     return TrackingSession(model, version, experiment, run_id, tracking_stub)

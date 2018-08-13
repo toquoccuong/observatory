@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='observatory/protobuf/observatory.proto',
   package='observatory.protobuf',
   syntax='proto3',
-  serialized_pb=_b('\n&observatory/protobuf/observatory.proto\x12\x14observatory.protobuf\"\x8b\x01\n\x13RecordMetricRequest\x12\r\n\x05model\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x12\n\nexperiment\x18\x03 \x01(\t\x12\x0e\n\x06run_id\x18\x04 \x01(\t\x12\x0e\n\x06metric\x18\x05 \x01(\t\x12\x11\n\ttimestamp\x18\x06 \x01(\x03\x12\r\n\x05value\x18\x07 \x01(\x02\"&\n\x14RecordMetricResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\"r\n\x19RecordSessionStartRequest\x12\r\n\x05model\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x12\n\nexperiment\x18\x03 \x01(\t\x12\x0e\n\x06run_id\x18\x04 \x01(\t\x12\x11\n\ttimestamp\x18\x05 \x01(\x03\",\n\x1aRecordSessionStartResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\"\x87\x01\n\x1eRecordSessionCompletionRequest\x12\r\n\x05model\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x12\n\nexperiment\x18\x03 \x01(\t\x12\x0e\n\x06run_id\x18\x04 \x01(\t\x12\x11\n\ttimestamp\x18\x05 \x01(\x03\x12\x0e\n\x06status\x18\x06 \x01(\t\"1\n\x1fRecordSessionCompletionResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\"i\n\x15RecordSettingsRequest\x12\r\n\x05model\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x12\n\nexperiment\x18\x03 \x01(\t\x12\x0e\n\x06run_id\x18\x04 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x05 \x01(\t\"(\n\x16RecordSettingsResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\"m\n\x05\x43hunk\x12\r\n\x05model\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x12\n\nexperiment\x18\x03 \x01(\t\x12\x0e\n\x06run_id\x18\x04 \x01(\t\x12\x10\n\x08\x66ilename\x18\x05 \x01(\t\x12\x0e\n\x06\x62uffer\x18\x06 \x01(\x0c\"&\n\x14RecordOutputResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\x32\xc2\x04\n\x0fTrackingService\x12\x65\n\x0cRecordMetric\x12).observatory.protobuf.RecordMetricRequest\x1a*.observatory.protobuf.RecordMetricResponse\x12w\n\x12RecordSessionStart\x12/.observatory.protobuf.RecordSessionStartRequest\x1a\x30.observatory.protobuf.RecordSessionStartResponse\x12\x86\x01\n\x17RecordSessionCompletion\x12\x34.observatory.protobuf.RecordSessionCompletionRequest\x1a\x35.observatory.protobuf.RecordSessionCompletionResponse\x12k\n\x0eRecordSettings\x12+.observatory.protobuf.RecordSettingsRequest\x1a,.observatory.protobuf.RecordSettingsResponse\x12Y\n\x0cRecordOutput\x12\x1b.observatory.protobuf.Chunk\x1a*.observatory.protobuf.RecordOutputResponse(\x01\x62\x06proto3')
+  serialized_pb=_b('\n&observatory/protobuf/observatory.proto\x12\x14observatory.protobuf\"\x8b\x01\n\x13RecordMetricRequest\x12\r\n\x05model\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x12\n\nexperiment\x18\x03 \x01(\t\x12\x0e\n\x06run_id\x18\x04 \x01(\t\x12\x0e\n\x06metric\x18\x05 \x01(\t\x12\x11\n\ttimestamp\x18\x06 \x01(\x03\x12\r\n\x05value\x18\x07 \x01(\x02\"&\n\x14RecordMetricResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\"r\n\x19RecordSessionStartRequest\x12\r\n\x05model\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x12\n\nexperiment\x18\x03 \x01(\t\x12\x0e\n\x06run_id\x18\x04 \x01(\t\x12\x11\n\ttimestamp\x18\x05 \x01(\x03\",\n\x1aRecordSessionStartResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\"\x87\x01\n\x1eRecordSessionCompletionRequest\x12\r\n\x05model\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x12\n\nexperiment\x18\x03 \x01(\t\x12\x0e\n\x06run_id\x18\x04 \x01(\t\x12\x11\n\ttimestamp\x18\x05 \x01(\x03\x12\x0e\n\x06status\x18\x06 \x01(\t\"1\n\x1fRecordSessionCompletionResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\"i\n\x15RecordSettingsRequest\x12\r\n\x05model\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x12\n\nexperiment\x18\x03 \x01(\t\x12\x0e\n\x06run_id\x18\x04 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x05 \x01(\t\"(\n\x16RecordSettingsResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\"m\n\x05\x43hunk\x12\r\n\x05model\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x12\n\nexperiment\x18\x03 \x01(\t\x12\x0e\n\x06run_id\x18\x04 \x01(\t\x12\x10\n\x08\x66ilename\x18\x05 \x01(\t\x12\x0e\n\x06\x62uffer\x18\x06 \x01(\x0c\"&\n\x14RecordOutputResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\"Z\n\x14\x44ownloadModelRequest\x12\r\n\x05model\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x12\n\nexperiment\x18\x03 \x01(\t\x12\x0e\n\x06run_id\x18\x04 \x01(\t\"\x1b\n\nModelChunk\x12\r\n\x05\x63hunk\x18\x01 \x01(\x0c\x32\xc2\x04\n\x0fTrackingService\x12\x65\n\x0cRecordMetric\x12).observatory.protobuf.RecordMetricRequest\x1a*.observatory.protobuf.RecordMetricResponse\x12w\n\x12RecordSessionStart\x12/.observatory.protobuf.RecordSessionStartRequest\x1a\x30.observatory.protobuf.RecordSessionStartResponse\x12\x86\x01\n\x17RecordSessionCompletion\x12\x34.observatory.protobuf.RecordSessionCompletionRequest\x1a\x35.observatory.protobuf.RecordSessionCompletionResponse\x12k\n\x0eRecordSettings\x12+.observatory.protobuf.RecordSettingsRequest\x1a,.observatory.protobuf.RecordSettingsResponse\x12Y\n\x0cRecordOutput\x12\x1b.observatory.protobuf.Chunk\x1a*.observatory.protobuf.RecordOutputResponse(\x01\x32q\n\x0cModelService\x12\x61\n\rDownloadModel\x12*.observatory.protobuf.DownloadModelRequest\x1a .observatory.protobuf.ModelChunk\"\x00\x30\x01\x62\x06proto3')
 )
 
 
@@ -502,6 +502,89 @@ _RECORDOUTPUTRESPONSE = _descriptor.Descriptor(
   serialized_end=895,
 )
 
+
+_DOWNLOADMODELREQUEST = _descriptor.Descriptor(
+  name='DownloadModelRequest',
+  full_name='observatory.protobuf.DownloadModelRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='model', full_name='observatory.protobuf.DownloadModelRequest.model', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='version', full_name='observatory.protobuf.DownloadModelRequest.version', index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='experiment', full_name='observatory.protobuf.DownloadModelRequest.experiment', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='run_id', full_name='observatory.protobuf.DownloadModelRequest.run_id', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=897,
+  serialized_end=987,
+)
+
+
+_MODELCHUNK = _descriptor.Descriptor(
+  name='ModelChunk',
+  full_name='observatory.protobuf.ModelChunk',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='chunk', full_name='observatory.protobuf.ModelChunk.chunk', index=0,
+      number=1, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=989,
+  serialized_end=1016,
+)
+
 DESCRIPTOR.message_types_by_name['RecordMetricRequest'] = _RECORDMETRICREQUEST
 DESCRIPTOR.message_types_by_name['RecordMetricResponse'] = _RECORDMETRICRESPONSE
 DESCRIPTOR.message_types_by_name['RecordSessionStartRequest'] = _RECORDSESSIONSTARTREQUEST
@@ -512,6 +595,8 @@ DESCRIPTOR.message_types_by_name['RecordSettingsRequest'] = _RECORDSETTINGSREQUE
 DESCRIPTOR.message_types_by_name['RecordSettingsResponse'] = _RECORDSETTINGSRESPONSE
 DESCRIPTOR.message_types_by_name['Chunk'] = _CHUNK
 DESCRIPTOR.message_types_by_name['RecordOutputResponse'] = _RECORDOUTPUTRESPONSE
+DESCRIPTOR.message_types_by_name['DownloadModelRequest'] = _DOWNLOADMODELREQUEST
+DESCRIPTOR.message_types_by_name['ModelChunk'] = _MODELCHUNK
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 RecordMetricRequest = _reflection.GeneratedProtocolMessageType('RecordMetricRequest', (_message.Message,), dict(
@@ -584,6 +669,20 @@ RecordOutputResponse = _reflection.GeneratedProtocolMessageType('RecordOutputRes
   ))
 _sym_db.RegisterMessage(RecordOutputResponse)
 
+DownloadModelRequest = _reflection.GeneratedProtocolMessageType('DownloadModelRequest', (_message.Message,), dict(
+  DESCRIPTOR = _DOWNLOADMODELREQUEST,
+  __module__ = 'observatory.protobuf.observatory_pb2'
+  # @@protoc_insertion_point(class_scope:observatory.protobuf.DownloadModelRequest)
+  ))
+_sym_db.RegisterMessage(DownloadModelRequest)
+
+ModelChunk = _reflection.GeneratedProtocolMessageType('ModelChunk', (_message.Message,), dict(
+  DESCRIPTOR = _MODELCHUNK,
+  __module__ = 'observatory.protobuf.observatory_pb2'
+  # @@protoc_insertion_point(class_scope:observatory.protobuf.ModelChunk)
+  ))
+_sym_db.RegisterMessage(ModelChunk)
+
 
 
 _TRACKINGSERVICE = _descriptor.ServiceDescriptor(
@@ -592,8 +691,8 @@ _TRACKINGSERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=898,
-  serialized_end=1476,
+  serialized_start=1019,
+  serialized_end=1597,
   methods=[
   _descriptor.MethodDescriptor(
     name='RecordMetric',
@@ -644,5 +743,29 @@ _TRACKINGSERVICE = _descriptor.ServiceDescriptor(
 _sym_db.RegisterServiceDescriptor(_TRACKINGSERVICE)
 
 DESCRIPTOR.services_by_name['TrackingService'] = _TRACKINGSERVICE
+
+
+_MODELSERVICE = _descriptor.ServiceDescriptor(
+  name='ModelService',
+  full_name='observatory.protobuf.ModelService',
+  file=DESCRIPTOR,
+  index=1,
+  options=None,
+  serialized_start=1599,
+  serialized_end=1712,
+  methods=[
+  _descriptor.MethodDescriptor(
+    name='DownloadModel',
+    full_name='observatory.protobuf.ModelService.DownloadModel',
+    index=0,
+    containing_service=None,
+    input_type=_DOWNLOADMODELREQUEST,
+    output_type=_MODELCHUNK,
+    options=None,
+  ),
+])
+_sym_db.RegisterServiceDescriptor(_MODELSERVICE)
+
+DESCRIPTOR.services_by_name['ModelService'] = _MODELSERVICE
 
 # @@protoc_insertion_point(module_scope)

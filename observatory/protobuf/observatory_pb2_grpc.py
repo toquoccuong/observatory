@@ -112,3 +112,45 @@ def add_TrackingServiceServicer_to_server(servicer, server):
   generic_handler = grpc.method_handlers_generic_handler(
       'observatory.protobuf.TrackingService', rpc_method_handlers)
   server.add_generic_rpc_handlers((generic_handler,))
+
+
+class ModelServiceStub(object):
+  # missing associated documentation comment in .proto file
+  pass
+
+  def __init__(self, channel):
+    """Constructor.
+
+    Args:
+      channel: A grpc.Channel.
+    """
+    self.DownloadModel = channel.unary_stream(
+        '/observatory.protobuf.ModelService/DownloadModel',
+        request_serializer=observatory_dot_protobuf_dot_observatory__pb2.DownloadModelRequest.SerializeToString,
+        response_deserializer=observatory_dot_protobuf_dot_observatory__pb2.ModelChunk.FromString,
+        )
+
+
+class ModelServiceServicer(object):
+  # missing associated documentation comment in .proto file
+  pass
+
+  def DownloadModel(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+
+def add_ModelServiceServicer_to_server(servicer, server):
+  rpc_method_handlers = {
+      'DownloadModel': grpc.unary_stream_rpc_method_handler(
+          servicer.DownloadModel,
+          request_deserializer=observatory_dot_protobuf_dot_observatory__pb2.DownloadModelRequest.FromString,
+          response_serializer=observatory_dot_protobuf_dot_observatory__pb2.ModelChunk.SerializeToString,
+      ),
+  }
+  generic_handler = grpc.method_handlers_generic_handler(
+      'observatory.protobuf.ModelService', rpc_method_handlers)
+  server.add_generic_rpc_handlers((generic_handler,))

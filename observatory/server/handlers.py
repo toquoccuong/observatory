@@ -2,6 +2,9 @@ import time
 from os import path, makedirs
 from observatory.protobuf import observatory_pb2, observatory_pb2_grpc
 import observatory.sink as tracking_sink
+from observatory import archive
+
+CHUNK_SIZE = 1024 * 1024
 
 
 class TrackingServiceServicer(observatory_pb2_grpc.TrackingServiceServicer):
@@ -47,7 +50,7 @@ class TrackingServiceServicer(observatory_pb2_grpc.TrackingServiceServicer):
                     output_filename = path.join(output_path, chunk.filename)
 
                     file_handle = open(output_filename, 'wb')
-                
+
                 file_handle.write(chunk.buffer)
 
             file_handle.close()
@@ -59,3 +62,25 @@ class TrackingServiceServicer(observatory_pb2_grpc.TrackingServiceServicer):
         finally:
             if not file_handle is None:
                 file_handle.close()
+
+
+class ModelServiceServicer(observatory_pb2_grpc.ModelServiceServicer):
+    def DownloadModel(self, request, context):
+        def chunker(filename):
+            with open(filename, 'rb') as input_file:
+                while True:
+                    chunk_data = input_file.read(CHUNK_SIZE)
+
+                    if len(chunk_data) == 0:
+                        return
+
+                    yield observatory_pb2.ModelChunk(chunk=chunk_data)
+
+        archive_file = archive.create(
+            'models',
+            request.model,
+            request.version,
+            request.experiment,
+            request.run_id)
+
+        return chunker(archive_file)
