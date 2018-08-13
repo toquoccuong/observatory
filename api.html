@@ -35,21 +35,6 @@
 <div class="section" id="module-observatory.tracking">
 <span id="tracking-module"></span><h2>Tracking module<a class="headerlink" href="#module-observatory.tracking" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
-<dt id="observatory.tracking.configure">
-<code class="descclassname">observatory.tracking.</code><code class="descname">configure</code><span class="sig-paren">(</span><em>url</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.configure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Configures the observatory environment.
-The following settings can be configured:</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>url</strong> (<em>string</em>) – The URL to connect to for tracking session information</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
 <dt id="observatory.tracking.start_run">
 <code class="descclassname">observatory.tracking.</code><code class="descname">start_run</code><span class="sig-paren">(</span><em>model</em>, <em>version</em>, <em>experiment='default'</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.start_run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Starts a new run for a specific model version.</p>
@@ -145,6 +130,41 @@ This can be passed in as <cite>key=value</cite> pairs.</td>
 </dd></dl>
 
 </div>
+<div class="section" id="module-observatory.serving">
+<span id="serving-module"></span><h2>Serving module<a class="headerlink" href="#module-observatory.serving" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="observatory.serving.download_model">
+<code class="descclassname">observatory.serving.</code><code class="descname">download_model</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.serving.download_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Downloads a model from the server and stores it in a local folder.</p>
+<p>This method will download a tarball from the server and extract it in a folder specified with the path argument.
+The model folder will contain all outputs you stored for the model.</p>
+<p>Additionally a settings.json file is included, which contains the settings that you stored earlier.
+Finally, a metadata.json file is included, which contains all the necessary metadata for the model,
+the name, version, experiment ID and run ID.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>model</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – The name of the model</li>
+<li><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The version number of the model</li>
+<li><strong>experiment</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the experiment</li>
+<li><strong>run_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – The ID of the run</li>
+<li><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>optional</em>) – The path to store the model, defaults to the current working folder.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">The path to the model folder. You can access all the files in this folder.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
 </div>
 
 
@@ -168,7 +188,12 @@ This can be passed in as <cite>key=value</cite> pairs.</td>
 <li class="toctree-l1"><a class="reference internal" href="usage/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage/quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="commandline.html">Command line reference</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-observatory.tracking">Tracking module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tracking-session">Tracking session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-observatory.serving">Serving module</a></li>
+</ul>
+</li>
 </ul>
 
 <div class="relations">

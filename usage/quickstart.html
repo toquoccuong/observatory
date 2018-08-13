@@ -47,9 +47,9 @@ to run the server:</p>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="track-metrics-from-your-application">
-<h2>Track metrics from your application<a class="headerlink" href="#track-metrics-from-your-application" title="Permalink to this headline">¶</a></h2>
-<p>To start tracking data from your machine learning code, use the following example.</p>
+<div class="section" id="track-models-from-your-application">
+<h2>Track models from your application<a class="headerlink" href="#track-models-from-your-application" title="Permalink to this headline">¶</a></h2>
+<p>To start tracking models from your machine learning code, use the following example.</p>
 <div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
@@ -92,6 +92,22 @@ output and settings.</p>
 There is no dashboard available yet, if you want to visualize the metrics I can
 highly recommend using <a class="reference external" href="https://elastic.co/products/kibana">Kibana</a>.</p>
 </div>
+<div class="section" id="using-the-tracked-model-outputs-and-settings">
+<h2>Using the tracked model outputs and settings<a class="headerlink" href="#using-the-tracked-model-outputs-and-settings" title="Permalink to this headline">¶</a></h2>
+<p>When you’ve tracked a model using the observatory and want to use its outputs
+in your application you can do so by downloading the model from the server.</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">observatory</span>
+
+<span class="n">observatory</span><span class="o">.</span><span class="n">download_model</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="s1">&#39;some_run_id&#39;</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>This will download the model in the current directory.
+Optionally you can give a path where the model should be downloaded.</p>
+<p>Once download, you can use pickle and other means to load the model assets
+and serve the model in your application.</p>
+</div>
 </div>
 
 
@@ -113,7 +129,13 @@ highly recommend using <a class="reference external" href="https://elastic.co/pr
 <p class="caption"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#run-the-server">Run the server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#track-models-from-your-application">Track models from your application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-the-metrics">Using the metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-the-tracked-model-outputs-and-settings">Using the tracked model outputs and settings</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command line reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api.html">API Reference</a></li>
 </ul>

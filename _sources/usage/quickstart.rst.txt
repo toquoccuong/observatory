@@ -12,9 +12,9 @@ to run the server:
  * Navigate to the folder where you cloned the repository
  * Start the server with `observatory server`
 
-Track metrics from your application
+Track models from your application
 -----------------------------------
-To start tracking data from your machine learning code, use the following example.
+To start tracking models from your machine learning code, use the following example.
 
 .. code-block:: python
     :linenos:
@@ -46,3 +46,21 @@ Using the metrics
 The metrics are recorded inside ElasticSearch in the `metrics-<model>` index.
 There is no dashboard available yet, if you want to visualize the metrics I can
 highly recommend using `Kibana <https://elastic.co/products/kibana>`_.
+
+Using the tracked model outputs and settings
+--------------------------------------------
+When you've tracked a model using the observatory and want to use its outputs
+in your application you can do so by downloading the model from the server.
+
+.. code-block:: python
+    :linenos:
+
+    import observatory
+
+    observatory.download_model(model='test', version=1, run_id='some_run_id')
+
+This will download the model in the current directory.
+Optionally you can give a path where the model should be downloaded.
+
+Once download, you can use pickle and other means to load the model assets
+and serve the model in your application.

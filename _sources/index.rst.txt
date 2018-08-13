@@ -23,7 +23,7 @@ Questions like:
  metrics and configuration settings of your models.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Contents
 
    usage/installation
