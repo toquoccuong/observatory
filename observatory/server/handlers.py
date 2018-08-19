@@ -27,10 +27,39 @@ class TrackingServiceServicer(observatory_pb2_grpc.TrackingServiceServicer):
         return observatory_pb2.RecordMetricResponse(status=status_code)
 
     def RecordSessionStart(self, request, context):
-        return observatory_pb2.RecordSessionStartResponse(status=200)
+
+        try:
+            tracking_sink.record_session_start(
+                request.model,
+                request.version,
+                request.experiment,
+                request.run_id,
+                int(time.time()))
+
+            status_code = 200
+        except Exception as err:
+            print('Failed to record session start', err)
+            status_code = 500
+
+        return observatory_pb2.RecordSessionStartResponse(status=status_code)
 
     def RecordSessionCompletion(self, request, context):
-        return observatory_pb2.RecordSessionCompletionResponse(status=200)
+        try:
+            timestamp = int(time.time())
+            tracking_sink.record_session_end(
+                request.model,
+                request.version,
+                request.experiment,
+                request.run_id,
+                request.status,
+                timestamp)
+
+            status_code = 200
+        except Exception as err:
+            print('Failed to record session end', err)
+            status_code = 500
+
+        return observatory_pb2.RecordSessionCompletionResponse(status=status_code)
 
     def RecordSettings(self, request, context):
         return observatory_pb2.RecordSettingsResponse(status=200)

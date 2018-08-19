@@ -1,1 +1,6 @@
 include README.md LICENSE
+include observatory/clientapp/build/*
+include observatory/clientapp/build/static/*
+include observatory/clientapp/build/static/js/*
+include observatory/clientapp/build/static/css/*
+include observatory/clientapp/build/static/media/*

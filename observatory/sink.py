@@ -1,5 +1,4 @@
-from elasticsearch import Elasticsearch
-from time import time
+from observatory.utils import index_name, es_client
 
 es = None
 
@@ -20,43 +19,9 @@ def configure(seed_nodes):
     """
     global es
 
-    if seed_nodes == [] or seed_nodes is None:
-        es = Elasticsearch(
-            sniff_on_start=True,
-            sniff_on_connection_fail=True,
-            sniffer_timeout=60)
-    else:
-        es = Elasticsearch(
-            seed_nodes,
-            sniff_on_start=True,
-            sniff_on_connection_fail=True,
-            sniffer_timeout=60)
+    es = es_client(seed_nodes)
 
     print('Tracking sink is configured to connect to {}'.format(seed_nodes))
-
-
-def index_name(name):
-    """
-    Translates a relative index name to a fully qualified index name by prepending 'observatory-'
-
-    This method ensures that we don't overwrite search indices on a shared elastic search server.
-    You should always refer to this method to correctly locate an index when writing or reading data
-    from elastic search indices.
-
-    Parameters
-    ----------
-    name : str
-        Relative name of the index
-
-    Returns
-    -------
-    str
-        The fully qualified index name
-    """
-    if name is None:
-        raise AssertionError('Must provide a name for the index')
-
-    return 'observatory-{}'.format(name)
 
 
 def ensure_index(name, mapping):
@@ -397,3 +362,4 @@ def record_session_end(model, version, experiment, run_id, status, timestamp):
         run_data['status'] = status
 
         es.index(index='observatory-meta', doc_type='run', id=identifier, body=run_data)
+
