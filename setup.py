@@ -17,16 +17,16 @@ DESCRIPTION = 'A machine learning model management solution'
 URL = 'https://github.com/wmeints/observatory'
 EMAIL = 'willem.meints@gmail.com'
 AUTHOR = 'Willem Meints'
-REQUIRES_PYTHON = '>=3.6.0'
+REQUIRES_PYTHON = '>=3.5.0'
 VERSION = None
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    'grpcio==1.14.1',
     'click>=6.7',
     'protobuf>=3.4.0',
     'flask==0.12.2',
-    'elasticsearch>=6.0.0,<7.0.0'
+    'elasticsearch>=6.0.0,<7.0.0',
+    'requests==2.19.1'
 ]
 
 # What packages are optional?
