@@ -24,7 +24,7 @@ VERSION = None
 REQUIRED = [
     'click>=6.7',
     'protobuf>=3.4.0',
-    'flask==0.12.2',
+    'flask==1.0.2',
     'elasticsearch>=6.0.0,<7.0.0',
     'requests==2.19.1'
 ]
