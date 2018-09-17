@@ -34,6 +34,210 @@
 <span id="api-reference"></span><h1>API Reference<a class="headerlink" href="#module-observatory" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-observatory.tracking">
 <span id="tracking-module"></span><h2>Tracking module<a class="headerlink" href="#module-observatory.tracking" title="Permalink to this headline">¶</a></h2>
+<p>The tracking module is used to record various parts of your machine learning runs.
+You can use the <a class="reference internal" href="#observatory.tracking.start_run" title="observatory.tracking.start_run"><code class="xref py py-func docutils literal notranslate"><span class="pre">start_run</span></code></a> method from
+this module to start tracking metrics, outputs and settings for your
+machine learning runs.</p>
+<p>If you want to customize tracking behavior you can create your own instance
+of <a class="reference internal" href="#observatory.tracking.TrackingClient" title="observatory.tracking.TrackingClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">TrackingClient</span></code></a> to send
+information to the tracking API directly. Please note that this means you have
+to implement session semantics yourself.</p>
+<dl class="class">
+<dt id="observatory.tracking.TrackingClient">
+<em class="property">class </em><code class="descclassname">observatory.tracking.</code><code class="descname">TrackingClient</code><span class="sig-paren">(</span><em>url</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.TrackingClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements logic to convert raw data into HTTP requests to the tracking endpoint.</p>
+<p>Typically you should not be using this class in your own code. Instead make use of the <cite>start_run</cite> method
+in the same module to start a new tracking session. This ensures correct tracking behavior in your application.</p>
+<p>This client is meant as a wrapper around all the HTTP related logic from the tracking session’s point of view.</p>
+<dl class="method">
+<dt id="observatory.tracking.TrackingClient.record_metric">
+<code class="descname">record_metric</code><span class="sig-paren">(</span><em>model</em>, <em>version</em>, <em>experiment</em>, <em>run_id</em>, <em>metric_name</em>, <em>metric_value</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.TrackingClient.record_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Records a metric during a run.</p>
+<p>This method sends a HTTP request with the right payload to the observatory tracking endpoint.
+The result is a 201 when the server succesfully recorded the session completion. Otherwise
+the server will return a 500 response.</p>
+<dl class="docutils">
+<dt>model <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The name of the model</dd>
+<dt>version <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>The version of the model</dd>
+<dt>experiment <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The name of the experiment</dd>
+<dt>run_id <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The identifier for the run</dd>
+<dt>metric_name <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The name of the metric</dd>
+<dt>metric_value <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The value of the metric</dd>
+</dl>
+<dl class="docutils">
+<dt>requests.Response</dt>
+<dd>The response from the server</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="observatory.tracking.TrackingClient.record_output">
+<code class="descname">record_output</code><span class="sig-paren">(</span><em>model</em>, <em>version</em>, <em>experiment</em>, <em>run_id</em>, <em>filename</em>, <em>file</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.TrackingClient.record_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Records an output of an experiment run</p>
+<p>This method sends a HTTP request with the right payload to the observatory tracking endpoint.
+The result is a 201 when the server succesfully recorded the session completion. Otherwise
+the server will return a 500 response.</p>
+<dl class="docutils">
+<dt>model <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The name of the model</dd>
+<dt>version <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>The version of the model</dd>
+<dt>experiment <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The name of the experiment</dd>
+<dt>run_id <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The identifier for the run</dd>
+<dt>filename <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The filename of the output</dd>
+<dt>file <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd>The file handle to use for reading the output data</dd>
+</dl>
+<dl class="docutils">
+<dt>requests.Response</dt>
+<dd>The response from the server</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="observatory.tracking.TrackingClient.record_session_end">
+<code class="descname">record_session_end</code><span class="sig-paren">(</span><em>model</em>, <em>version</em>, <em>experiment</em>, <em>run_id</em>, <em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.TrackingClient.record_session_end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Records the end of a session.</p>
+<p>This method sends a HTTP request with the right payload to the observatory tracking endpoint.
+The result is a 201 when the server succesfully recorded the session completion. Otherwise
+the server will return a 500 response.</p>
+<dl class="docutils">
+<dt>model <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The name of the model</dd>
+<dt>version <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>The version of the model</dd>
+<dt>experiment <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The name of the experiment</dd>
+<dt>run_id <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The identifier for the run</dd>
+<dt>status <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The status of the run</dd>
+</dl>
+<dl class="docutils">
+<dt>requests.Response</dt>
+<dd>The response from the server</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="observatory.tracking.TrackingClient.record_session_start">
+<code class="descname">record_session_start</code><span class="sig-paren">(</span><em>model</em>, <em>version</em>, <em>experiment</em>, <em>run_id</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.TrackingClient.record_session_start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Records the start of a session.</p>
+<p>This method sends a HTTP request with the right payload to the observatory tracking endpoint.
+The result is a 201 when the server succesfully recorded the session completion. Otherwise
+the server will return a 500 response.</p>
+<dl class="docutils">
+<dt>model <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The name of the model</dd>
+<dt>version <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>The version of the model</dd>
+<dt>experiment <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The name of the experiment</dd>
+<dt>run_id <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The identifier for the run</dd>
+</dl>
+<dl class="docutils">
+<dt>requests.Response</dt>
+<dd>The response from the server</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="observatory.tracking.TrackingClient.record_settings">
+<code class="descname">record_settings</code><span class="sig-paren">(</span><em>model</em>, <em>version</em>, <em>experiment</em>, <em>run_id</em>, <em>settings</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.TrackingClient.record_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Records the settings of an experiment run.</p>
+<p>This method sends a HTTP request with the right payload to the observatory tracking endpoint.
+The result is a 201 when the server succesfully recorded the session completion. Otherwise
+the server will return a 500 response.</p>
+<dl class="docutils">
+<dt>model <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The name of the model</dd>
+<dt>version <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>The version of the model</dd>
+<dt>experiment <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The name of the experiment</dd>
+<dt>run_id <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The identifier for the run</dd>
+<dt>settings <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd>The dictionary with run settings</dd>
+</dl>
+<dl class="docutils">
+<dt>requests.Response</dt>
+<dd>The response from the server</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="observatory.tracking.TrackingSession">
+<em class="property">class </em><code class="descclassname">observatory.tracking.</code><code class="descname">TrackingSession</code><span class="sig-paren">(</span><em>name</em>, <em>version</em>, <em>experiment</em>, <em>run_id</em>, <em>tracking_client</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.TrackingSession" title="Permalink to this definition">¶</a></dt>
+<dd><p>The tracking session is used to track data related to a single training run.</p>
+<p>When you invoke <code class="xref py py-func docutils literal notranslate"><span class="pre">start_run</span></code> this class is instantiated for you
+with the correct settings to start tracking data.</p>
+<p>Any server connection used by the tracking logic is automatically opened and closed for you.</p>
+<dl class="method">
+<dt id="observatory.tracking.TrackingSession.record_metric">
+<code class="descname">record_metric</code><span class="sig-paren">(</span><em>name</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.TrackingSession.record_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Records a metric value on the server</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>string</em>) – The name of the metric to record</li>
+<li><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The value of the metric to records</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="observatory.tracking.TrackingSession.record_output">
+<code class="descname">record_output</code><span class="sig-paren">(</span><em>input_file</em>, <em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.TrackingSession.record_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Records an output for the current run.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>input_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><em>object</em></a>) – Filename or handle to input file</li>
+<li><strong>filename</strong> (<em>string</em>) – Name of the file as it should be stored on the server</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="observatory.tracking.TrackingSession.record_settings">
+<code class="descname">record_settings</code><span class="sig-paren">(</span><em>**settings</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.TrackingSession.record_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Records settings used for the run</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>settings</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><em>object</em></a>) – A dictionary containing all settings used for the run.
+This can be passed in as <cite>key=value</cite> pairs.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="function">
 <dt id="observatory.tracking.start_run">
 <code class="descclassname">observatory.tracking.</code><code class="descname">start_run</code><span class="sig-paren">(</span><em>model</em>, <em>version</em>, <em>experiment='default'</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.start_run" title="Permalink to this definition">¶</a></dt>
@@ -67,71 +271,13 @@ This ensures that no runs overlap eachother.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="tracking-session">
-<h2>Tracking session<a class="headerlink" href="#tracking-session" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="observatory.tracking.session.TrackingSession">
-<em class="property">class </em><code class="descclassname">observatory.tracking.session.</code><code class="descname">TrackingSession</code><span class="sig-paren">(</span><em>name</em>, <em>version</em>, <em>experiment</em>, <em>run_id</em>, <em>tracking_stub</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.session.TrackingSession" title="Permalink to this definition">¶</a></dt>
-<dd><p>The tracking session is used to track data related to a single training run.</p>
-<p>When you invoke <code class="xref py py-func docutils literal notranslate"><span class="pre">start_run</span></code> this class is instantiated for you
-with the correct settings to start tracking data.</p>
-<p>Any server connection used by the tracking logic is automatically opened and closed for you.</p>
-<dl class="method">
-<dt id="observatory.tracking.session.TrackingSession.record_metric">
-<code class="descname">record_metric</code><span class="sig-paren">(</span><em>name</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.session.TrackingSession.record_metric" title="Permalink to this definition">¶</a></dt>
-<dd><p>Records a metric value on the server</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>name</strong> (<em>string</em>) – The name of the metric to record</li>
-<li><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The value of the metric to records</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="observatory.tracking.session.TrackingSession.record_output">
-<code class="descname">record_output</code><span class="sig-paren">(</span><em>input_file</em>, <em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.session.TrackingSession.record_output" title="Permalink to this definition">¶</a></dt>
-<dd><p>Records an output for the current run.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>input_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><em>object</em></a>) – Filename or handle to input file</li>
-<li><strong>filename</strong> (<em>string</em>) – Name of the file as it should be stored on the server</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="observatory.tracking.session.TrackingSession.record_settings">
-<code class="descname">record_settings</code><span class="sig-paren">(</span><em>**settings</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.tracking.session.TrackingSession.record_settings" title="Permalink to this definition">¶</a></dt>
-<dd><p>Records settings used for the run</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>settings</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><em>object</em></a>) – A dictionary containing all settings used for the run.
-This can be passed in as <cite>key=value</cite> pairs.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-</div>
 <div class="section" id="module-observatory.serving">
 <span id="serving-module"></span><h2>Serving module<a class="headerlink" href="#module-observatory.serving" title="Permalink to this headline">¶</a></h2>
+<p>This module can be used to download data from the observatory server.
+Typically you first track your model data with <a class="reference internal" href="#observatory.tracking.start_run" title="observatory.tracking.start_run"><code class="xref py py-func docutils literal notranslate"><span class="pre">start_run</span></code></a>.</p>
+<p>Once you have collected data you can download the model data using the <code class="xref py py-func docutils literal notranslate"><span class="pre">download_model</span></code>
+function.</p>
+<p>Please refer to the individual function specs for more information how to use these functions.</p>
 <dl class="function">
 <dt id="observatory.serving.download_model">
 <code class="descclassname">observatory.serving.</code><code class="descname">download_model</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#observatory.serving.download_model" title="Permalink to this definition">¶</a></dt>
@@ -190,7 +336,6 @@ the name, version, experiment ID and run ID.</p>
 <li class="toctree-l1"><a class="reference internal" href="commandline.html">Command line reference</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-observatory.tracking">Tracking module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#tracking-session">Tracking session</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-observatory.serving">Serving module</a></li>
 </ul>
 </li>
