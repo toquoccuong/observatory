@@ -1,4 +1,6 @@
 # Observatory
+[![Build Status](https://travis-ci.org/wmeints/observatory.svg?branch=master)](https://travis-ci.org/wmeints/observatory)
+
 Welcome to the observatory, a solution for tracking your machine learning models.
 
 When working a machine learning model you will find yourself changing hyper parameters, 
