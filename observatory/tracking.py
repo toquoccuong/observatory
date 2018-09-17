@@ -12,7 +12,8 @@ to implement session semantics yourself.
 
 import json
 import re
-from concurrent import futures
+import warnings
+from os import path
 from time import time
 from uuid import uuid4
 
@@ -229,6 +230,36 @@ class TrackingSession:
         self.tracking_client = tracking_client
         self.experiment = experiment
 
+    def _verify_response(self, response, expected_status, expected_type='application/json'):
+        """
+        Verifies the response received from the tracking client against the expected status code.
+        Also verifies that the method contains valid data according to the expected content_type.
+
+        Use this method whenever your receive data from the server, to make sure that the contents
+        are readable as expected.
+        """
+        actual_status = response.status_code
+        actual_type = response.headers['Content-Type']
+
+        if response.status_code != expected_status:
+            try:
+                response_content = response.json()
+                error_message = response_content['message']
+
+                raise RuntimeError('Failed to execute operation. Server returned ' +
+                                   f'an error with status {actual_status}: {error_message}')
+            except:
+                # In some weird cases the server returns an error nobody will ever understand.
+                # This catch-all fixes the problem and returns a somewhat useful error message.
+                raise RuntimeError('Failed to execute operation. Server returned ' +
+                                   f'an error with status: {actual_status}')
+
+        # Sometimes the server does respond, but sends some weird piece of data that we can't parse.
+        # This check makes sure that we don't try to ever read it.
+        if actual_type != expected_type:
+            raise RuntimeError(f'Failed to execute operation. ' +
+                               'Received invalid response type: {actual_type}')
+
     def record_metric(self, name, value):
         """
         Records a metric value on the server
@@ -240,11 +271,26 @@ class TrackingSession:
         value : float
             The value of the metric to records
         """
+
+        # Typechecking in python is a no-go under normal circumstances.
+        # But here we're using it, because the server expects a string and float.
+
+        if name is None or type(name) != str or name.strip() == '':
+            raise AssertionError('Please provide a valid name for the metric.')
+
+        if not re.match(LABEL_PATTERN, name):
+            raise AssertionError(
+                'Please provide a valid name for the metric.' +
+                'it can contain lower-case alpha-numeric characters and dashes only.')
+
+        if value is None or (type(value) != float and type(value) != int):
+            raise AssertionError(
+                'Please provide a valid value for the metric.')
+
         response = self.tracking_client.record_metric(
             self.name, self.version, self.experiment, self.run_id, name, value)
 
-        if response.status_code != 201:
-            raise RuntimeError('Failed to record metric')
+        self._verify_response(response, 201)
 
     def record_settings(self, **settings):
         """
@@ -256,12 +302,18 @@ class TrackingSession:
             A dictionary containing all settings used for the run.
             This can be passed in as `key=value` pairs.
         """
+        if settings is None:
+            warnings.warn(
+                'Trying to record empty settings. ' + 
+                'To prevent risk of settings loss on the server, ' +
+                'the empty settings collection is discarded.', 
+                RuntimeWarning)
+
         response = self.tracking_client.record_settings(
             self.name, self.version, self.experiment,
             self.run_id, dict(settings))
 
-        if response.status_code != 201:
-            raise RuntimeError('Failed to record settings')
+        self._verify_response(response, 201)
 
     def record_output(self, input_file, filename):
         """
@@ -275,19 +327,33 @@ class TrackingSession:
             Name of the file as it should be stored on the server
         """
 
+        absolute_file_path = path.abspath(input_file)
+
+        if filename is None or filename.strip() == '':
+            raise AssertionError(
+                'Please provide a valid filename to store the output on the server.')
+
+        if input_file is None or input_file.strip() == '':
+            raise AssertionError(
+                'Please provide a valid filename for input_file.')
+
+        if not path.exists(absolute_file_path):
+            raise AssertionError(
+                f'Could not find source file {absolute_file_path} ' +
+                'to upload as output of this run. Please make ' +
+                'sure that the file exists on disk.')
+
         response = self.tracking_client.record_output(
             self.name, self.version, self.experiment,
-            self.run_id, filename, open(filename))
+            self.run_id, filename, open(absolute_file_path))
 
-        if response.status_code != 201:
-            raise RuntimeError('Failed to record output')
+        self._verify_response(response, 201)
 
     def __enter__(self):
         response = self.tracking_client.record_session_start(
             self.name, self.version, self.experiment, self.run_id)
 
-        if response.status_code != 201:
-            raise RuntimeError('Failed to record session start')
+        self._verify_response(response, 201)
 
         return self
 
@@ -301,8 +367,7 @@ class TrackingSession:
             self.name, self.version, self.experiment,
             self.run_id, session_status)
 
-        if response.status_code != 201:
-            raise RuntimeError('Failed to record session completion')
+        self._verify_response(response, 201)
 
         return exc_type is None
 
@@ -337,6 +402,9 @@ def start_run(model, version, experiment='default'):
     experiment : string, optional
         The experiment you're working on
     """
+
+    if model is None or model.strip() == '':
+        raise AssertionError('Please provide a name for your model.')
 
     if not re.match(LABEL_PATTERN, model):
         raise AssertionError('name is invalid. It can contain ' +
