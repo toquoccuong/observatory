@@ -5,7 +5,7 @@ import time
 
 from flask import Flask, jsonify, request, send_from_directory
 from werkzeug.utils import secure_filename
-from observatory import queries, sink
+from observatory import queries, sink, archive, settings
 
 RELATIVE_STATIC_DIR = os.path.join('clientapp', 'build')
 
@@ -197,6 +197,40 @@ def serve_runs(model, version, experiment):
         return jsonify(queries.find_runs(model, version, experiment, page_index).__dict__)
 
     return with_generic_errorhandling(runs_handler)
+
+
+@app.route('/api/models/<string:model>/versions/<int:version>/experiments/<string:experiment>/runs/<string:run_id>/archive', methods=['GET'])
+def serve_model_data(model, version, experiment, run_id):
+    """
+    Allows clients to download all assets of a specific model.
+
+    The download is a tar.gz archive that the client needs to extract in order to use the model data.
+    By default the downloaded tarball contains the outputs, settings and some metadata about the model.
+
+    Parameters:
+    -----------
+    model : str
+        The name of the model
+    version : int
+        The version of the model
+    experiment : str
+        The name of the experiment
+    run_id : str
+        The ID of the run
+
+    Returns:
+    --------
+    obj
+        The HTTP response containing the model data.
+    """
+
+    if not queries.model_data_available(model, version, experiment, run_id):
+        return jsonify({ 'message': 'Model data unavailable. Please record outputs and/or settings for your model.'}), 404
+
+    archive_file = archive.create(settings.base_path, model, version, experiment, run_id)
+    folder, filename = os.path.split(archive_file)
+
+    return send_from_directory(folder, filename)
 
 
 @app.route('/api/models/<string:model>/versions/<int:version>/experiments/<string:experiment>/runs', methods=['POST'])

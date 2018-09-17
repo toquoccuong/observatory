@@ -7,14 +7,11 @@ function.
 
 Please refer to the individual function specs for more information how to use these functions.
 """
-from concurrent import futures
-import grpc
-
 import re
 import tempfile
-from observatory.protobuf import observatory_pb2, observatory_pb2_grpc
-from observatory import settings
-from observatory import archive
+
+import requests
+from observatory import archive, settings
 from observatory.constants import LABEL_PATTERN
 
 
@@ -73,22 +70,16 @@ def download_model(**kwargs):
         raise AssertionError('experiment is invalid. It can contain ' +
                              'lower-case alpha-numeric characters and dashes only.')
 
-    channel = grpc.insecure_channel(settings.server_url)
-    model_stub = observatory_pb2_grpc.ModelServiceStub(channel)
+    handler_url = f'{settings.server_url}/api/models/{model}/versions/{version}/experiments/{experiment}/runs/{run_id}/archive'
+    response = requests.get(handler_url)
 
-    request = observatory_pb2.DownloadModelRequest(
-        model=model,
-        version=version,
-        experiment=experiment,
-        run_id=run_id)
+    if response.status_code == 200:
+        _, temp_filename = tempfile.mkstemp('.tar.gz')
 
-    response_iterator = model_stub.DownloadModel(request)
+        with open(temp_filename, 'wb') as archive_file:
+            for chunk in response.iter_content(1024):
+                archive_file.write(chunk)
 
-    _, temp_filename = tempfile.mkstemp('.tar.gz')
-
-    with open(temp_filename, 'wb') as archive_file:
-        for chunk in response_iterator:
-            archive_file.write(chunk.chunk)
-
-    archive.extract(temp_filename, path)
-
+        archive.extract(temp_filename, path)
+    else:
+        raise RuntimeError(f'Failed to download model, the server returned an error with status code {response.status_code}: {response.json()["message"]}')

@@ -1,4 +1,7 @@
+from os import path
+
 from observatory.utils import es_client, index_name
+from observatory import archive, settings
 
 PAGE_SIZE = 20
 
@@ -280,3 +283,28 @@ def find_runs(model, version, experiment, page_index=0):
         })
 
     return PagedResultSet(page_index, PAGE_SIZE, total_items, records)
+
+def model_data_available(model ,version, experiment, run_id):
+    """
+    Determines whether there's model data available for download.
+    It could be that there's metadata about the model, but no outputs or settings.
+
+    Parameters:
+    -----------
+    model : str
+        The name of the model
+    version : int
+        The version of the model
+    experiment : str
+        The name of the experiment
+    run_id : str
+        The ID of the run
+
+    Returns:
+    --------
+    boolean
+        This method returns True when there are outputs and/or settings available for download.
+        Otherwise this method returns False.
+    """
+    model_path = path.join(settings.base_path, model, str(version), experiment, run_id)
+    return path.exists(model_path)

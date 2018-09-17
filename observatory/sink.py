@@ -1,6 +1,7 @@
 import json
 from os import path, makedirs
 from observatory.utils import index_name, es_client
+from observatory import settings
 
 es = None
 
@@ -387,7 +388,8 @@ def record_settings(model, version, experiment, run_id, settings):
     settings : dict
         The settings to record on disk
     """
-    settings_directory = path.join(model, str(version), experiment, run_id)
+    settings_directory = path.join(settings.base_path, 
+        model, str(version), experiment, run_id)
     
     makedirs(settings_directory, exist_ok=True)
 
@@ -418,7 +420,9 @@ def record_output(model, version, experiment, run_id, filename, file):
         The file handle
     """
 
-    output_dir = path.join(model, str(version), experiment, run_id)
+    output_dir = path.join(settings.base_path, 
+        model, str(version), experiment, run_id)
+        
     file_path = path.join(output_dir, filename)
 
     makedirs(output_dir, exist_ok=True)
