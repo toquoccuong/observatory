@@ -1,3 +1,5 @@
+import json
+from os import path, makedirs
 from observatory.utils import index_name, es_client
 
 es = None
@@ -186,7 +188,7 @@ def record_metric(model, version, experiment, run_id, timestamp, metric_name, me
         'value': metric_value
     }
 
-    es.index(index='observatory-metrics', doc_type='metric', body=document)
+    es.index(index='observatory-metrics', doc_type='metrics', body=document)
 
 
 def ensure_model(model, timestamp):
@@ -363,3 +365,62 @@ def record_session_end(model, version, experiment, run_id, status, timestamp):
 
         es.index(index='observatory-meta', doc_type='run', id=identifier, body=run_data)
 
+
+def record_settings(model, version, experiment, run_id, settings):
+    """
+    Records the settings used for a particular experiment run.
+
+    The settings are recorded in a settings.json file. 
+    When you record settings, you have to record all settings at once. There is
+    no automatic merging of settings by this method.
+
+    Parameters:
+    -----------
+    model : str
+        The name of the model
+    version : int
+        The model version
+    experiment : str
+        The name of the experiment
+    run_id : str
+        The identifier for the run
+    settings : dict
+        The settings to record on disk
+    """
+    settings_directory = path.join(model, str(version), experiment, run_id)
+    
+    makedirs(settings_directory, exist_ok=True)
+
+    with open(path.join(settings_directory, 'settings.json'), 'w') as settings_file:
+        json.dump(settings, settings_file)
+
+
+def record_output(model, version, experiment, run_id, filename, file):
+    """
+    Records the output for an experiment
+
+    The output file is stored as part of the run. It is stored as-is without 
+    any checks on the extension or file contents. 
+
+    Parameters:
+    -----------
+    model : str
+        The name of the model
+    version : int
+        The model version
+    experiment : str
+        The name of the experiment
+    run_id : str
+        The identifier for the run
+    filename : str
+        The filename of the file
+    file : object
+        The file handle
+    """
+
+    output_dir = path.join(model, str(version), experiment, run_id)
+    file_path = path.join(output_dir, filename)
+
+    makedirs(output_dir, exist_ok=True)
+
+    file.save(file_path)

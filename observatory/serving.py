@@ -1,3 +1,12 @@
+"""
+This module can be used to download data from the observatory server.
+Typically you first track your model data with :func:`start_run <observatory.tracking.start_run>`.
+
+Once you have collected data you can download the model data using the :func:`download_model <observatory.serving.download>`
+function. 
+
+Please refer to the individual function specs for more information how to use these functions.
+"""
 from concurrent import futures
 import grpc
 

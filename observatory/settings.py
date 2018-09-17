@@ -1,4 +1,4 @@
-server_url = "localhost:5001"
+server_url = "http://localhost:5001"
 
 
 def configure(url):

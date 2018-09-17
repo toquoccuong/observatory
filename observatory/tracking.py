@@ -1,15 +1,198 @@
-from concurrent import futures
-import grpc
+"""
+The tracking module is used to record various parts of your machine learning runs.
+You can use the :func:`start_run <observatory.tracking.start_run>` method from 
+this module to start tracking metrics, outputs and settings for your 
+machine learning runs.
+
+If you want to customize tracking behavior you can create your own instance
+of :class:`TrackingClient <observatory.tracking.TrackingClient>` to send 
+information to the tracking API directly. Please note that this means you have 
+to implement session semantics yourself.
+"""
 
 import json
 import re
-from uuid import uuid4
+from concurrent import futures
 from time import time
-from observatory.protobuf import observatory_pb2, observatory_pb2_grpc
+from uuid import uuid4
+
+import requests
 from observatory import settings
 from observatory.constants import LABEL_PATTERN
 
-CHUNK_SIZE = 1024 * 1024
+
+class TrackingClient:
+    """
+    Implements logic to convert raw data into HTTP requests to the tracking endpoint.
+
+    Typically you should not be using this class in your own code. Instead make use of the `start_run` method
+    in the same module to start a new tracking session. This ensures correct tracking behavior in your application.
+
+    This client is meant as a wrapper around all the HTTP related logic from the tracking session's point of view.
+    """
+
+    def __init__(self, url):
+        """
+        Initializes a new instance of the tracking client
+
+        Parameters:
+        -----------
+        url : str
+            The URL of the tracking endpoint to communicate with
+        """
+        self.url = url
+
+    def record_session_start(self, model, version, experiment, run_id):
+        """
+        Records the start of a session.
+
+        This method sends a HTTP request with the right payload to the observatory tracking endpoint.
+        The result is a 201 when the server succesfully recorded the session completion. Otherwise
+        the server will return a 500 response.
+
+        Parameters:
+        -----------
+        model : str
+            The name of the model
+        version : int
+            The version of the model
+        experiment : str
+            The name of the experiment
+        run_id : str
+            The identifier for the run
+
+        Returns:
+        --------
+        requests.Response
+            The response from the server
+        """
+        handler_url = f'{self.url}/api/models/{model}/versions/{version}/experiments/{experiment}/runs'
+        return requests.post(handler_url, json={'run_id': run_id})
+
+    def record_settings(self, model, version, experiment, run_id, settings):
+        """
+        Records the settings of an experiment run.
+
+        This method sends a HTTP request with the right payload to the observatory tracking endpoint.
+        The result is a 201 when the server succesfully recorded the session completion. Otherwise
+        the server will return a 500 response.
+
+        Parameters:
+        -----------
+        model : str
+            The name of the model
+        version : int
+            The version of the model
+        experiment : str
+            The name of the experiment
+        run_id : str
+            The identifier for the run
+        settings : dict
+            The dictionary with run settings
+
+        Returns:
+        --------
+        requests.Response
+            The response from the server
+        """
+        handler_url = f'{self.url}/api/models/{model}/versions/{version}/experiments/{experiment}/runs/{run_id}/settings'
+        return requests.post(handler_url, json=settings)
+
+    def record_metric(self, model, version, experiment, run_id, metric_name, metric_value):
+        """
+        Records a metric during a run.
+
+        This method sends a HTTP request with the right payload to the observatory tracking endpoint.
+        The result is a 201 when the server succesfully recorded the session completion. Otherwise
+        the server will return a 500 response.
+
+        Parameters:
+        -----------
+        model : str
+            The name of the model
+        version : int
+            The version of the model
+        experiment : str
+            The name of the experiment
+        run_id : str
+            The identifier for the run
+        metric_name : str
+            The name of the metric
+        metric_value : str
+            The value of the metric
+
+        Returns:
+        --------
+        requests.Response
+            The response from the server
+        """
+        handler_url = f'{self.url}/api/models/{model}/versions/{version}/experiments/{experiment}/runs/{run_id}/metrics'
+        return requests.post(handler_url, json={'name': metric_name, 'value': metric_value})
+
+    def record_output(self, model, version, experiment, run_id, filename, file):
+        """
+        Records an output of an experiment run
+
+        This method sends a HTTP request with the right payload to the observatory tracking endpoint.
+        The result is a 201 when the server succesfully recorded the session completion. Otherwise
+        the server will return a 500 response.
+
+        Parameters:
+        -----------
+        model : str
+            The name of the model
+        version : int
+            The version of the model
+        experiment : str
+            The name of the experiment
+        run_id : str
+            The identifier for the run
+        filename : str
+            The filename of the output
+        file : object
+            The file handle to use for reading the output data
+
+        Returns:
+        --------
+        requests.Response
+            The response from the server
+        """
+        handler_url = f'{self.url}/api/models/{model}/versions/{version}/experiments/{experiment}/runs/{run_id}/outputs/{filename}'
+
+        file_collection = {
+            'file': (filename, file, 'application/octet-stream')
+        }
+
+        return requests.put(handler_url, files=file_collection)
+
+    def record_session_end(self, model, version, experiment, run_id, status):
+        """
+        Records the end of a session.
+
+        This method sends a HTTP request with the right payload to the observatory tracking endpoint.
+        The result is a 201 when the server succesfully recorded the session completion. Otherwise
+        the server will return a 500 response.
+
+        Parameters:
+        -----------
+        model : str
+            The name of the model
+        version : int
+            The version of the model
+        experiment : str
+            The name of the experiment
+        run_id : str
+            The identifier for the run
+        status : str
+            The status of the run
+
+        Returns:
+        --------
+        requests.Response
+            The response from the server
+        """
+        handler_url = f'{self.url}/api/models/{model}/versions/{version}/experiments/{experiment}/runs/{run_id}'
+        return requests.put(handler_url, json={'status': status})
 
 
 class TrackingSession:
@@ -22,7 +205,7 @@ class TrackingSession:
     Any server connection used by the tracking logic is automatically opened and closed for you.
     """
 
-    def __init__(self, name, version, experiment, run_id, tracking_stub):
+    def __init__(self, name, version, experiment, run_id, tracking_client):
         """
         Initializes the tracking session with the necessary tracking information
         and a pre-initialized tracking client for recording the actual metrics.
@@ -37,13 +220,13 @@ class TrackingSession:
             Name of the experiment
         run_id : string
             ID of the run
-        tracking_stub : object
-            Instance of the tracking service stub
+        tracking_client : object
+            Instance of the tracking service client
         """
         self.name = name
         self.version = version
         self.run_id = run_id
-        self.tracking_stub = tracking_stub
+        self.tracking_client = tracking_client
         self.experiment = experiment
 
     def record_metric(self, name, value):
@@ -57,20 +240,10 @@ class TrackingSession:
         value : float
             The value of the metric to records
         """
-        timestamp = int(time())
+        response = self.tracking_client.record_metric(
+            self.name, self.version, self.experiment, self.run_id, name, value)
 
-        request = observatory_pb2.RecordMetricRequest(
-            model=self.name,
-            version=self.version,
-            experiment=self.experiment,
-            run_id=self.run_id,
-            timestamp=timestamp,
-            metric=name,
-            value=value)
-
-        response = self.tracking_stub.RecordMetric(request)
-
-        if response.status != 200:
+        if response.status_code != 201:
             raise RuntimeError('Failed to record metric')
 
     def record_settings(self, **settings):
@@ -83,16 +256,11 @@ class TrackingSession:
             A dictionary containing all settings used for the run.
             This can be passed in as `key=value` pairs.
         """
-        request = observatory_pb2.RecordSettingsRequest(
-            model=self.name,
-            version=self.version,
-            experiment=self.experiment,
-            run_id=self.run_id,
-            data=json.dumps(settings))
+        response = self.tracking_client.record_settings(
+            self.name, self.version, self.experiment,
+            self.run_id, dict(settings))
 
-        response = self.tracking_stub.RecordSettings(request)
-
-        if response.status != 200:
+        if response.status_code != 201:
             raise RuntimeError('Failed to record settings')
 
     def record_output(self, input_file, filename):
@@ -107,48 +275,18 @@ class TrackingSession:
             Name of the file as it should be stored on the server
         """
 
-        def chunker(model, version, experiment, run_id, out_file, file):
-            if type(file) == str:
-                file_handle = open(file, 'rb')
-            else:
-                file_handle = input_file
+        response = self.tracking_client.record_output(
+            self.name, self.version, self.experiment,
+            self.run_id, filename, open(filename))
 
-            while True:
-                chunk_data = file_handle.read(CHUNK_SIZE)
-
-                if len(chunk_data) == 0:
-                    return
-
-                chunk = observatory_pb2.Chunk(
-                    model=model,
-                    version=version,
-                    experiment=experiment,
-                    run_id=run_id,
-                    filename=out_file,
-                    buffer=chunk_data)
-
-                yield chunk
-
-        response = self.tracking_stub.RecordOutput(
-            chunker(self.name, self.version, self.experiment, self.run_id, filename, input_file))
-
-        if response.status != 200:
+        if response.status_code != 201:
             raise RuntimeError('Failed to record output')
 
     def __enter__(self):
-        timestamp = int(time())
+        response = self.tracking_client.record_session_start(
+            self.name, self.version, self.experiment, self.run_id)
 
-        request = observatory_pb2.RecordSessionStartRequest(
-            model=self.name,
-            version=self.version,
-            experiment=self.experiment,
-            run_id=self.run_id,
-            timestamp=timestamp
-        )
-
-        response = self.tracking_stub.RecordSessionStart(request)
-
-        if response.status != 200:
+        if response.status_code != 201:
             raise RuntimeError('Failed to record session start')
 
         return self
@@ -159,20 +297,11 @@ class TrackingSession:
         else:
             session_status = 'FAILED'
 
-        timestamp = int(time())
+        response = self.tracking_client.record_session_end(
+            self.name, self.version, self.experiment,
+            self.run_id, session_status)
 
-        request = observatory_pb2.RecordSessionCompletionRequest(
-            model=self.name,
-            version=self.version,
-            experiment=self.experiment,
-            run_id=self.run_id,
-            timestamp=timestamp,
-            status=session_status
-        )
-
-        response = self.tracking_stub.RecordSessionCompletion(request)
-
-        if response.status != 200:
+        if response.status_code != 201:
             raise RuntimeError('Failed to record session completion')
 
         return exc_type is None
@@ -224,8 +353,6 @@ def start_run(model, version, experiment='default'):
         raise AssertionError('version must be greater than zero')
 
     run_id = str(uuid4())
+    tracking_client = TrackingClient(settings.server_url)
 
-    channel = grpc.insecure_channel(settings.server_url)
-    tracking_stub = observatory_pb2_grpc.TrackingServiceStub(channel)
-
-    return TrackingSession(model, version, experiment, run_id, tracking_stub)
+    return TrackingSession(model, version, experiment, run_id, tracking_client)

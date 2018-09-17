@@ -31,7 +31,7 @@ def serve_experiments(model, version):
 
 
 @app.route('/api/models/<string:model>/versions/<int:version>/experiments/<string:experiment>/runs')
-def serve_experiments(model, version, experiment):
+def serve_runs(model, version, experiment):
     page_index = int(request.args.get("page", default=0))
     return jsonify(queries.find_runs(model, version, experiment, page_index).__dict__)
 
