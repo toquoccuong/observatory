@@ -327,8 +327,6 @@ class TrackingSession:
             Name of the file as it should be stored on the server
         """
 
-        absolute_file_path = path.abspath(input_file)
-
         if filename is None or filename.strip() == '':
             raise AssertionError(
                 'Please provide a valid filename to store the output on the server.')
@@ -336,6 +334,8 @@ class TrackingSession:
         if input_file is None or input_file.strip() == '':
             raise AssertionError(
                 'Please provide a valid filename for input_file.')
+
+        absolute_file_path = path.abspath(input_file)
 
         if not path.exists(absolute_file_path):
             raise AssertionError(
