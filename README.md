@@ -1,5 +1,6 @@
 # Observatory
 [![Build Status](https://travis-ci.org/wmeints/observatory.svg?branch=master)](https://travis-ci.org/wmeints/observatory)
+[![Maintainability](https://api.codeclimate.com/v1/badges/dd956ac6c181550e7dc9/maintainability)](https://codeclimate.com/github/wmeints/observatory/maintainability)
 
 Welcome to the observatory, a solution for tracking your machine learning models.
 
