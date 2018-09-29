@@ -78,6 +78,17 @@ def test_start_run_with_invalid_experiment(experiment):
         except requests.exceptions.ConnectionError:
             pass
 
+def test_start_run_with_invalid_version():
+    """
+    You cannot start a run with an invalid experiment
+    """
+    with pytest.raises(AssertionError):
+        try:
+            with start_run('test', 0):
+                pass
+        except requests.exceptions.ConnectionError:
+            pass
+
 
 def test_session_scope_behavior(mock_client):
     """
