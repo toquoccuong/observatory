@@ -12,4 +12,4 @@ before_script:
   - ./cc-test-reporter before-build
 script: tox
 after_script:
-  - cd observatory && /cc-test-reporter after-build --input-type coverage.py ../coverage.xml --exit-code $TRAVIS_TEST_RESULT
+  - cd observatory && ../cc-test-reporter after-build --input-type coverage.py ../coverage.xml --exit-code $TRAVIS_TEST_RESULT
