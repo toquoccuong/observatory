@@ -2,6 +2,9 @@ sudo: false
 language: python
 python:
   - "3.6"
+env:
+  global:
+    - CODECLIMATE_REPO_TOKEN=bfe695a3efcfa8bb6d797c8c9d933ab3d07f50c30d6f0c477133c60b505c6370
 install: pip install tox-travis
 before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
