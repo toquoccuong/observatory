@@ -413,9 +413,10 @@ def start_run(model, version, experiment='default'):
     if experiment is None:
         experiment = 'default'
 
-    if experiment != 'default' and not re.match(LABEL_PATTERN, model):
-        raise AssertionError('experiment is invalid. It can contain ' +
-                             'lower-case alpha-numeric characters and dashes only.')
+    if experiment != 'default':
+        if experiment.strip() == '' or not re.match(LABEL_PATTERN, experiment):
+            raise AssertionError('experiment is invalid. It can contain ' +
+                                 'lower-case alpha-numeric characters and dashes only.')
 
     if version <= 0:
         raise AssertionError('version must be greater than zero')

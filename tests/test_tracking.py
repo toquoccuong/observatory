@@ -66,6 +66,19 @@ def test_start_run_with_invalid_model(model):
             pass
 
 
+@pytest.mark.parametrize('experiment', INVALID_LABELS)
+def test_start_run_with_invalid_experiment(experiment):
+    """
+    You cannot start a run with an invalid experiment
+    """
+    with pytest.raises(AssertionError):
+        try:
+            with start_run('test', 1, experiment=experiment):
+                pass
+        except requests.exceptions.ConnectionError:
+            pass
+
+
 def test_session_scope_behavior(mock_client):
     """
     Everytime you start a new tracking session the start is recorded.
@@ -192,3 +205,4 @@ def test_record_settings_without_keys(mock_client):
         session.record_settings()
 
     mock_client.record_settings.assert_called()
+
