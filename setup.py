@@ -26,7 +26,7 @@ REQUIRED = [
     'protobuf>=3.4.0',
     'flask==1.0.2',
     'elasticsearch>=6.0.0,<7.0.0',
-    'requests==2.19.1'
+    'requests>=2.20.0'
 ]
 
 # What packages are optional?
@@ -44,7 +44,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 # Import the README and use it as the long-description.
 # Note: this will only work if 'README.md' is present in your MANIFEST.in file!
 try:
-    with io.open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
+    with io.open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
         long_description = '\n' + f.read()
 except FileNotFoundError:
     long_description = DESCRIPTION
@@ -111,7 +111,7 @@ setup(
     install_requires=REQUIRED,
     extras_require=EXTRAS,
     include_package_data=True,
-    license='MIT',
+    license='Apache-2.0',
     classifiers=[
         # Trove classifiers
         # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
