@@ -29,18 +29,10 @@ metrics and configuration settings of your models.
 Getting started
 ---------------
 
-Please read `the documentation <https://wmeints.github.io/observatory/index.html>`_.
+Please read `the documentation <https://wmeints.github.io/observatory/index.html>`_
 on the website to get started. 
 
-Development
+Contributing
 -----------
-
-Feel free to fork the repository and send me pull requests.
-I personally recommend using PyCharm and/or Visual Studio Code for writing code.
-
-To get started developing changes for this project, follow these steps:
-
- * `git clone https://github.com/wmeints/observatory`
- * `pip install -r requirements.txt`
-
-Enjoy!
+Feel free to submit pull requests to help us improve this project.
+Check out our `contributor guidelines <./CONTRIBUTING.rst>`_!
