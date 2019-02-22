@@ -196,7 +196,7 @@ class LocalState(ObservatoryState):
 
     def record_metric(self, model, version, experiment, run_id, name, value):
         #sink.save_metric(model, version, experiment, run_id, name, value)
-        #localstate is nothing more than a nice data handler that passes is to sink.py
+        #localstate is nothing more than a nice handler that passes data to sink.py
         #this is because the sever is also going to use sink.py to save data
         print("LocalState : record_metric")
 
@@ -280,7 +280,6 @@ class RemoteState(ObservatoryState):
         self._verify_response(requests.post(handler_url, json={'name': name, 'value': value}), 201)
 
     def record_settings(self, model, version, experiment, run_id, settings):
-        print("RemoteState : record_settings")
         """
         Records the settings of an experiment run.
 
@@ -312,7 +311,6 @@ class RemoteState(ObservatoryState):
 
 
     def record_output(self, model, version, experiment, run_id, filename, value):
-        print("RemoteState : record_output")
         """
         Records an output of an experiment run
 
