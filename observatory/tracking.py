@@ -157,35 +157,35 @@ class ObservatoryState(ABC):
         pass
 
     @abstractmethod
-    def record_settings(self, name, value):
+    def record_settings(self, settings):
         """
-Override this method in a derived class to record a setting.
-The derived class is required to store the settings as a single dictionary per run.
+        Override this method in a derived class to record a setting.
+        The derived class is required to store the settings as a single dictionary per run.
         """
         pass
 
     @abstractmethod
-    def record_output(self, name, value):
+    def record_output(self, input_file, filename):
         """
-Override this method in a derived class to record an output for the run.
-The derived class is required to handle the value of the output as an opaque binary blob.
-It must not read the blob to validate it. 
+        Override this method in a derived class to record an output for the run.
+        The derived class is required to handle the value of the output as an opaque binary blob.
+        It must not read the blob to validate it. 
         """
         pass
 
     @abstractmethod
     def record_session_start(self, model, version, experiment, run_id):
         """
-Override this method in a derived class to record the start of a session.
-The derived class is required to set the status of the run to "In progress." with a unix timestamp.
+        Override this method in a derived class to record the start of a session.
+        The derived class is required to set the status of the run to "In progress." with a unix timestamp.
         """
         pass
 
     @abstractmethod
     def record_session_end(self, model, version, experiment, run_id, status):
         """
-Override this method in a derived class to record the end of a session.
-The derived class must, in addition to the status, also record a unix timestamp.
+        Override this method in a derived class to record the end of a session.
+        The derived class must, in addition to the status, also record a unix timestamp.
         """
         pass
 
@@ -279,7 +279,7 @@ class RemoteState(ObservatoryState):
         handler_url = f'{settings.server_url}/api/models/{model}/versions/{version}/experiments/{experiment}/runs/{run_id}/metrics'
         self._verify_response(requests.post(handler_url, json={'name': name, 'value': value}), 201)
 
-    def record_settings(self, model, version, experiment, run_id, name, value):
+    def record_settings(self, model, version, experiment, run_id, settings):
         print("RemoteState : record_settings")
         """
         Records the settings of an experiment run.
