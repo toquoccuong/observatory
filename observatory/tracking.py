@@ -10,6 +10,8 @@ import inspect
 import requests
 from observatory import settings
 from observatory.constants import LABEL_PATTERN
+from benchmarks import benchmark
+
 
 class TrackingSession:
     #trackingsession
@@ -198,6 +200,7 @@ class LocalState(ObservatoryState):
         #sink.save_metric(model, version, experiment, run_id, name, value)
         #localstate is nothing more than a nice handler that passes data to sink.py
         #this is because the sever is also going to use sink.py to save data
+        benchmark.benchmark_text_record_metric(self, model, version, experiment, run_id, name, value)
         print("LocalState : record_metric")
 
     def record_settings(self, model, version, experiment, run_id, settings):
@@ -402,7 +405,7 @@ class RemoteState(ObservatoryState):
         handler_url = f'{settings.server_url}/api/models/{model}/versions/{version}/experiments/{experiment}/runs/{run_id}'
         self._verify_response(requests.put(handler_url, json={'status': status}), 201)
 
-def start_run(model, version, state=LocalState(), experiment='default'):
+def start_run(model, version, state, experiment='default'):
     """
     Starts a new run for a specific model version.
 
@@ -453,13 +456,13 @@ def start_run(model, version, state=LocalState(), experiment='default'):
     if version <= 0:
         raise AssertionError('version must be greater than zero')
     
-    if state != isinstance(state, (LocalState, RemoteState)):
-        raise AssertionError('State must be either a LocalState() or RemoteState()')
-
     run_id = str(uuid4())
 
     trackingSession = TrackingSession(model, version, experiment, run_id)
 
-    trackingSession.change(state)
-    
+    if state != isinstance(state, (LocalState, RemoteState)):
+        trackingSession.change(LocalState)
+    else:
+        trackingSession.change(state)
+
     return trackingSession
