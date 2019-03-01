@@ -1,35 +1,39 @@
 import sys
+sys.path.append("U:\Observatory\observatory")
+    
+from observatory.tracking import TrackingSession, start_run, LocalState
+
 from sklearn.neighbors import KNeighborsClassifier 
+from sklearn.linear_model import LinearRegression
 from sklearn.datasets import load_iris 
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
-from observatory.tracking import TrackingSession, start_run, LocalState, RemoteState
+
 import pdb
+import numpy as np 
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import warnings
+warnings.filterwarnings("ignore")
+from subprocess import check_output
 
-# load the iris dataset as an example 
+data = pd.read_csv('benchmarks\input\column_2C_weka.csv')
+plt.style.use('ggplot')
 
-iris = load_iris()   
-# store the feature matrix (X) and response vector (y) 
-X = iris.data 
-y = iris.target 
-  
-# splitting X and y into training and testing sets 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=1) 
-pdb.set_trace()
-with observatory.start_run("testmodel", 1) as run:
-# training the model on training set 
-    knn = KNeighborsClassifier(n_neighbors=3) 
-    knn.fit(X_train, y_train)
-    run.record_metric 
-  
-# making predictions on the testing set 
-y_pred = knn.predict(X_test) 
-# comparing actual response values (y_test) with predicted response values (y_pred) 
-print("kNN model accuracy:", metrics.accuracy_score(y_test, y_pred)) 
-  
-# making prediction for out of sample data 
-sample = [[3, 5, 4, 2], [2, 3, 5, 4]] 
-preds = knn.predict(sample) 
-pred_species = [iris.target_names[p] for p in preds] 
-print("Predictions:", pred_species) 
-  
+knn = KNeighborsClassifier(n_neighbors= 3)
+x,y = data.loc[:, data.columns != 'class'], data.loc[:, 'class']
+knn.fit(x,y)
+prediction = knn.predict(x)
+#print('Prediction : {}'. format(prediction))
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.3, random_state = 1)
+neig = np.arange(1, 25)
+train_accuracy = []
+test_accuracy = []
+
+with start_run('testmodel4', 3, LocalState, 'testexperiment2') as run:
+    for i, k in enumerate(neig):
+        knn = KNeighborsClassifier(n_neighbors=k)
+        knn.fit(x_train, y_train)
+        run.record_metric('accuracy2', int(knn.score(x_test, y_test)))

@@ -10,7 +10,7 @@ import inspect
 import requests
 from observatory import settings
 from observatory.constants import LABEL_PATTERN
-from benchmarks import benchmark
+from benchmarks import benchmark_local_saving
 
 
 class TrackingSession:
@@ -200,9 +200,8 @@ class LocalState(ObservatoryState):
         #sink.save_metric(model, version, experiment, run_id, name, value)
         #localstate is nothing more than a nice handler that passes data to sink.py
         #this is because the sever is also going to use sink.py to save data
-        benchmark.benchmark_text_record_metric(self, model, version, experiment, run_id, name, value)
-        print("LocalState : record_metric")
-
+        benchmark_local_saving.benchmark.benchmark_sqlite_record_metric(self, model, version, experiment, run_id, name, value)
+        
     def record_settings(self, model, version, experiment, run_id, settings):
         print("LocalState : record_settings")
 
