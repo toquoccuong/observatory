@@ -7,6 +7,7 @@ import numpy
 from datetime import datetime
 import pdb
 from uuid import uuid4
+import benchmarks.sqlite_database_creation_script
 
 class benchmark:
 

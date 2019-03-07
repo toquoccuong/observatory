@@ -1,5 +1,5 @@
 from observatory.tracking import TrackingSession, start_run, LocalState
-import benchmarks.sqlite_database_creation_script
+
 
 from sklearn.neighbors import KNeighborsClassifier 
 from sklearn.linear_model import LinearRegression
