@@ -4,11 +4,8 @@ This pyton script sets up the sqlite database
 
 
 import sqlite3
-
-conn = sqlite3.connect('benchmarks\\outputs\\benchmark_sqlite.sqlite')
-cursor = conn.cursor()
-conn.commit()
-conn.close()
+import os
+os.remove('benchmarks\\outputs\\benchmark_sqlite.sqlite')
 
 conn = sqlite3.connect('benchmarks\\outputs\\benchmark_sqlite.sqlite')
 cursor1 = conn.cursor()
@@ -16,7 +13,7 @@ cursor1 = conn.cursor()
 #Create Model Table
 cursor1.execute(
     '''CREATE TABLE IF NOT EXISTS Model(
-        name TEXT PRIMARY KEY NOT NULL,
+        name TEXT PRIMARY KEY  NOT NULL,
         date TEXT NOT NULL
         );''')
 
@@ -24,6 +21,7 @@ cursor1.execute(
 cursor1.execute(
     '''CREATE TABLE IF NOT EXISTS Version(
         id INT PRIMARY KEY NOT NULL,
+        versionid INT NOT NULL,
         date TEXT NOT NULL,
         model TEXT,
         FOREIGN KEY(model) REFERENCES Model(name)
@@ -32,7 +30,8 @@ cursor1.execute(
 #Create Experiment Table
 cursor1.execute(
     '''CREATE TABLE IF NOT EXISTS Experiment(
-        name TEXT PRIMARY KEY NOT NULL,
+        id INT PRIMARY KEY NOT NULL,
+        name TEXT NOT NULL,
         date TEXT NOT NULL,
         version INT,
         FOREIGN KEY(version) REFERENCES Version(id)
@@ -42,7 +41,9 @@ cursor1.execute(
 cursor1.execute(
     '''CREATE TABLE IF NOT EXISTS Run(
         id INT PRIMARY KEY NOT NULL,
-        date TEXT NOT NULL,
+        startdate TEXT,
+        enddate TEXT,
+        status TEXT,
         experiment TEXT,
         FOREIGN KEY(experiment) REFERENCES Experiment(name)
         );''')
@@ -50,7 +51,8 @@ cursor1.execute(
 #Create Metric Table
 cursor1.execute(
     '''CREATE TABLE IF NOT EXISTS Metric(
-        name TEXT PRIMARY KEY NOT NULL,
+        id INT PRIMARY KEY NOT NULL,
+        name TEXT NOT NULL,
         date TEXT NOT NULL,
         value TEXT NOT NULL,
         run INT,
@@ -74,7 +76,5 @@ cursor1.execute(
         run INT,
         FOREIGN KEY(run) REFERENCES Run(id)        
         );''')
-
-
 
 cursor1.close

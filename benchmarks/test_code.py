@@ -1,7 +1,5 @@
-import sys
-sys.path.append("U:\Observatory\observatory")
-    
 from observatory.tracking import TrackingSession, start_run, LocalState
+import benchmarks.sqlite_database_creation_script
 
 from sklearn.neighbors import KNeighborsClassifier 
 from sklearn.linear_model import LinearRegression
@@ -32,8 +30,9 @@ neig = np.arange(1, 25)
 train_accuracy = []
 test_accuracy = []
 
-with start_run('testmodel4', 3, LocalState, 'testexperiment2') as run:
+with start_run('testmodel', 1, LocalState, 'testexperiment') as run:
     for i, k in enumerate(neig):
         knn = KNeighborsClassifier(n_neighbors=k)
         knn.fit(x_train, y_train)
-        run.record_metric('accuracy2', int(knn.score(x_test, y_test)))
+        run.record_metric('accuracy', i)
+    
