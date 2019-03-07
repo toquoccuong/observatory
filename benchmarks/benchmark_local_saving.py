@@ -6,8 +6,7 @@ import tables
 import numpy
 from datetime import datetime
 import pdb
-
-
+from uuid import uuid4
 
 class benchmark:
 
@@ -55,6 +54,40 @@ class benchmark:
         with open(file_name,  'ab') as fileObject:
             cPickle.dump(metric, fileObject)
             
+    def benchmark_sqlite_record_session_start(self, model, version, experiment, run_id):
+        filepath = 'benchmarks\outputs\\'
+        conn = sqlite3.connect(filepath+ 'benchmark_sqlite.sqlite')
+        c = conn.cursor()
+        # insert into Model
+        _model = [model, datetime.now()]
+        c.execute('REPLACE INTO Model VALUES (?,?);', _model)
+        # insert into Version
+        _versionID = str(uuid4())
+        _version = [_versionID, version, datetime.now(), model]
+        c.execute('INSERT INTO Version VALUES (?,?,?,?);', _version)
+        # insert into Experiment
+        _experimentID = str(uuid4())
+        _experiment = [_experimentID, experiment, datetime.now(), version]
+        c.execute('INSERT INTO Experiment VALUES (?,?,?,?);', _experiment)
+        # insert into Run
+        _run = [run_id, datetime.now(), 'running', experiment]
+        c.execute('INSERT INTO Run(id, startdate, status ,experiment) VALUES (?,?,?,?);', _run)
+        # save the changes
+        conn.commit()
+        # close the connection
+        conn.close()
+
+    def benchmark_sqlite_record_session_end(self, model, version, experiment, run_id, status):
+        filepath = 'benchmarks\outputs\\'
+        conn = sqlite3.connect(filepath+ 'benchmark_sqlite.sqlite')
+        c = conn.cursor()
+        # replace into Run
+        _run = [run_id, datetime.now(), status]
+        c.execute('REPLACE INTO Run (id, enddate, status) VALUES (?,?,?);', _run)
+        # save the changes
+        conn.commit()
+        # close the connection
+        conn.close()
 
     def benchmark_sqlite_record_metric(self, model, version, experiment, run_id, name, value):
         """
@@ -65,26 +98,15 @@ class benchmark:
         # Need to find a way to only insert Model, Version, Experiment, Run once
         # Then insert Metric as many times as needed.
         #
-        
+
         filepath = 'benchmarks\outputs\\'
         #metric = [model, version, experiment, run_id, name, value]
         conn = sqlite3.connect(filepath+ 'benchmark_sqlite.sqlite')
         c = conn.cursor()
-        # insert into Model
-        _model = [model, datetime.now()]
-        c.execute('INSERT INTO Model VALUES (?,?);', _model)
-        # insert into Version
-        _version = [version, datetime.now(), model]
-        c.execute('INSERT INTO Version VALUES (?,?,?);', _version)
-        # insert into Experiment
-        _experiment = [experiment, datetime.now(), version]
-        c.execute('INSERT INTO Experiment VALUES (?,?,?);', _experiment)
-        # insert into Run
-        _run = [run_id, datetime.now(), experiment]
-        c.execute('INSERT INTO Run VALUES (?,?,?);', _run)
         # insert into Metric
-        _metric = [name, datetime.now(), value, run_id]
-        c.execute('INSERT INTO Metric VALUES (?,?,?,?);', _metric)
+        _metricID = str(uuid4())
+        _metric = [_metricID, name, datetime.now(), value, run_id]
+        c.execute('INSERT INTO Metric VALUES (?,?,?,?,?);', _metric)
         # save the changes
         conn.commit()
         # close the connection
@@ -95,7 +117,7 @@ class benchmark:
         This function serves to benchmark the time is takes to save files to disk, using pytables
         """
         filepath = 'benchmarks\outputs\\'
-        h5file = tables.open_file(filepath +'benchmark_pytables.h5', mode='w', title='Test File')
+        h5file = tables.open_file(filepath +'benchmark_pytables.h5', mode='ab', title='Test File')
         group = h5file.create_group('/',  'Metric', 'Metric Information')
         table = h5file.create_table(group, 'readout', Metric, 'readout example')
         metric = table.row
