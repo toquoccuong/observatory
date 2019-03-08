@@ -183,13 +183,9 @@ class benchmark_pytables:
 
         metric['id']        = _metricID
         metric['name']      = name
-        metric['date']      =  datetime.now()
+        metric['date']      = datetime.now()
         metric['value']     = value
         metric['run']       = run_id
-        metric.append()
-        metric_table.flush()
-
-        # Insert a new metric record
         metric.append()
         metric_table.flush()
 
