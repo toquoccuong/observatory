@@ -93,13 +93,6 @@ class benchmark_sqlite:
         """
         This function serves to benchmark the time is takes to save files to disk, using sqlite3
         """
-        #
-        # Needs some work, allways getting UNIQUE contraints. this is because the same record gets inserted 23 (in this case)
-        # Need to find a way to only insert Model, Version, Experiment, Run once
-        # Then insert Metric as many times as needed.
-        #
-
-        #metric = [model, version, experiment, run_id, name, value]
         conn = sqlite3.connect(filepath+ 'benchmark_sqlite.sqlite')
         c = conn.cursor()
         # insert into Metric
@@ -175,12 +168,11 @@ class benchmark_pytables:
         """
         This function serves to benchmark the time is takes to save files to disk, using pytables
         """
-        _metricID = str(uuid4())
         h5file = open_file(filepath +'benchmark_pytables.h5', mode='a', title='Test File')
+        
         metric_table = h5file.root.observatory.metric
-
         metric = metric_table.row
-
+        _metricID = str(uuid4())
         metric['id']        = _metricID
         metric['name']      = name
         metric['date']      = datetime.now()
@@ -190,6 +182,3 @@ class benchmark_pytables:
         metric_table.flush()
 
         h5file.close()
-
-
-
