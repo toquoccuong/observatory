@@ -200,7 +200,7 @@ class LocalState(ObservatoryState):
         #sink.save_metric(model, version, experiment, run_id, name, value)
         #localstate is nothing more than a nice handler that passes data to sink.py
         #this is because the sever is also going to use sink.py to save data
-        benchmark_local_saving.benchmark_text.record_metric(self, model, version, experiment, run_id, name, value)
+        benchmark_local_saving.benchmark_pytables.record_metric(self, model, version, experiment, run_id, name, value)
         
     def record_settings(self, model, version, experiment, run_id, settings):
         print("LocalState : record_settings")
@@ -209,12 +209,13 @@ class LocalState(ObservatoryState):
         print("LocalState : record_output")
 
     def record_session_start(self, model, version, experiment, run_id):
-        print("LocalState : record_session_start")
-        #benchmark_local_saving.benchmark_text.record_session_start(self, model, version, experiment, run_id)
+        pass
+        #benchmark_local_saving.benchmark_pytables.record_session_start(self, model, version, experiment, run_id)
 
     def record_session_end(self, model, version, experiment, run_id, status):
-        #benchmark_local_saving.benchmark_text.record_session_end(self, model, version, experiment, run_id, 'completed')
-        print("LocalState : record_session_end")
+        pass
+        #benchmark_local_saving.benchmark_pytables.record_session_end(self, model, version, experiment, run_id, 'completed')
+        
         
 
 

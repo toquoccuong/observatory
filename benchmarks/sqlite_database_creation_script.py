@@ -5,9 +5,9 @@ This pyton script sets up the sqlite database
 
 import sqlite3
 import os
-os.remove('benchmarks\\outputs\\benchmark_sqlite.sqlite')
+os.remove('C:\\Users\\MichielL\\Documents\\observatory_output\\benchmark_sqlite.sqlite')
 
-conn = sqlite3.connect('benchmarks\\outputs\\benchmark_sqlite.sqlite')
+conn = sqlite3.connect('C:\\Users\\MichielL\\Documents\\observatory_output\\benchmark_sqlite.sqlite')
 cursor1 = conn.cursor()
 
 #Create Model Table
