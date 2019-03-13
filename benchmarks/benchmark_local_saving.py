@@ -7,51 +7,105 @@ import numpy
 from datetime import datetime
 import pdb
 from uuid import uuid4
-import benchmarks.sqlite_database_creation_script
-import benchmarks.pytables_database_creation_script
-filepath = 'benchmarks\outputs\\'
+#import benchmarks.sqlite_database_creation_script
+#import benchmarks.pytables_database_creation_script
+filepath = 'C:\\Users\\MichielL\\Documents\\observatory_output\\'
 startdate = None
 
 class benchmark_text:
+
+    def record_session_start(self, model, version, experiment, run_id):
+
+        file = open(filepath +'txt_files\\benchmark_text_observatory_run_' + str(run_id) + '.txt','a')
+        file.write('\nModel: ' + model)
+        file.write('\nVersion: ' + str(version))
+        file.write('\nExperiment: ' + experiment)
+        file.write('\nRun: ' + run_id)
+        file.write('\n' + 'Run started at: ' + str(datetime.now()))
+        file.close()
+
+    def record_session_end(self, model, version, experiment, run_id, status):
+        file = open(filepath +'txt_files\\benchmark_text_observatory_run_' + str(run_id) + '.txt','a')
+        file.write('\n' + 'Run ended at: ' + str(datetime.now()))
+        file.close()
+
     def record_metric(self, model, version, experiment, run_id, name, value):
         """
         This function serves to benchmark the time is takes to save files to disk, using file saving
         """
-        data = [model, version, experiment, run_id, name, value]
+        data = [name, value]
         datastr = str(data).strip('[]')
-        file = open(filepath +'benchmark_text.txt','a')
+        file = open(filepath +'txt_files\\benchmark_text_observatory_run_' + str(run_id) + '.txt','a')
         file.write('\n' + datastr) 
         file.close()
 
 class benchmark_JSON:
+
+    def record_session_start(self, model, version, experiment, run_id):
+        data = [model, version, experiment, run_id, 'Started at:' + str(datetime.now())]
+        with open(filepath + 'json_files\\benchmark_JSON_run_' + str(run_id) + '.json',  'a') as outfile:
+            json.dump(data, outfile)
+
+            outfile.write('\n')
+
+    def record_session_end(self, model, version, experiment, run_id, status):
+        data = [status, 'Ended at:' + str(datetime.now())]
+        with open(filepath + 'json_files\\benchmark_JSON_run_' + str(run_id) + '.json',  'a') as outfile:
+            json.dump(data, outfile)
+            outfile.write('\n')
+
     def record_metric(self, model, version, experiment, run_id, name, value):   
         """
         This function serves to benchmark the time is takes to save files to disk, using JSON
         """
-        data = [model, version, experiment, run_id, name, value]
-        with open(filepath + 'benchmark_JSON.json', 'a') as outfile:
+        data = [name, value]
+        with open(filepath + 'json_files\\benchmark_JSON_run_' + str(run_id) + '.json', 'a') as outfile:
             json.dump(data, outfile)
             outfile.write('\n')
 
 class benchmark_pickle:
+    def record_session_start(self, model, version, experiment, run_id):
+        data = [model, version, experiment, run_id, 'Started at:' + str(datetime.now())]
+        file_name = filepath + 'pickle_files\\benchmark_pickle_run_' + str(run_id) + '.txt'
+        with open(file_name, 'ab') as fileObject:
+            pickle.dump(data, fileObject, protocol= -1)
+
+    def record_session_end(self, model, version, experiment, run_id, status):
+        data = [status, 'Ended at:' + str(datetime.now())]
+        file_name = filepath + 'pickle_files\\benchmark_pickle_run_' + str(run_id) + '.txt'
+        with open(file_name, 'ab') as fileObject:
+            pickle.dump(data, fileObject, protocol= -1)
+    
     def record_metric(self, model, version, experiment, run_id, name, value):
         """
         This function serves to benchmark the time is takes to save files to disk, using pickle
         """
-        metric = [str(model), str(version), str(experiment), str(run_id), str(name), str(value)]
-        file_name = 'benchmark_pickle.txt'
+        metric = [str(name), str(value)]
+        file_name = filepath + 'cpickle_files\\benchmark_pickle_run_' + str(run_id) + '.txt'
         with open(file_name, 'ab') as fileObject:
-            pickle.dump(metric, fileObject)
+            pickle.dump(metric, fileObject, protocol= -1)
             
 class benchmark_cpickle:
+    def record_session_start(self, model, version, experiment, run_id):
+        data = [model, version, experiment, run_id, 'Started at:' + str(datetime.now())]
+        file_name = filepath + 'pickle_files\\benchmark_cpickle_run_' + str(run_id) + '.txt'
+        with open(file_name, 'ab') as fileObject:
+            pickle.dump(data, fileObject, protocol= -1)
+
+    def record_session_end(self, model, version, experiment, run_id, status):
+        data = [status, 'Ended at:' + str(datetime.now())]
+        file_name = filepath + 'cpickle_files\\benchmark_cpickle_run_' + str(run_id) + '.txt'
+        with open(file_name, 'ab') as fileObject:
+            pickle.dump(data, fileObject, protocol= -1)
+    
     def record_metric(self, model, version, experiment, run_id, name, value):
         """
-        This function serves to benchmark the time is takes to save files to disk, using file cPickle
+        This function serves to benchmark the time is takes to save files to disk, using pickle
         """
-        metric = [model, version, experiment, run_id, name, value]
-        file_name = filepath+ 'benchmark_cPickle'
-        with open(file_name,  'ab') as fileObject:
-            cPickle.dump(metric, fileObject)
+        metric = [str(name), str(value)]
+        file_name = filepath + 'cpickle_files\\benchmark_cpickle_run_' + str(run_id) + '.txt'
+        with open(file_name, 'ab') as fileObject:
+            cPickle.dump(metric, fileObject, protocol= -1)
 
 class benchmark_sqlite:
        
@@ -82,8 +136,8 @@ class benchmark_sqlite:
         conn = sqlite3.connect(filepath + 'benchmark_sqlite.sqlite')
         c = conn.cursor()
         # replace into Run
-        _run = [run_id, startdate, datetime.now(), status, experiment]
-        c.execute('REPLACE INTO Run (id, startdate, enddate, status, experiment) VALUES (?,?,?,?,?);', _run)
+        _run = [datetime.now(), run_id]
+        c.execute('UPDATE Run Set enddate=? where id =?', _run)
         # save the changes
         conn.commit()
         # close the connection
@@ -107,7 +161,7 @@ class benchmark_sqlite:
 class benchmark_pytables: 
 
     def record_session_start(self, model, version, experiment, run_id):
-        h5file = open_file('U:\Observatory\\benchmarks\outputs\\benchmark_pytables.h5', mode='a', title='Test File')
+        h5file = open_file(filepath + 'benchmark_pytables.h5', mode='a', title='Test File')
 
         model_table = h5file.root.observatory.model
         model_row = model_table.row
@@ -148,6 +202,8 @@ class benchmark_pytables:
         run_row['experiment']       = experiment
         run_row.append()
         run_table.flush()
+
+        h5file.close()
 
     def record_session_end(self, model, version, experiment, run_id, status):
         h5file = open_file(filepath +'benchmark_pytables.h5', mode='a', title='Test File')
