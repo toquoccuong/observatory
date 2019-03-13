@@ -12,6 +12,7 @@ addons:
 install: 
 - pip install tox-travis
 - ci/get_hdf5_if_needed.sh
+- ls -lRa $HDF5_CACHE_DIR
 before_script:
 - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
   >./cc-test-reporter
