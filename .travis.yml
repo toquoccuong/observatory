@@ -1,10 +1,12 @@
-sudo: false
+sudo: true
 language: python
 python:
 - '3.6'
 env:
   global:
   - CC_TEST_REPORTER_ID=bfe695a3efcfa8bb6d797c8c9d933ab3d07f50c30d6f0c477133c60b505c6370
+before_install:
+- sudo apt-get install hdf5
 install: 
 - pip install tox-travis
 before_script:
