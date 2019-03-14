@@ -6,6 +6,7 @@ from os import path
 from time import time
 from uuid import uuid4
 import inspect
+import pdb
 
 import requests
 from observatory import settings
@@ -191,7 +192,7 @@ class LocalState_json(ObservatoryState):
         benchmark_local_saving.benchmark_JSON.record_session_start(self, model, version, experiment, run_id)
 
     def record_session_end(self, model, version, experiment, run_id, status):
-        benchmark_local_saving.benchmark_json.record_session_end(self, model, version, experiment, run_id, 'completed')        
+        benchmark_local_saving.benchmark_JSON.record_session_end(self, model, version, experiment, run_id, 'completed')        
 
     def record_settings(self, settings):
         pass
@@ -310,7 +311,7 @@ def start_run(model, version, state, experiment='default'):
     experiment : string, optional
         The experiment you're working on
     """
-
+    
     if model is None or model.strip() == '':
         raise AssertionError('Please provide a name for your model.')
 
@@ -332,10 +333,6 @@ def start_run(model, version, state, experiment='default'):
     run_id = str(uuid4())
 
     trackingSession = TrackingSession(model, version, experiment, run_id)
-
-    if state != isinstance(state, (LocalState_text, LocalState_json, LocalState_pickle, LocalState_cpickle, LocalState_sqlite, LocalState_pytables)):
-        trackingSession.change(LocalState_text)
-    else:
-        trackingSession.change(state)
+    trackingSession.change(state)
 
     return trackingSession
