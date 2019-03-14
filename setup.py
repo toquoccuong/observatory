@@ -27,7 +27,6 @@ REQUIRED = [
     'flask==1.0.2',
     'elasticsearch>=6.0.0,<7.0.0',
     'requests>=2.20.0',
-    'tables>=3.4.4'
 ]
 
 # What packages are optional?
