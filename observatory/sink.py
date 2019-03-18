@@ -57,9 +57,13 @@ class Sink():
             The value of the metric
         """
         metric = [metric_name, metric_value]
-        file_name = self._path + "metrics\\" + str(model)+ '_' + str(run_id) + '.pkl'
-        with open(file_name, 'ab') as fileObject:
+        try:
+            file_name = self._path + "metrics\\" + str(model)+ '_' + str(run_id) + '.pkl'
+            with open(file_name, 'ab') as fileObject:
                 pickle.dump(metric, fileObject, protocol= -1)
+        except TypeError:
+            raise AssertionError("Location is invalid")
+        
 
 
     def record_session_start(self, model, version, experiment, run_id):
@@ -83,10 +87,12 @@ class Sink():
             The timestamp
         """
         data = [model, version, experiment, run_id, datetime.now()]
-        file_name = self._path + "metrics\\" + str(model)+ '_' + str(run_id) + '.pkl'
-        with open(file_name, 'ab') as fileObject:
-                pickle.dump(data, fileObject, protocol= -1)
-        
+        try:
+            file_name = self._path + "metrics\\" + str(model)+ '_' + str(run_id) + '.pkl'
+            with open(file_name, 'ab') as fileObject:
+                    pickle.dump(data, fileObject, protocol= -1)
+        except TypeError:
+            raise AssertionError("Location is invalid")
 
     def record_session_end(self, model, run_id, status):
         """
@@ -105,9 +111,12 @@ class Sink():
             The status of the run (completed, failed)
         """
         data = [status, datetime.now()]
-        file_name = self._path + "metrics\\" + str(model)+ '_' + str(run_id) + '.pkl'
-        with open(file_name, 'ab') as fileObject:
-            pickle.dump(data, fileObject, protocol= -1)
+        try:
+            file_name = self._path + "metrics\\" + str(model)+ '_' + str(run_id) + '.pkl'
+            with open(file_name, 'ab') as fileObject:
+                pickle.dump(data, fileObject, protocol= -1)
+        except TypeError:
+            raise AssertionError("Location is invalid")
 
     def record_settings(self, model, version, experiment, run_id, settings):
         """
@@ -130,10 +139,12 @@ class Sink():
             The settings to record on disk
         """
         data = [model, version, experiment, run_id, settings]
-        filename = self._path + "settings\\" + str(model) + '_' + str(run_id) + '_settings.pkl'
-        with open(filename, 'ab') as f:
-            pickle.dump(data, f, protocol=-1)
-
+        try:
+            filename = self._path + "settings\\" + str(model) + '_' + str(run_id) + '_settings.pkl'
+            with open(filename, 'ab') as f:
+                pickle.dump(data, f, protocol=-1)
+        except TypeError:
+            raise AssertionError("Location is invalid")
 
     def record_output(self, model, version, experiment, run_id, filename, file):
         """
@@ -158,4 +169,7 @@ class Sink():
             The file handle
         """
 
-        filename = self._path + "outputs\\" + str(model) + '_' + str(run_id) + '_output.pkl'
+        try:
+            filename = self._path + "outputs\\" + str(model) + '_' + str(run_id) + '_output.pkl'
+        except TypeError:
+            raise AssertionError("Location is invalid")
