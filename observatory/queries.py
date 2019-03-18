@@ -1,6 +1,5 @@
 from os import path
 
-from observatory.utils import es_client, index_name
 from observatory import archive, settings
 
 PAGE_SIZE = 20
@@ -52,8 +51,6 @@ def configure(seed_nodes):
     """
     global es
 
-    es = es_client(seed_nodes)
-
     print('Queries module configured to connect to {}'.format(seed_nodes))
 
 
@@ -80,7 +77,7 @@ def find_items(type_name, query, page_index):
     """
     global es
 
-    return es.search(index=index_name(type_name), body=query, from_=page_index * PAGE_SIZE, size=PAGE_SIZE)
+    return
 
 
 def find_models(page_index=0):

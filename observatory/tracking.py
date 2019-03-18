@@ -6,12 +6,14 @@ from os import path
 from time import time
 from uuid import uuid4
 import inspect
+import pdb
 
 import requests
 from observatory import settings
 from observatory.constants import LABEL_PATTERN
-from benchmarks import benchmark_local_saving
+from observatory.sink import Sink
 
+sink = Sink()
 
 class TrackingSession:
     #trackingsession
@@ -36,7 +38,7 @@ class TrackingSession:
         self.version = version
         self.experiment = experiment
         self.run_id = run_id
-        self._state = LocalState()
+        self._state = LocalState() # * default state, may need to be changed
     
     def change(self, state):
         self._state.switch(state)
@@ -53,9 +55,8 @@ class TrackingSession:
             The value of the metric to records
         """
 
-        # Typechecking in python is a no-go under normal circumstances.
-        # But here we're using it, because the server expects a string and float.
-
+        # ! Typechecking in python is a no-go under normal circumstances.
+        # ! But here we're using it, because the server expects a string and float.
         if name is None or type(name) != str or name.strip() == '':
             raise AssertionError('Please provide a valid name for the metric.')
 
@@ -193,32 +194,26 @@ class ObservatoryState(ABC):
 
 class LocalState(ObservatoryState):
     """
-    This state is used to record metadata about experiments in the current working directory using the standard data sink. 
+    This state is used to record metadata about experiments in the current working directory using the standard data Sink. 
+    LocalState is nothing more than a nice handler that passes data to Sink, this is because the sever is using the same saving mechanism to save data.
+    So there is a seperate module to handle this.
     """
 
     def record_metric(self, model, version, experiment, run_id, name, value):
-        #sink.save_metric(model, version, experiment, run_id, name, value)
-        #localstate is nothing more than a nice handler that passes data to sink.py
-        #this is because the sever is also going to use sink.py to save data
-        pass
+        sink.record_metric(model, run_id, name, value)
         
     def record_settings(self, model, version, experiment, run_id, settings):
-        print("LocalState : record_settings")
+        sink.record_settings(model, version, experiment, run_id, settings)
 
     def record_output(self, model, version, experiment, run_id, filename, file):
-        print("LocalState : record_output")
+        sink.record_output(model, version, experiment, run_id, filename , file)
 
     def record_session_start(self, model, version, experiment, run_id):
-        pass
+        sink.record_session_start(model, version, experiment, run_id)
         
-
     def record_session_end(self, model, version, experiment, run_id, status):
-        pass
+        sink.record_session_end(model, run_id, status)
         
-        
-        
-
-
 class RemoteState(ObservatoryState):
     """
     Records metric on a remote server that you can run through the command `observatory server`.
@@ -440,7 +435,6 @@ def start_run(model, version, state, experiment='default'):
     experiment : string, optional
         The experiment you're working on
     """
-
     if model is None or model.strip() == '':
         raise AssertionError('Please provide a name for your model.')
 
@@ -462,10 +456,6 @@ def start_run(model, version, state, experiment='default'):
     run_id = str(uuid4())
 
     trackingSession = TrackingSession(model, version, experiment, run_id)
-
-    if state != isinstance(state, (LocalState, RemoteState)):
-        trackingSession.change(LocalState)
-    else:
-        trackingSession.change(state)
+    trackingSession.change(state)
 
     return trackingSession
