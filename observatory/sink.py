@@ -24,12 +24,16 @@ class Sink():
             # if it exists the path will be set
             self.configure(home + "\\.observatory\\")
         else:
-            # if it doesn't exist, then it will be created, along with subfolders for metrics, outputs and settings.
-            os.makedirs(home + "\\.observatory")
-            os.makedirs(home + "\\.observatory\\metrics")
-            os.makedirs(home + "\\.observatory\\outputs")
-            os.makedirs(home + "\\.observatory\\settings")
-            self.configure(home + "\\.observatory\\")
+            try:
+                # if it doesn't exist, then it will be created, along with subfolders for metrics, outputs and settings.
+                os.makedirs(home + "\\.observatory")
+                os.makedirs(home + "\\.observatory\\metrics")
+                os.makedirs(home + "\\.observatory\\outputs")
+                os.makedirs(home + "\\.observatory\\settings")
+                self.configure(home + "\\.observatory\\")
+            except Exception as e:
+                print (e)
+                pass
         
     def configure(self, path):
         self._path = path
