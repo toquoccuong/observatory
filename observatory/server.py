@@ -324,8 +324,7 @@ def record_metric(model, version, experiment, run_id):
         metric_name = request_content['name']
         metric_value = request_content['value']
 
-        sink.record_metric(model, version, experiment, run_id, int(
-            time.time()), metric_name, metric_value)
+        sink.record_metric(model, run_id, metric_name, metric_value)
 
     return with_generic_errorhandling(with_default_accepted_response(tracking_handler))
 
@@ -450,8 +449,8 @@ def run_server(host='[::]', port=8000, es_nodes=None):
     if es_nodes is None:
         es_nodes = ['localhost']
 
-    queries.configure(es_nodes)
-    sink.configure(es_nodes)
+    
+    
 
     # Gunicorn is a webserver that has a much better performance than plain Flask.
     # However it is not support on Windows and I want this thing to work on Windows too.
