@@ -16,8 +16,6 @@ class Sink():
 
 
     def __init__(self):
-        self._path = None
-
         # this module depends on the .observatory directory. So we need to make sure it exists.
         home = expanduser("~")
         if os.path.exists(home + "\\.observatory"):
@@ -62,7 +60,7 @@ class Sink():
             with open(file_name, 'ab') as fileObject:
                 pickle.dump(metric, fileObject, protocol= -1)
         except TypeError:
-            raise AssertionError("Location is invalid")
+            pass
         
 
 
