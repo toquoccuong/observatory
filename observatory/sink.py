@@ -58,8 +58,11 @@ class Sink():
             file_name = self._path + "metrics\\" + str(model)+ '_' + str(run_id) + '.pkl'
             with open(file_name, 'ab') as fileObject:
                 pickle.dump(metric, fileObject, protocol= -1)
-        except TypeError:
-            pass
+        except TypeError as e:
+            print (e)
+        except PermissionError as e:
+            print (e)
+            
         
 
 
@@ -88,8 +91,10 @@ class Sink():
             file_name = self._path + "metrics\\" + str(model)+ '_' + str(run_id) + '.pkl'
             with open(file_name, 'ab') as fileObject:
                     pickle.dump(data, fileObject, protocol= -1)
-        except TypeError:
-            raise AssertionError("Location is invalid")
+        except TypeError as e:
+            print (e)
+        except PermissionError as e:
+            print (e)
 
     def record_session_end(self, model, run_id, status):
         """
@@ -112,8 +117,11 @@ class Sink():
             file_name = self._path + "metrics\\" + str(model)+ '_' + str(run_id) + '.pkl'
             with open(file_name, 'ab') as fileObject:
                 pickle.dump(data, fileObject, protocol= -1)
-        except TypeError:
-            raise AssertionError("Location is invalid")
+        except TypeError as e:
+            print (e)
+        except PermissionError as e:
+            print (e)
+            
 
     def record_settings(self, model, version, experiment, run_id, settings):
         """
@@ -140,8 +148,11 @@ class Sink():
             filename = self._path + "settings\\" + str(model) + '_' + str(run_id) + '_settings.pkl'
             with open(filename, 'ab') as f:
                 pickle.dump(data, f, protocol=-1)
-        except TypeError:
-            raise AssertionError("Location is invalid")
+        except TypeError as e:
+            print (e)
+        except PermissionError as e:
+            print (e)
+            
 
     def record_output(self, model, version, experiment, run_id, filename, file):
         """
@@ -168,5 +179,8 @@ class Sink():
 
         try:
             filename = self._path + "outputs\\" + str(model) + '_' + str(run_id) + '_output.pkl'
-        except TypeError:
-            raise AssertionError("Location is invalid")
+        except TypeError as e:
+            print (e)
+        except PermissionError as e:
+            print (e)
+            
