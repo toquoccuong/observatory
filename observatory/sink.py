@@ -31,6 +31,7 @@ class Sink():
                 os.makedirs(home + "\\.observatory\\settings")
                 self._path = (home + "\\.observatory\\")
             except Exception as e:
+                self._path = expanduser('~')
                 print (e)
                 pass
         
