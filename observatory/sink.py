@@ -68,6 +68,7 @@ class Sink():
             # ! because it is not allowed to save files in the travis home directory.
             # ! when using Observatory normally this should never occur.
             # ? might need beter error handleing.
+
             print (e)
             
         
@@ -129,6 +130,7 @@ class Sink():
         except PermissionError as e:
             print (e)
             
+
     def record_settings(self, model, version, experiment, run_id, settings):
         """
         Records the settings used for a particular experiment run.
@@ -159,6 +161,7 @@ class Sink():
         except PermissionError as e:
             print (e)
             
+
     def record_output(self, model, version, experiment, run_id, filename, file):
         """
         Records the output for an experiment

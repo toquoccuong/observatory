@@ -66,13 +66,21 @@ class benchmark_JSON:
 class benchmark_pickle:
     def record_session_start(self, model, version, experiment, run_id):
         data = [model, version, experiment, run_id, 'Started at:' + str(datetime.now())]
+<<<<<<< HEAD
         file_name = filepath + 'pickle_files\\benchmark_pickle_run_' + str(run_id) + '.pkl'
+=======
+        file_name = filepath + 'pickle_files\\benchmark_pickle_run_' + str(run_id) + '.txt'
+>>>>>>> bd60a1530f44dbe610115bafbab034ebc9a901ca
         with open(file_name, 'ab') as fileObject:
             pickle.dump(data, fileObject, protocol= -1)
 
     def record_session_end(self, model, version, experiment, run_id, status):
         data = [status, 'Ended at:' + str(datetime.now())]
+<<<<<<< HEAD
         file_name = filepath + 'pickle_files\\benchmark_pickle_run_' + str(run_id) + '.pkl'
+=======
+        file_name = filepath + 'pickle_files\\benchmark_pickle_run_' + str(run_id) + '.txt'
+>>>>>>> bd60a1530f44dbe610115bafbab034ebc9a901ca
         with open(file_name, 'ab') as fileObject:
             pickle.dump(data, fileObject, protocol= -1)
     
@@ -81,20 +89,32 @@ class benchmark_pickle:
         This function serves to benchmark the time is takes to save files to disk, using pickle
         """
         metric = [str(name), str(value)]
+<<<<<<< HEAD
         file_name = filepath + 'cpickle_files\\benchmark_pickle_run_' + str(run_id) + '.pkl'
+=======
+        file_name = filepath + 'cpickle_files\\benchmark_pickle_run_' + str(run_id) + '.txt'
+>>>>>>> bd60a1530f44dbe610115bafbab034ebc9a901ca
         with open(file_name, 'ab') as fileObject:
             pickle.dump(metric, fileObject, protocol= -1)
             
 class benchmark_cpickle:
     def record_session_start(self, model, version, experiment, run_id):
         data = [model, version, experiment, run_id, 'Started at:' + str(datetime.now())]
+<<<<<<< HEAD
         file_name = filepath + 'pickle_files\\benchmark_cpickle_run_' + str(run_id) + '.pkl'
+=======
+        file_name = filepath + 'pickle_files\\benchmark_cpickle_run_' + str(run_id) + '.txt'
+>>>>>>> bd60a1530f44dbe610115bafbab034ebc9a901ca
         with open(file_name, 'ab') as fileObject:
             pickle.dump(data, fileObject, protocol= -1)
 
     def record_session_end(self, model, version, experiment, run_id, status):
         data = [status, 'Ended at:' + str(datetime.now())]
+<<<<<<< HEAD
         file_name = filepath + 'cpickle_files\\benchmark_cpickle_run_' + str(run_id) + '.pkl'
+=======
+        file_name = filepath + 'cpickle_files\\benchmark_cpickle_run_' + str(run_id) + '.txt'
+>>>>>>> bd60a1530f44dbe610115bafbab034ebc9a901ca
         with open(file_name, 'ab') as fileObject:
             pickle.dump(data, fileObject, protocol= -1)
     
@@ -103,7 +123,11 @@ class benchmark_cpickle:
         This function serves to benchmark the time is takes to save files to disk, using pickle
         """
         metric = [str(name), str(value)]
+<<<<<<< HEAD
         file_name = filepath + 'cpickle_files\\benchmark_cpickle_run_' + str(run_id) + '.pkl'
+=======
+        file_name = filepath + 'cpickle_files\\benchmark_cpickle_run_' + str(run_id) + '.txt'
+>>>>>>> bd60a1530f44dbe610115bafbab034ebc9a901ca
         with open(file_name, 'ab') as fileObject:
             cPickle.dump(metric, fileObject, protocol= -1)
 

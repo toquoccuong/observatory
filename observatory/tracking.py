@@ -38,7 +38,11 @@ class TrackingSession:
         self.version = version
         self.experiment = experiment
         self.run_id = run_id
+<<<<<<< HEAD
         self._state = LocalState() # ? default state, may need to be changed
+=======
+        self._state = LocalState() # * default state, may need to be changed
+>>>>>>> bd60a1530f44dbe610115bafbab034ebc9a901ca
     
     def change(self, state):
         self._state.switch(state)
