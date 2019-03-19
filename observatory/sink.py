@@ -16,11 +16,12 @@ class Sink():
 
 
     def __init__(self):
+        self._path = None
         # this module depends on the .observatory directory. So we need to make sure it exists.
         home = expanduser("~")
         if os.path.exists(home + "\\.observatory"):
             # if it exists the path will be set
-            self.configure(home + "\\.observatory\\")
+            self._path = (home + "\\.observatory\\")
         else:
             try:
                 # if it doesn't exist, then it will be created, along with subfolders for metrics, outputs and settings.
@@ -28,14 +29,11 @@ class Sink():
                 os.makedirs(home + "\\.observatory\\metrics")
                 os.makedirs(home + "\\.observatory\\outputs")
                 os.makedirs(home + "\\.observatory\\settings")
-                self.configure(home + "\\.observatory\\")
+                self._path = (home + "\\.observatory\\")
             except Exception as e:
                 print (e)
                 pass
         
-    def configure(self, path):
-        self._path = path
-
     def record_metric(self, model, run_id, metric_name, metric_value):
         """
         Records a metric value.
