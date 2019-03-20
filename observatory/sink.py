@@ -101,8 +101,6 @@ class Sink():
                     pickle.dump(data, fileObject, protocol= -1)
         except TypeError as e:
             print (e)
-        except PermissionError as e:
-            print (e)
 
     def record_session_end(self, model, run_id, status):
         """
@@ -126,8 +124,6 @@ class Sink():
             with open(file_name, 'ab') as fileObject:
                 pickle.dump(data, fileObject, protocol= -1)
         except TypeError as e:
-            print (e)
-        except PermissionError as e:
             print (e)
             
 
@@ -158,8 +154,6 @@ class Sink():
                 pickle.dump(data, f, protocol=-1)
         except TypeError as e:
             print (e)
-        except PermissionError as e:
-            print (e)
             
 
     def record_output(self, model, version, experiment, run_id, filename, file):
@@ -188,7 +182,5 @@ class Sink():
         try:
             filename = self._path + "outputs\\" + str(model) + '_' + str(run_id) + '_output.pkl'
         except TypeError as e:
-            print (e)
-        except PermissionError as e:
             print (e)
             
