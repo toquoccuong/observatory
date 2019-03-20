@@ -58,15 +58,11 @@ class Sink():
             The value of the metric
         """
         metric = [metric_name, metric_value]
-        try:
-            file_name = self._path + "metrics\\" + str(model)+ '_' + str(run_id) + '.pkl'
-            with open(file_name, 'ab') as fileObject:
-                self.write_data_to_filestream(fileObject, metric)
-        except TypeError as e:
-            # ! This gets thrown when _path is not set correctly, thus when sink is not initialized,
-            # ! which under normal circumstances will not happen.
-            # ? might need better error handeling, or might not be necessary at all.
-            print (e)
+
+        file_name = self._path + "metrics\\" + str(model)+ '_' + str(run_id) + '.pkl'
+        with open(file_name, 'ab') as fileObject:
+            self.write_data_to_filestream(fileObject, metric)
+
             
     
     def record_session_start(self, model, version, experiment, run_id):
@@ -90,12 +86,11 @@ class Sink():
             The timestamp
         """
         data = [model, version, experiment, run_id, datetime.now()]
-        try:
-            file_name = self._path + "metrics\\" + str(model)+ '_' + str(run_id) + '.pkl'
-            with open(file_name, 'ab') as fileObject:
-                    self.write_data_to_filestream(fileObject, data)
-        except TypeError as e:
-            print (e)
+
+        file_name = self._path + "metrics\\" + str(model)+ '_' + str(run_id) + '.pkl'
+        with open(file_name, 'ab') as fileObject:
+                self.write_data_to_filestream(fileObject, data)
+
 
     def record_session_end(self, model, run_id, status):
         """
@@ -114,12 +109,11 @@ class Sink():
             The status of the run (completed, failed)
         """
         data = [status, datetime.now()]
-        try:
-            file_name = self._path + "metrics\\" + str(model)+ '_' + str(run_id) + '.pkl'
-            with open(file_name, 'ab') as fileObject:
-                self.write_data_to_filestream(fileObject, data)
-        except TypeError as e:
-            print (e)
+       
+        file_name = self._path + "metrics\\" + str(model)+ '_' + str(run_id) + '.pkl'
+        with open(file_name, 'ab') as fileObject:
+            self.write_data_to_filestream(fileObject, data)
+        
             
 
     def record_settings(self, model, version, experiment, run_id, settings):
@@ -143,15 +137,14 @@ class Sink():
             The settings to record on disk
         """
         data = [model, version, experiment, run_id, settings]
-        try:
-            filename = self._path + "settings\\" + str(model) + '_' + str(run_id) + '_settings.pkl'
-            with open(filename, 'ab') as f:
-                self.write_data_to_filestream(f, data)
-        except TypeError as e:
-            print (e)
+        
+        filename = self._path + "settings\\" + str(model) + '_' + str(run_id) + '_settings.pkl'
+        with open(filename, 'ab') as f:
+            self.write_data_to_filestream(f, data)
+        
             
 
-    def record_output(self, model, version, experiment, run_id, filename, file):
+    def record_output(self, model, version, experiment, run_id, filename, filedata):
         """
         Records the output for an experiment
 
@@ -174,10 +167,11 @@ class Sink():
             The file handle
         """
 
-        try:
-            filename = self._path + "outputs\\" + str(model) + '_' + str(run_id) + '_output.pkl'
-        except TypeError as e:
-            print (e)
+        data = [model, version, experiment, run_id, filedata]
+        fn = self._path + "outputs\\" + str(model) + '_' + str(run_id) + '_output.pkl'
+        with open(fn, 'ab') as f:
+            self.write_data_to_filestream(f, data)
+
 
 
             
