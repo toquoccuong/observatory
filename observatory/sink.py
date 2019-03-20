@@ -49,10 +49,10 @@ class Sink():
 
         Parameters
         ----------
+        model : string
+            The name of the model
         run_id : string
             The ID of the run
-        timestamp : long
-            The timestamp for the metric value
         metric_name : string
             The name of the metric
         metric_value : float
@@ -83,8 +83,6 @@ class Sink():
             The name of the experiment
         run_id : string
             The ID of the run
-        timestamp : int
-            The timestamp
         """
         data = [model, version, experiment, run_id, datetime.now()]
 
@@ -106,6 +104,10 @@ class Sink():
 
         Parameters
         ----------
+        model : string
+            The name of the model
+        run_id : string
+            The ID of the run
         status : str
             The status of the run (completed, failed)
         """
@@ -164,14 +166,13 @@ class Sink():
             The identifier for the run
         filename : str
             The filename of the file
-        file : object
-            The file handle
+        filepath : object
+            The file location
         """
-
+        # ? why do we record output, when its just coppying the ouput file to the Observatory directory
+        # ? wouldn't is be better to just save the file path in the record_session_start() method
         output_dir = path.join(self._path + 'models\\')
-        
         file_path = path.join(output_dir + "\\" + model)
-
         with open(filepath, 'r') as fr:
             outStr = fr.readlines()
             with open(file_path, 'w') as fw:
