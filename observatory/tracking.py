@@ -11,9 +11,8 @@ import pdb
 import requests
 from observatory import settings
 from observatory.constants import LABEL_PATTERN
-from observatory.sink import Sink
-
 sink = Sink()
+
 
 class TrackingSession:
     #trackingsession
@@ -211,11 +210,12 @@ class LocalState(ObservatoryState):
         sink.record_output(model, version, experiment, run_id, filename , file)
 
     def record_session_start(self, model, version, experiment, run_id):
+
         sink.record_session_start(model, version, experiment, run_id)
         
     def record_session_end(self, model, version, experiment, run_id, status):
         sink.record_session_end(model, run_id, status)
-        
+
 class RemoteState(ObservatoryState):
     """
     Records metric on a remote server that you can run through the command `observatory server`.
