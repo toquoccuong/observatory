@@ -11,6 +11,8 @@ import pdb
 import requests
 from observatory import settings
 from observatory.constants import LABEL_PATTERN
+from observatory.sink import Sink
+
 sink = Sink()
 
 
