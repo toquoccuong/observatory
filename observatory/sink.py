@@ -14,7 +14,6 @@ class Sink():
     The Pickle protocol being used is the highest possible protocol (-1)
     """
 
-
     def __init__(self):
         self._path = None
         # this module depends on the .observatory directory. So we need to make sure it exists.
@@ -30,8 +29,10 @@ class Sink():
                 os.makedirs(home + "\\.observatory\\outputs")
                 os.makedirs(home + "\\.observatory\\settings")
                 self._path = (home + "\\.observatory\\")
-            except Exception as e:
-                self._path = expanduser('~')
+            except PermissionError as e:
+                # if the acces to the home director is denied, a folder in the repo will be made and used.
+                os.makedirs("\\.observatory")
+                self._path = ("\\.observatory")
                 print (e)
                 pass
         
@@ -63,13 +64,12 @@ class Sink():
             # ! which under normal circumstances will not happen.
             # ? might need better error handeling, or might not be necessary at all.
             print (e)
-        except PermissionError as e:
+        # except PermissionError as e:
             # ! The PermissionError catch is in place so that Travis.ci doesnt fail the tests, 
             # ! because it is not allowed to save files in the travis home directory.
             # ! when using Observatory normally this should never occur.
             # ? might need beter error handleing.
-
-            print (e)
+        #    print (e)
             
         
 
