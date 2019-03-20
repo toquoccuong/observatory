@@ -26,13 +26,14 @@ class Sink():
                 # if it doesn't exist, then it will be created, along with subfolders for metrics, outputs and settings.
                 os.makedirs(home + "\\.observatory")
                 os.makedirs(home + "\\.observatory\\metrics")
+                os.makedirs(home + "\\.observatory\\models")
                 os.makedirs(home + "\\.observatory\\outputs")
                 os.makedirs(home + "\\.observatory\\settings")
                 self._path = (home + "\\.observatory\\")
             except PermissionError as e:
                 # if the acces to the home director is denied, a folder in the repo will be made and used.
                 os.makedirs("\\.observatory")
-                self._path = ("\\.observatory")
+                self._path = ("\\.observatory\\")
                 print (e)
                 pass
 
@@ -144,7 +145,7 @@ class Sink():
         
             
 
-    def record_output(self, model, version, experiment, run_id, filename, filedata):
+    def record_output(self, model, version, experiment, run_id, filename, filepath):
         """
         Records the output for an experiment
 
@@ -167,10 +168,18 @@ class Sink():
             The file handle
         """
 
-        data = [model, version, experiment, run_id, filedata]
-        fn = self._path + "outputs\\" + str(model) + '_' + str(run_id) + '_output.pkl'
-        with open(fn, 'ab') as f:
-            self.write_data_to_filestream(f, data)
+        output_dir = path.join(self._path + 'models\\')
+        
+        file_path = path.join(output_dir + "\\" + model)
+
+        with open(filepath, 'r') as fr:
+            outStr = fr.readlines()
+            with open(file_path, 'w') as fw:
+                fw.writelines(outStr)
+
+        
+        
+                
 
 
 

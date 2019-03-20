@@ -126,7 +126,7 @@ class TrackingSession:
 
         self._state.record_output(
             self.name, self.version, self.experiment,
-            self.run_id, filename, open(absolute_file_path))
+            self.run_id, filename, absolute_file_path)
 
     def __enter__(self):
         self._state.record_session_start(
