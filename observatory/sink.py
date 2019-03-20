@@ -8,6 +8,7 @@ from datetime import datetime
 from pathlib import Path
 
 
+
 class Sink():
     """
     This class handles all the saving of the data using Pickle.
@@ -15,7 +16,6 @@ class Sink():
     """
 
     def __init__(self):
-        self._path = None
         # this module depends on the .observatory directory. So we need to make sure it exists.
         home = expanduser("~")
         if os.path.exists(home + "\\.observatory"):
@@ -35,6 +35,9 @@ class Sink():
                 self._path = ("\\.observatory")
                 print (e)
                 pass
+
+    def write_data_to_filestream(self, fileStream, data):
+        pickle.dump(data, fileStream, -1)
         
     def record_metric(self, model, run_id, metric_name, metric_value):
         """
@@ -58,22 +61,14 @@ class Sink():
         try:
             file_name = self._path + "metrics\\" + str(model)+ '_' + str(run_id) + '.pkl'
             with open(file_name, 'ab') as fileObject:
-                pickle.dump(metric, fileObject, protocol= -1)
+                self.write_data_to_filestream(fileObject, metric)
         except TypeError as e:
             # ! This gets thrown when _path is not set correctly, thus when sink is not initialized,
             # ! which under normal circumstances will not happen.
             # ? might need better error handeling, or might not be necessary at all.
             print (e)
-        # except PermissionError as e:
-            # ! The PermissionError catch is in place so that Travis.ci doesnt fail the tests, 
-            # ! because it is not allowed to save files in the travis home directory.
-            # ! when using Observatory normally this should never occur.
-            # ? might need beter error handleing.
-        #    print (e)
             
-        
-
-
+    
     def record_session_start(self, model, version, experiment, run_id):
         """
         Records the start of a session
@@ -98,7 +93,7 @@ class Sink():
         try:
             file_name = self._path + "metrics\\" + str(model)+ '_' + str(run_id) + '.pkl'
             with open(file_name, 'ab') as fileObject:
-                    pickle.dump(data, fileObject, protocol= -1)
+                    self.write_data_to_filestream(fileObject, data)
         except TypeError as e:
             print (e)
 
@@ -122,7 +117,7 @@ class Sink():
         try:
             file_name = self._path + "metrics\\" + str(model)+ '_' + str(run_id) + '.pkl'
             with open(file_name, 'ab') as fileObject:
-                pickle.dump(data, fileObject, protocol= -1)
+                self.write_data_to_filestream(fileObject, data)
         except TypeError as e:
             print (e)
             
@@ -151,7 +146,7 @@ class Sink():
         try:
             filename = self._path + "settings\\" + str(model) + '_' + str(run_id) + '_settings.pkl'
             with open(filename, 'ab') as f:
-                pickle.dump(data, f, protocol=-1)
+                self.write_data_to_filestream(f, data)
         except TypeError as e:
             print (e)
             
@@ -183,4 +178,6 @@ class Sink():
             filename = self._path + "outputs\\" + str(model) + '_' + str(run_id) + '_output.pkl'
         except TypeError as e:
             print (e)
+
+
             

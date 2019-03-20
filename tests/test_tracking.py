@@ -57,7 +57,7 @@ def test_start_run_with_invalid_version():
             pass
 
 def test_session_scope_behavior():
-    #this does nothing, fix this
+    # ! this does nothing, fix this
     with TrackingSession('test', 1, 'test', 'test') as run:
         run.change(LocalState)
 
@@ -77,7 +77,7 @@ def test_record_metrics_local(metric_name, metric_value):
         session.change(LocalState)
         session.record_metric(metric_name, metric_value)
 
-# FIX connention to a server first, otherwise this will always fail.
+# ! FIX connention to a server first, otherwise this will always fail.
 #@given(
 #    metric_name=strategies.from_regex(LABEL_PATTERN),
 #    metric_value=strategies.floats(min_value=0.0, max_value=10.000)
