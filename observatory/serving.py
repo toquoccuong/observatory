@@ -5,7 +5,7 @@ Typically you first track your model data with :func:`start_run <observatory.tra
 Once you have collected data you can download the model data using the :func:`download_model <observatory.serving.download>`
 function. 
 
-Please refer to the individual function specs for more information how to use these functions.
+Please refer to the individual function specs for more information on how to use these functions.
 """
 import re
 import tempfile

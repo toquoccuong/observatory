@@ -34,7 +34,7 @@ def run_output():
 def test_start_run_with_invalid_model(model):
     with pytest.raises(AssertionError):
         try:
-            with start_run(model, 1):
+            with start_run(model, 1, LocalState()):
                 pass
         except requests.exceptions.ConnectionError:
             pass
@@ -43,7 +43,7 @@ def test_start_run_with_invalid_model(model):
 def test_start_run_with_invalid_experiment(experiment):
     with pytest.raises(AssertionError):
         try:
-            with start_run('test', 1, experiment=experiment):
+            with start_run('test', 1, LocalState(), experiment=experiment):
                 pass
         except requests.exceptions.ConnectionError:
             pass
@@ -51,7 +51,7 @@ def test_start_run_with_invalid_experiment(experiment):
 def test_start_run_with_invalid_version():
     with pytest.raises(AssertionError):
         try:
-            with start_run('test', 0):
+            with start_run('test', 0, LocalState()):
                 pass
         except requests.exceptions.ConnectionError:
             pass
@@ -59,7 +59,7 @@ def test_start_run_with_invalid_version():
 def test_session_scope_behavior():
     #this does nothing, fix this
     with TrackingSession('test', 1, 'test', 'test') as run:
-     run.change(LocalState)
+        run.change(LocalState)
 
 @given(
     metric_name=strategies.from_regex(LABEL_PATTERN),
