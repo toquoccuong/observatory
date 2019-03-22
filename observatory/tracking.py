@@ -281,8 +281,15 @@ class RemoteState(ObservatoryState):
         requests.Response
             The response from the server
         """
-        handler_url = f'{settings.server_url}/api/models/{model}/versions/{version}/experiments/{experiment}/runs/{run_id}/metrics'
-        self._verify_response(requests.post(handler_url, json={'name': name, 'value': value}), 201)
+        handler_url = f'{settings.server_url}/metrics/{run_id}'
+        payload = {
+            'model': model,
+            'run': run_id,
+            'name': name,
+            'value': value
+        }
+        headers = {'content-type': 'application/json'}
+        self._verify_response(requests.post(handler_url, data=json.dumps(payload), headers=headers), 201)
 
     def record_settings(self, model, version, experiment, run_id, settings):
         """
@@ -310,8 +317,16 @@ class RemoteState(ObservatoryState):
         requests.Response
             The response from the server
         """
-        handler_url = f'{settings.server_url}/api/models/{model}/versions/{version}/experiments/{experiment}/runs/{run_id}/settings'
-        self._verify_response(requests.post(handler_url, json=settings), 201)
+        handler_url = f'{settings.server_url}/Settings/{model}'
+        payload = {
+            'model': model,
+            'version': version,
+            'experiment': experiment,
+            'run': run_id,
+            'settings': settings
+        }
+        headers = {'content-type': 'application/json'}
+        self._verify_response(requests.post(handler_url, data=json.dumps(payload), headers=headers), 201)
         
 
 
@@ -343,13 +358,21 @@ class RemoteState(ObservatoryState):
         requests.Response
             The response from the servers
         """
-        handler_url = f'{settings.server_url}/api/models/{model}/versions/{version}/experiments/{experiment}/runs/{run_id}/outputs/{filename}'
+        handler_url = f'{settings.server_url}/output/{run_id}'
+        payload = {
+            'model': model,
+            'version': version,
+            'experiment': experiment,
+            'run': run_id,
+            'value': value
+        }
+        headers = {'content-type': 'application/json'}
 
         file_collection = {
             'file': (filename, file, 'application/octet-stream')
         }
 
-        self._verify_response(requests.put(handler_url, files=file_collection), 201)
+        self._verify_response(requests.post(handler_url, data=json.dumps(payload), headers=headers, files=file_collection), 201)
 
     def record_session_start(self, model, version, experiment, run_id):
         """
@@ -375,8 +398,15 @@ class RemoteState(ObservatoryState):
         requests.Response
             The response from the server
         """
-        handler_url = f'{settings.server_url}/api/models/{model}/versions/{version}/experiments/{experiment}/runs'
-        self._verify_response(requests.post(handler_url, json={'run_id': run_id}), 201)
+        handler_url = f'{settings.server_url}/start/{run_id}'
+        payload = {
+            'model': model,
+            'version': version,
+            'experiment': experiment,
+            'run': run_id
+        }
+        headers = {'content-type': 'application/json'}
+        self._verify_response(requests.post(handler_url, data=json.dumps(payload), headers=headers), 201)
 
     def record_session_end(self, model, version, experiment, run_id, status):
         """
@@ -404,8 +434,16 @@ class RemoteState(ObservatoryState):
         requests.Response
             The response from the server
         """
-        handler_url = f'{settings.server_url}/api/models/{model}/versions/{version}/experiments/{experiment}/runs/{run_id}'
-        self._verify_response(requests.put(handler_url, json={'status': status}), 201)
+        handler_url = f'{settings.server_url}/start/{run_id}'
+        payload = {
+            'model': model,
+            'version': version,
+            'experiment': experiment,
+            'run': run_id,
+            'status': status
+        }
+        headers = {'content-type': 'application/json'}
+        self._verify_response(requests.post(handler_url, data=json.dumps(payload), headers=headers), 201)
 
 def start_run(model, version, state, experiment='default'):
     """
