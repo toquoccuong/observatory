@@ -17,12 +17,12 @@ sink = Sink()
 
 
 class TrackingSession:
-    #trackingsession
 
     def __init__(self, name, version, experiment, run_id):
         """
-        Initializes the tracking session with the necessary tracking information
-        and a pre-initialized tracking client for recording the actual metrics.
+        Initializes the tracking session with the necessary
+        tracking information and a pre-initialized tracking
+        client for recording the actual metrics.
 
         Parameters
         ----------
@@ -40,9 +40,8 @@ class TrackingSession:
         self.experiment = experiment
         self.run_id = run_id
 
-        self._state = LocalState() # ? default state, may need to be changed
+        self._state = LocalState()  # ? default state, may need to be changed
 
-    
     def change(self, state):
         self._state.switch(state)
 
@@ -59,7 +58,8 @@ class TrackingSession:
         """
 
         # ! Typechecking in python is a no-go under normal circumstances.
-        # ! But here we're using it, because the server expects a string and float.
+        # ! But here we're using it, 
+        # ! because the server expects a string and float.
         if name is None or type(name) != str or name.strip() == '':
             raise AssertionError('Please provide a valid name for the metric.')
 
@@ -145,8 +145,8 @@ class TrackingSession:
             self.name, self.version, self.experiment,
             self.run_id, session_status)
 
-
         return exc_type is None
+
 
 class ObservatoryState(ABC):
     def __init__(self):
@@ -166,7 +166,8 @@ class ObservatoryState(ABC):
     def record_settings(self, settings):
         """
         Override this method in a derived class to record a setting.
-        The derived class is required to store the settings as a single dictionary per run.
+        The derived class is required to store the settings as a
+        single dictionary per run.
         """
         pass
 
@@ -208,8 +209,10 @@ class LocalState(ObservatoryState):
     def record_settings(self, model, version, experiment, run_id, settings):
         sink.record_settings(model, version, experiment, run_id, settings)
 
-    def record_output(self, model, version, experiment, run_id, filename, file):
-        sink.record_output(model, version, experiment, run_id, filename , file)
+    def record_output(self, model, version, experiment,
+                      run_id, filename, file):
+        sink.record_output(model, version, experiment, run_id,
+                           filename, file)
 
     def record_session_start(self, model, version, experiment, run_id):
 
@@ -223,7 +226,8 @@ class RemoteState(ObservatoryState):
     Records metric on a remote server that you can run through the command `observatory server`.
     """
 
-    def _verify_response(self, response, expected_status, expected_type='application/json'):
+    def _verify_response(self, response, expected_status, 
+                         expected_type='application/json'):
         """
         Verifies the response received from the tracking client against the expected status code.
         Also verifies that the method contains valid data according to the expected content_type.
@@ -328,9 +332,7 @@ class RemoteState(ObservatoryState):
         headers = {'content-type': 'application/json'}
         self._verify_response(requests.post(handler_url, data=json.dumps(payload), headers=headers), 201)
         
-
-
-    def record_output(self, model, version, experiment, run_id, filename, value):
+    def record_output(self, model, version, experiment, run_id, filename, file):
         """
         Records an output of an experiment run
 
@@ -364,7 +366,6 @@ class RemoteState(ObservatoryState):
             'version': version,
             'experiment': experiment,
             'run': run_id,
-            'value': value
         }
         headers = {'content-type': 'application/json'}
 
@@ -444,6 +445,7 @@ class RemoteState(ObservatoryState):
         }
         headers = {'content-type': 'application/json'}
         self._verify_response(requests.post(handler_url, data=json.dumps(payload), headers=headers), 201)
+
 
 def start_run(model, version, state, experiment='default'):
     """

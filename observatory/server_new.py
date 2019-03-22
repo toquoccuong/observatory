@@ -1,8 +1,9 @@
 # Temporary name
-from flask import Flask, request
-from flask_restful import Api, Resource, reqparse
+from flask import Flask
+import werkzeug
+from flask_restful import Api, Resource, reqparse, request
 from flask_jsonpify import jsonify
-from werkzeug import datastructures
+from werkzeug import datastructures, secure_filename
 from observatory.sink import Sink
 
 sink = Sink()
@@ -111,13 +112,12 @@ class Output(Resource):
 
     def post(self, run):
         parser = reqparse.RequestParser()
-        parser.add_argument("file", type=datastructures.FileStorage,
+        parser.add_argument('file', type=datastructures.FileStorage,
                             location='files')
         parser.add_argument("model")
         args = parser.parse_args()
 
-        oFile = args["file"]
-        print(oFile)
+        print(args['file'])
 
         try:
             pass
