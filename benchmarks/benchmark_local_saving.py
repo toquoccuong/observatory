@@ -9,7 +9,7 @@ import pdb
 from uuid import uuid4
 #import benchmarks.sqlite_database_creation_script
 #import benchmarks.pytables_database_creation_script
-filepath = 'C:\\Users\\MichielL\\Documents\\observatory_output\\'
+filepath = 'C:\\Users\\USer\\Documents\\observatory_output\\'
 startdate = None
 
 class benchmark_text:

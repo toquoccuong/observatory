@@ -39,10 +39,13 @@ class PagedResultSet:
 
 def configure(seed_nodes):
     """
-    Configures the query module to connect to a specific set of elastic search nodes.
+    Configures the query module to connect to a specific set of
+    elastic search nodes.
 
-    When the query module is configured, it will automatically discover other nodes in the cluster.
-    Also, when the connection is lost, it will be automatically reestablished when the cluster becomes available again.
+    When the query module is configured, it will automatically
+    discover other nodes in the cluster.
+    Also, when the connection is lost, it will be automatically
+    reestablished when the cluster becomes available again.
 
     Parameters
     ---------
@@ -56,10 +59,12 @@ def configure(seed_nodes):
 
 def find_items(type_name, query, page_index):
     """
-    Executes a search query for the specified item type and retrieves the specified search results page.
+    Executes a search query for the specified item type and retrieves
+    the specified search results page.
 
     This function assumes you're looking model, version, experiment or run.
-    The index name is derived from the type parameter, if it doesn't exist you will receive a HTTP error.
+    The index name is derived from the type parameter, if it doesn't exist you
+    will receive a HTTP error.
 
     Parameters
     ----------
@@ -105,8 +110,10 @@ def find_models(page_index=0):
     records = []
     total_items = results['hits']['total']
 
-    # Elastic search always returns results, even when you request a non-existing page.
-    # To prevent weird behavior in our api, we check for this and return empty results
+    # Elastic search always returns results,
+    # even when you request a non-existing page.
+    # To prevent weird behavior in our api,
+    # we check for this and return empty results
     # when you requested an empty page.
     if total_items < page_index * PAGE_SIZE:
         return PagedResultSet(page_index, PAGE_SIZE, total_items, [])
@@ -150,8 +157,10 @@ def find_versions(item, page_index=0):
     records = []
     total_items = results['hits']['total']
 
-    # Elastic search always returns results, even when you request a non-existing page.
-    # To prevent weird behavior in our api, we check for this and return empty results
+    # Elastic search always returns results,
+    # even when you request a non-existing page.
+    # To prevent weird behavior in our api,
+    # we check for this and return empty results
     # when you requested an empty page.
     if total_items < page_index * PAGE_SIZE:
         return PagedResultSet(page_index, PAGE_SIZE, total_items, [])
@@ -205,8 +214,10 @@ def find_experiments(model, version, page_index=0):
     records = []
     total_items = results['hits']['total']
 
-    # Elastic search always returns results, even when you request a non-existing page.
-    # To prevent weird behavior in our api, we check for this and return empty results
+    # Elastic search always returns results,
+    # even when you request a non-existing page.
+    # To prevent weird behavior in our api,
+    # we check for this and return empty results
     # when you requested an empty page.
     if total_items < page_index * PAGE_SIZE:
         return PagedResultSet(page_index, PAGE_SIZE, total_items, [])
@@ -264,8 +275,10 @@ def find_runs(model, version, experiment, page_index=0):
     records = []
     total_items = results['hits']['total']
 
-    # Elastic search always returns results, even when you request a non-existing page.
-    # To prevent weird behavior in our api, we check for this and return empty results
+    # Elastic search always returns results,
+    # even when you request a non-existing page.
+    # To prevent weird behavior in our api,
+    # we check for this and return empty results
     # when you requested an empty page.
     if total_items < page_index * PAGE_SIZE:
         return PagedResultSet(page_index, PAGE_SIZE, total_items, [])
@@ -281,10 +294,12 @@ def find_runs(model, version, experiment, page_index=0):
 
     return PagedResultSet(page_index, PAGE_SIZE, total_items, records)
 
-def model_data_available(model ,version, experiment, run_id):
+
+def model_data_available(model, version, experiment, run_id):
     """
     Determines whether there's model data available for download.
-    It could be that there's metadata about the model, but no outputs or settings.
+    It could be that there's metadata about the model, but no outputs
+    or settings.
 
     Parameters:
     -----------
@@ -300,8 +315,10 @@ def model_data_available(model ,version, experiment, run_id):
     Returns:
     --------
     boolean
-        This method returns True when there are outputs and/or settings available for download.
+        This method returns True when there are outputs and/or settings
+        available for download.
         Otherwise this method returns False.
     """
-    model_path = path.join(settings.base_path, model, str(version), experiment, run_id)
+    model_path = path.join(settings.base_path, model, str(version),
+                           experiment, run_id)
     return path.exists(model_path)

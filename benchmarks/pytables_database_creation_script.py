@@ -5,7 +5,7 @@ import datetime
 
 import os
 import shutil
-os.remove('C:\\Users\\MichielL\\Documents\\observatory_output\\benchmark_pytables.h5')
+os.remove('C:\\Users\\USER\\Documents\\observatory_output\\benchmark_pytables.h5')
 
 class Model(IsDescription):
     id          = StringCol(40)
@@ -48,9 +48,9 @@ class Output(IsDescription):
     date	    = StringCol(36)
     run         = StringCol(40)
 
-filepath = 'C:\\Users\\MichielL\\Documents\\observatory_output\\'
+filepath = 'C:\\Users\\USER\\Documents\\observatory_output\\'
 
-h5file = open_file("C:\\Users\\MichielL\\Documents\\observatory_output\\benchmark_pytables.h5", "a", title="benchmark_pytables")
+h5file = open_file("C:\\Users\\USER\\Documents\\observatory_output\\benchmark_pytables.h5", "a", title="benchmark_pytables")
 
 observatory_group = h5file.create_group("/", 'observatory', 'Obsrevatory metadata information')
 model_table = h5file.create_table(observatory_group, 'model', Model, "Model example")

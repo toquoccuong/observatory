@@ -1,6 +1,7 @@
 server_url = "http://localhost:5001"
 base_path = './models'
 
+
 def configure(url, models_path):
     """
     Configures the observatory environment.
