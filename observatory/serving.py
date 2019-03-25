@@ -76,8 +76,7 @@ def download_model(**kwargs):
         raise AssertionError('experiment is invalid. It can contain ' +
                              'lower-case alpha-numeric characters and dashes.')
 
-    handler_url = f'{settings.server_url}/api/models/{model}'
-    +'/versions/{version}/experiments/{experiment}/runs/{run_id}/archive'
+    handler_url = f'{settings.server_url}/api/models/{model}/versions/{version}/experiments/{experiment}/runs/{run_id}/archive'
     response = requests.get(handler_url)
 
     if response.status_code == 200:

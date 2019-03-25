@@ -148,8 +148,7 @@ class Sink():
         with open(filename, 'ab') as f:
             self.write_data_to_filestream(f, data)
 
-    def record_output(self, model, version, experiment,
-                      run_id, filename, filepath):
+    def record_output(self, model, filename, filepath):
         """
         Records the output for an experiment
 
