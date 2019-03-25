@@ -126,8 +126,7 @@ class TrackingSession:
                 'sure that the file exists on disk.')
 
         self._state.record_output(
-            self.name, self.version, self.experiment,
-            self.run_id, filename, absolute_file_path)
+            self.name, filename, absolute_file_path)
 
     def __enter__(self):
         self._state.record_session_start(
@@ -172,7 +171,7 @@ class ObservatoryState(ABC):
         pass
 
     @abstractmethod
-    def record_output(self, input_file, filename):
+    def record_output(self, model, input_file, filename):
         """
         Override this method in a derived class to record an output for the run.
         The derived class is required to handle the value of the output as an opaque binary blob.
@@ -331,7 +330,7 @@ class RemoteState(ObservatoryState):
         headers = {'content-type': 'application/json'}
         self._verify_response(requests.post(handler_url, data=json.dumps(payload), headers=headers), 201)
         
-    def record_output(self, model, version, experiment, run_id, filename, file):
+    def record_output(self, model, filename, file):
         """
         Records an output of an experiment run
 
@@ -359,13 +358,7 @@ class RemoteState(ObservatoryState):
         requests.Response
             The response from the servers
         """
-        handler_url = f'{settings.server_url}/output/{run_id}'
-        payload = {
-            'model': model,
-            'version': version,
-            'experiment': experiment,
-            'run': run_id,
-        }
+        handler_url = f'{settings.server_url}/output/{model}'
         headers = {'content-type': 'application/json'}
 
         file_collection = {
