@@ -196,6 +196,7 @@ class ObservatoryState(ABC):
         """
         pass
 
+
 class LocalState(ObservatoryState):
     """
     This state is used to record metadata about experiments in the current working directory using the standard data Sink. 
@@ -205,21 +206,19 @@ class LocalState(ObservatoryState):
 
     def record_metric(self, model, version, experiment, run_id, name, value):
         sink.record_metric(model, run_id, name, value)
-        
+
     def record_settings(self, model, version, experiment, run_id, settings):
         sink.record_settings(model, version, experiment, run_id, settings)
 
-    def record_output(self, model, version, experiment,
-                      run_id, filename, file):
-        sink.record_output(model, version, experiment, run_id,
-                           filename, file)
+    def record_output(self, model, filename, file):
+        sink.record_output(model, filename, file)
 
     def record_session_start(self, model, version, experiment, run_id):
-
         sink.record_session_start(model, version, experiment, run_id)
-        
+
     def record_session_end(self, model, version, experiment, run_id, status):
         sink.record_session_end(model, run_id, status)
+
 
 class RemoteState(ObservatoryState):
     """
