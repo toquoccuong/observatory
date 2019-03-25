@@ -4,7 +4,6 @@ from tempfile import mkstemp
 
 from observatory.tracking import TrackingSession, start_run, LocalState, RemoteState
 from observatory.constants import LABEL_PATTERN
-from observatory.server import run_server
 from hypothesis import example, given, strategies, assume
 import requests
 import requests.exceptions

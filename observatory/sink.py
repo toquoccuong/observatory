@@ -144,7 +144,7 @@ class Sink():
         """
         data = [model, version, experiment, run_id, settings]
 
-        filename = self._path + "settings\\" + str(model) + '_' + str(run_id) + '_settings.pkl'
+        filename = self._path + "settings\\" + model + '_' + run_id + '_settings.pkl'
         with open(filename, 'ab') as f:
             self.write_data_to_filestream(f, data)
 
