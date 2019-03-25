@@ -1,4 +1,4 @@
-server_url = "http://localhost:5001"
+server_url = "http://127.0.0.1:5000/api"
 base_path = './models'
 
 

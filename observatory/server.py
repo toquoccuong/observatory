@@ -19,6 +19,16 @@ api = Api(app)
 
 
 def allowed_file(filename):
+    """
+    This method checks filenames to see if the filename is valid.
+    
+    Arguments:
+        filename {str} -- The name of a file
+    
+    Returns:
+        Boolean -- The name follows the predetermind ALLOWED_EXTENSIONS
+    """
+
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -27,15 +37,19 @@ class Start(Resource):
     """
     This class is used to group all logic related to the start of a Run
 
-    Arguments:
-        Resource flask_restful.Resource -- Represents an abstract RESTful resource
+    There is only a Post method here, because the other operations are irrelevant here.
+    The other operations for this data are covert in other classes, like Run
 
-    This class is used to group all logic related to the start of a Run
+
+    Arguments:
+        Resource {flask_restful.Resource} -- Represents an abstract RESTful resource
     """
 
-    def post(self, run):
+    def post(self):
         """
         This method handles the Post method
+        In this method the start of a run gets registerd, and the data about the
+        model gets saved to disk (ModelName, Version, Experiment and Run_id)
 
         Arguments:
             run {str} -- The ID of a run
@@ -43,21 +57,34 @@ class Start(Resource):
         Returns:
             HTTP request -- When the function finishes it wil return a http status.
         """
-        # ? sink.record_start_run ???????
-        return 500
+        parser = reqparse.RequestParser()
+        parser.add_argument("model")
+        parser.add_argument("version")
+        parser.add_argument("experiment")
+        parser.add_argument("run")
+        args = parser.parse_args()
+        try:
+            sink.record_session_start(args["model"], args["version"], args["experiment"], args["run"])
+        except Exception:
+            return {'status': 'failure', 'context': 'Run was not started'}, 500
+        return {'status': 'failure'}, 201
 
 
 class End(Resource):
     """
     This class is used to group all logic related to the end of a Run
 
+    There is only a Post method here, because the other operations are irrelevant here.
+    The other operations for this data are covert in other classes, like Run
+
     Arguments:
-        Resource flask_restful.Resource -- Represents an abstract RESTful resource
+        Resource {flask_restful.Resource} -- Represents an abstract RESTful resource
 
     """
-    def post(self, run):
+    def post(self):
         """
-        This method handles the Post method
+        This method handles the Post method.
+        In this method the end of a run gets registerd.
 
         Arguments:
             run {str} -- The ID of a run
@@ -65,8 +92,17 @@ class End(Resource):
         Returns:
             HTTP request -- When the function finishes it wil return a http status.
         """
-        # ? sink.record_start_run ???????
-        return 500
+        parser = reqparse.RequestParser()
+        parser.add_argument("model")
+        parser.add_argument("run")
+        parser.add_argument("status")
+        args = parser.parse_args()
+        try:
+            sink.record_session_end(args["model"], args["run"], args["status"])
+        except Exception as e:
+            print(e)
+            return {'status': 'failure', 'context': 'Run was not Ended'}, 500
+        return {'status': 'failure'}, 201
 
 
 class Model(Resource):
@@ -77,7 +113,7 @@ class Model(Resource):
     never happens.
 
     Arguments:
-        Resource flask_restful.Resource -- Represents an abstract RESTful resource
+        Resource {flask_restful.Resource} -- Represents an abstract RESTful resource
 
     """
     def get(self, name):
@@ -115,7 +151,7 @@ class Version(Resource):
     never happens.
 
     Arguments:
-        Resource flask_restful.Resource -- Represents an abstract RESTful resource
+        Resource {flask_restful.Resource} -- Represents an abstract RESTful resource
 
     """
     def get(self, ID):
@@ -151,14 +187,32 @@ class Experiment(Resource):
     never happens.
 
     Arguments:
-        Resource flask_restful.Resource -- Represents an abstract RESTful resource
+        Resource {flask_restful.Resource} -- Represents an abstract RESTful resource
 
     """
 
     def get(self, name):
+        """
+        This method handles the Get method
+
+        Arguments:
+            name {str} -- The experiment name
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
         return 500
 
     def delete(self, name):
+        """
+        This method handles the Delete method
+
+        Arguments:
+            name {str} -- The experiment name
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
         return 500
 
 
@@ -170,14 +224,32 @@ class Run(Resource):
     never happens.
 
     Arguments:
-        Resource flask_restful.Resource -- Represents an abstract RESTful resource
+        Resource {flask_restful.Resource} -- Represents an abstract RESTful resource
 
     """
 
     def get(self, ID):
+        """
+        This method handles the Get method
+
+        Arguments:
+            ID {str} -- The run ID
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
         return 500
 
     def delete(self, ID):
+        """
+        This method handles the Delete method
+
+        Arguments:
+            ID {str} -- The run ID
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
         return 500
 
 
@@ -188,14 +260,32 @@ class Metric(Resource):
     This class has no PUT method because updating data never happens
 
     Arguments:
-        Resource flask_restful.Resource -- Represents an abstract RESTful resource
+        Resource {flask_restful.Resource} -- Represents an abstract RESTful resource
 
     """
 
-    def get(self, ID):
+    def get(self, run):
+        """
+        This method handles the Get method
+
+        Arguments:
+            run {str} -- The run ID
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
         return 500
 
     def post(self, run):
+        """
+        This method handles the Post method
+
+        Arguments:
+            run {str} -- The run ID
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
         parser = reqparse.RequestParser()
         parser.add_argument("model")
         parser.add_argument("run")
@@ -207,10 +297,19 @@ class Metric(Resource):
             sink.record_metric(args["model"], run, args["name"], args["value"])
             pass
         except Exception as e:
-            return {'status': 'failure'}, 500
+            return {'status': 'failure', 'context': 'Session could not be started'}, 500
         return {'status': 'success'}, 201
 
-    def delete(self, ID):
+    def delete(self, run):
+        """
+        This method handles the Delete method
+
+        Arguments:
+            run {str} -- The run ID
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
         return 500
 
 
@@ -221,14 +320,32 @@ class Setting(Resource):
     This class has no PUT method because updating data never happens
 
     Arguments:
-        Resource flask_restful.Resource -- Represents an abstract RESTful resource
+        Resource {flask_restful.Resource} -- Represents an abstract RESTful resource
 
     """
 
-    def get(self, ID):
+    def get(self, run):
+        """
+        This method handles the Get method
+
+        Arguments:
+            run {str} -- The run ID
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
         return 500
 
     def post(self, run):
+        """
+        This method handles the Post method
+
+        Arguments:
+            run {str} -- The run ID
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
         parser = reqparse.RequestParser()
         parser.add_argument("model")
         parser.add_argument("version")
@@ -240,6 +357,15 @@ class Setting(Resource):
         return {'status': 'succes'}, 201
 
     def delete(self, ID):
+        """
+        This method handles the Delete method
+
+        Arguments:
+            run {str} -- The run ID
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
         return 500
 
 
@@ -250,14 +376,32 @@ class Output(Resource):
     This class has no PUT method because updating data never happens
 
     Arguments:
-        Resource flask_restful.Resource -- Represents an abstract RESTful resource
+        Resource {flask_restful.Resource} -- Represents an abstract RESTful resource
 
     """
 
-    def get(self, ID):
+    def get(self, run):
+        """
+        This method handles the Get method
+
+        Arguments:
+            run {str} -- The run ID
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
         return 500
 
     def post(self, run):
+        """
+        This method handles the Post method
+
+        Arguments:
+            run {str} -- The run ID
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
         if 'file' not in request.files:
             flash('No file part')
             return {'status': 'failure', 'context': 'File was not found'}, 500
@@ -274,7 +418,16 @@ class Output(Resource):
         else:
             return {'status': 'failure', 'context': 'File type not allowed'}, 500
 
-    def delete(self, ID):
+    def delete(self, run):
+        """
+        This method handles the Delete method
+
+        Arguments:
+            run {str} -- The run ID
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
         return 500
 
 api.add_resource(Model, "/api/models/<string:model>")
@@ -283,4 +436,6 @@ api.add_resource(Experiment, "/api/experiments/<string:name>")
 api.add_resource(Metric, "/api/metrics/<string:run>")
 api.add_resource(Setting, "/api/settings/<string:run>")
 api.add_resource(Output, "/api/output/<string:run>")
+api.add_resource(Start, "/api/start/")
+api.add_resource(End, "/api/end/")
 app.run(debug=True)

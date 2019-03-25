@@ -359,13 +359,13 @@ class RemoteState(ObservatoryState):
             The response from the servers
         """
         handler_url = f'{settings.server_url}/output/{model}'
-        headers = {'content-type': 'application/json'}
+        headers = {'content-type': 'multipart/form-dataitem'}
 
         file_collection = {
             'file': (filename, file, 'application/octet-stream')
         }
 
-        self._verify_response(requests.post(handler_url, data=json.dumps(payload), headers=headers, files=file_collection), 201)
+        self._verify_response(requests.post(handler_url, headers=headers, files=file_collection), 201)
 
     def record_session_start(self, model, version, experiment, run_id):
         """
@@ -391,7 +391,7 @@ class RemoteState(ObservatoryState):
         requests.Response
             The response from the server
         """
-        handler_url = f'{settings.server_url}/start/{run_id}'
+        handler_url = f'{settings.server_url}/start/'
         payload = {
             'model': model,
             'version': version,
@@ -427,11 +427,9 @@ class RemoteState(ObservatoryState):
         requests.Response
             The response from the server
         """
-        handler_url = f'{settings.server_url}/start/{run_id}'
+        handler_url = f'{settings.server_url}/end/'
         payload = {
             'model': model,
-            'version': version,
-            'experiment': experiment,
             'run': run_id,
             'status': status
         }
