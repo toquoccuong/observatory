@@ -94,13 +94,14 @@ class End(Resource):
         """
         parser = reqparse.RequestParser()
         parser.add_argument("model")
+        parser.add_argument("version")
+        parser.add_argument("experiment")
         parser.add_argument("run")
         parser.add_argument("status")
         args = parser.parse_args()
         try:
-            sink.record_session_end(args["model"], args["run"], args["status"])
+            sink.record_session_end(args["model"], args["version"], args["experiment"], args["run"], args["status"])
         except Exception as e:
-            print(e)
             return {'status': 'failure', 'context': 'Run was not Ended'}, 500
         return {'status': 'failure'}, 201
 
@@ -288,14 +289,14 @@ class Metric(Resource):
         """
         parser = reqparse.RequestParser()
         parser.add_argument("model")
-        parser.add_argument("run")
+        parser.add_argument("version")
+        parser.add_argument("experiment")
         parser.add_argument("name")
         parser.add_argument("value")
         args = parser.parse_args()
 
         try:
-            sink.record_metric(args["model"], run, args["name"], args["value"])
-            pass
+            sink.record_metric(args["model"], args["version"], args["experiment"], run, args["name"], args["value"])
         except Exception as e:
             return {'status': 'failure', 'context': 'Session could not be started'}, 500
         return {'status': 'success'}, 201
@@ -353,7 +354,10 @@ class Setting(Resource):
         parser.add_argument("settings")
         args = parser.parse_args()
 
-        sink.record_settings(args["model"], args["version"], args["experiment"], run, args["settings"])
+        try:
+            sink.record_settings(args["model"], args["version"], args["experiment"], run, args["settings"])
+        except Exception:
+            return {'status': 'succes', 'context': 'Settings could not be recorded'}, 500
         return {'status': 'succes'}, 201
 
     def delete(self, ID):

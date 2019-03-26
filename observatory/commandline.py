@@ -1,5 +1,4 @@
 import click
-from observatory.server import run_server
 
 
 @click.group()
@@ -24,4 +23,4 @@ def cli():
          'The application will automatically try to discover more nodes, ' +
          'so in principle you need only set one node.')
 def server(port, es_node):
-    run_server(port, list(es_node))
+    pass

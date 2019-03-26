@@ -39,10 +39,16 @@ class TrackingSession:
         self.version = version
         self.experiment = experiment
         self.run_id = run_id
-
-        self._state = LocalState()  # ? default state, may need to be changed
+        self._state = LocalState()
 
     def change(self, state):
+        """
+        Needed for the implementation of the state pattern, with this it is possilbe
+        to switch betweeen states.
+        
+        Arguments:
+            state {LocalState or RemoteState} -- The current state of the TrackingSession
+        """
         self._state.switch(state)
 
     def record_metric(self, name, value):
@@ -58,8 +64,7 @@ class TrackingSession:
         """
 
         # ! Typechecking in python is a no-go under normal circumstances.
-        # ! But here we're using it, 
-        # ! because the server expects a string and float.
+        # ! But here we're using it, because the _state expects a string and float.
         if name is None or type(name) != str or name.strip() == '':
             raise AssertionError('Please provide a valid name for the metric.')
 
@@ -155,14 +160,14 @@ class ObservatoryState(ABC):
         self.__class__ = state
 
     @abstractmethod
-    def record_metric(self, name, value):
+    def record_metric(self, model, version, experiment, run_id, value):
         """
-        This method will record a metric.
+        Override this method in a derived class to record a metric.
         """
         pass
 
     @abstractmethod
-    def record_settings(self, settings):
+    def record_settings(self, model, version, experiment, run_id, settings):
         """
         Override this method in a derived class to record a setting.
         The derived class is required to store the settings as a
@@ -171,7 +176,7 @@ class ObservatoryState(ABC):
         pass
 
     @abstractmethod
-    def record_output(self, model, input_file, filename):
+    def record_output(self, model, version, experiment, input_file, filename):
         """
         Override this method in a derived class to record an output for the run.
         The derived class is required to handle the value of the output as an opaque binary blob.
@@ -198,13 +203,13 @@ class ObservatoryState(ABC):
 
 class LocalState(ObservatoryState):
     """
-    This state is used to record metadata about experiments in the current working directory using the standard data Sink. 
-    LocalState is nothing more than a nice handler that passes data to Sink, this is because the sever is using the same saving mechanism to save data.
+    This state is used to record metadata about experiments in the .obsrevatory directory using the standard data Sink. 
+    LocalState is nothing more than a nice handler that passes data to Sink, this is done because the sever is using the same saving mechanism to save data.
     So there is a seperate module to handle this.
     """
 
     def record_metric(self, model, version, experiment, run_id, name, value):
-        sink.record_metric(model, run_id, name, value)
+        sink.record_metric(model, version, experiment, run_id, name, value)
 
     def record_settings(self, model, version, experiment, run_id, settings):
         sink.record_settings(model, version, experiment, run_id, settings)
@@ -216,7 +221,7 @@ class LocalState(ObservatoryState):
         sink.record_session_start(model, version, experiment, run_id)
 
     def record_session_end(self, model, version, experiment, run_id, status):
-        sink.record_session_end(model, run_id, status)
+        sink.record_session_end(model, version, experiment, run_id, status)
 
 
 class RemoteState(ObservatoryState):
@@ -286,7 +291,8 @@ class RemoteState(ObservatoryState):
         handler_url = f'{settings.server_url}/metrics/{run_id}'
         payload = {
             'model': model,
-            'run': run_id,
+            'version': version,
+            'experiment': experiment,
             'name': name,
             'value': value
         }
@@ -324,7 +330,6 @@ class RemoteState(ObservatoryState):
             'model': model,
             'version': version,
             'experiment': experiment,
-            'run': run_id,
             'settings': settings
         }
         headers = {'content-type': 'application/json'}
@@ -398,6 +403,7 @@ class RemoteState(ObservatoryState):
             'experiment': experiment,
             'run': run_id
         }
+        pdb.set_trace()
         headers = {'content-type': 'application/json'}
         self._verify_response(requests.post(handler_url, data=json.dumps(payload), headers=headers), 201)
 
@@ -430,6 +436,8 @@ class RemoteState(ObservatoryState):
         handler_url = f'{settings.server_url}/end/'
         payload = {
             'model': model,
+            'version': version,
+            'experiment': experiment,
             'run': run_id,
             'status': status
         }

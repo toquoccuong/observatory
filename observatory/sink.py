@@ -27,22 +27,25 @@ class Sink():
                 # along with subfolders for metrics, outputs and settings.
                 os.makedirs(home + "\\.observatory")
                 os.makedirs(home + "\\.observatory\\metrics")
-                os.makedirs(home + "\\.observatory\\models")
                 os.makedirs(home + "\\.observatory\\outputs")
                 os.makedirs(home + "\\.observatory\\settings")
                 self._path = (home + "\\.observatory\\")
             except PermissionError as e:
-                # if the acces to the home director is denied,
-                # a folder in the repo will be made and used.
+                # if the acces to the home directory is denied,
+                # a folder in the current repo will be made and used.
                 os.makedirs("\\.observatory")
                 self._path = ("\\.observatory\\")
-                print(e)
                 pass
 
-    def write_data_to_filestream(self, fileStream, data):
-        pickle.dump(data, fileStream, -1)
+    def write_data_to_filestream(self, file_stream, data):
+        """
+        This methods pickles all data, and writes is to the fileStream
 
-    def record_metric(self, model, run_id, metric_name, metric_value):
+        This method is separate to guarantee code testability
+        """
+        pickle.dump(data, file_stream, -1)
+
+    def record_metric(self, model, version, experiment, run_id, metric_name, metric_value):
         """
         Records a metric value.
 
@@ -54,6 +57,10 @@ class Sink():
         ----------
         model : string
             The name of the model
+        version : int
+            The version number of the model
+        experiment : string
+            The name of the experiment
         run_id : string
             The ID of the run
         metric_name : string
@@ -63,7 +70,7 @@ class Sink():
         """
         metric = [metric_name, metric_value]
 
-        file_name = self._path + "metrics\\" + str(model) + '_' + str(run_id) + '.pkl'
+        file_name = self._path + "metrics\\" + model + '_v' + str(version) + '_' + experiment + '_' + run_id + '.pkl'
         with open(file_name, 'ab') as fileObject:
             self.write_data_to_filestream(fileObject, metric)
 
@@ -89,11 +96,11 @@ class Sink():
         """
         data = [model, version, experiment, run_id, datetime.now()]
 
-        file_name = self._path + "metrics\\" + str(model) + '_' + str(run_id) + '.pkl'
+        file_name = self._path + "metrics\\" + model + '_v' + str(version) + '_' + experiment + '_' + run_id + '.pkl'
         with open(file_name, 'ab') as fileObject:
                 self.write_data_to_filestream(fileObject, data)
 
-    def record_session_end(self, model, run_id, status):
+    def record_session_end(self, model, version, experiment, run_id, status):
         """
         Records the end of a tracking session
 
@@ -111,6 +118,10 @@ class Sink():
         ----------
         model : string
             The name of the model
+        version : int
+            The model version
+        experiment : str
+            The name of the experiment
         run_id : string
             The ID of the run
         status : str
@@ -118,7 +129,7 @@ class Sink():
         """
         data = [status, datetime.now()]
 
-        file_name = self._path + "metrics\\" + str(model) + '_' + str(run_id) + '.pkl'
+        file_name = self._path + "metrics\\" + model + '_v' + str(version) + '_' + experiment + '_' + run_id + '.pkl'
         with open(file_name, 'ab') as fileObject:
             self.write_data_to_filestream(fileObject, data)
 
@@ -144,7 +155,7 @@ class Sink():
         """
         data = [model, version, experiment, run_id, settings]
 
-        filename = self._path + "settings\\" + model + '_' + run_id + '_settings.pkl'
+        filename = self._path + "settings\\" + model + '_v' + str(version) + '_' + experiment + '_' + run_id + '.pkl'
         with open(filename, 'ab') as f:
             self.write_data_to_filestream(f, data)
 
@@ -175,8 +186,8 @@ class Sink():
         # ? to the Observatory directory
         # ? wouldn't is be better to just save the file path
         # ? in the record_session_start() method
-        output_dir = path.join(self._path + 'models\\')
-        file_path = path.join(output_dir + "\\" + model)
+        output_dir = path.join(self._path + 'outputs\\')
+        file_path = path.join(output_dir + model)
         with open(filepath, 'r') as fr:
             outStr = fr.readlines()
             with open(file_path, 'w') as fw:
