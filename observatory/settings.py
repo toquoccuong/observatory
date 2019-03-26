@@ -1,5 +1,5 @@
-server_url = "http://localhost:5001"
-base_path = './models'
+server_url = "http://127.0.0.1:5000/api"
+
 
 def configure(url, models_path):
     """
@@ -14,7 +14,5 @@ def configure(url, models_path):
         The path where models should be stored
     """
     global server_url
-    global base_path
 
     server_url = url
-    base_path = models_path

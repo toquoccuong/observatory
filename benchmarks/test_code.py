@@ -117,7 +117,7 @@ def create_headers_excel(worksheet):
 
 
 def create_excel_chart(workbook, worksheet, avg):
-    writer = pd.ExcelWriter('C:\\Users\\MichielL\\Documents\\observatory_output\\Results01.xlsx', engine='xlsxwriter')
+    writer = pd.ExcelWriter('C:\\Users\\USER\\Documents\\observatory_output\\Results01.xlsx', engine='xlsxwriter')
     df = pd.DataFrame()
     df.to_excel(writer, sheet_name='Sheet1')
     
@@ -168,7 +168,7 @@ if __name__ == "__main__":
 
     #create excel file
     home = expanduser("~")
-    workbook = xlsxwriter.Workbook('C:\\Users\\MichielL\\Documents\\observatory_output\\Results01.xlsx'.format(home))
+    workbook = xlsxwriter.Workbook('C:\\Users\\USER\\Documents\\observatory_output\\Results01.xlsx'.format(home))
     worksheet = workbook.add_worksheet()
     format1 = workbook.add_format({'num_format': '0.000'})
     

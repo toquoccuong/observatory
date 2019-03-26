@@ -1,11 +1,14 @@
 """
 This module can be used to download data from the observatory server.
-Typically you first track your model data with :func:`start_run <observatory.tracking.start_run>`.
+Typically you first track your model data
+with :func:`start_run <observatory.tracking.start_run>`.
 
-Once you have collected data you can download the model data using the :func:`download_model <observatory.serving.download>`
-function. 
+Once you have collected data you can download the model data
+using the :func:`download_model <observatory.serving.download>`
+function.
 
-Please refer to the individual function specs for more information on how to use these functions.
+Please refer to the individual function specs for more information
+on how to use these functions.
 """
 import re
 import tempfile
@@ -19,11 +22,14 @@ def download_model(**kwargs):
     """
     Downloads a model from the server and stores it in a local folder.
 
-    This method will download a tarball from the server and extract it in a folder specified with the path argument.
+    This method will download a tarball from the server and extract it
+    in a folder specified with the path argument.
     The model folder will contain all outputs you stored for the model.
 
-    Additionally a settings.json file is included, which contains the settings that you stored earlier.
-    Finally, a metadata.json file is included, which contains all the necessary metadata for the model,
+    Additionally a settings.json file is included, which contains the
+    settings that you stored earlier.
+    Finally, a metadata.json file is included, which contains all the
+    necessary metadata for the model,
     the name, version, experiment ID and run ID.
 
     Parameters
@@ -64,11 +70,11 @@ def download_model(**kwargs):
 
     if not re.match(LABEL_PATTERN, model):
         raise AssertionError('name is invalid. It can contain ' +
-                             'lower-case alpha-numeric characters and dashes only.')
+                             'lower-case alpha-numeric characters and dashes.')
 
     if experiment != 'default' and not re.match(LABEL_PATTERN, model):
         raise AssertionError('experiment is invalid. It can contain ' +
-                             'lower-case alpha-numeric characters and dashes only.')
+                             'lower-case alpha-numeric characters and dashes.')
 
     handler_url = f'{settings.server_url}/api/models/{model}/versions/{version}/experiments/{experiment}/runs/{run_id}/archive'
     response = requests.get(handler_url)
@@ -82,4 +88,4 @@ def download_model(**kwargs):
 
         archive.extract(temp_filename, path)
     else:
-        raise RuntimeError(f'Failed to download model, the server returned an error with status code {response.status_code}: {response.json()["message"]}')
+        raise RuntimeError(f'the server returned status code {response.status_code}:{response.json()["message"]}')

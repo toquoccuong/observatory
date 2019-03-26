@@ -1,475 +1,445 @@
+# Temporary name
+from flask import Flask, flash, request, redirect, url_for
+import werkzeug
+from flask_restful import Api, Resource, reqparse, request
+from flask_jsonpify import jsonify
+from werkzeug import datastructures, secure_filename
+from observatory.sink import Sink
 import os
-import platform
-import subprocess
-import time
+from os.path import expanduser
 
-from flask import Flask, jsonify, request, send_from_directory
-from werkzeug.utils import secure_filename
-from observatory import queries, sink, archive, settings
+UPLOAD_FOLDER = expanduser('~') + '\\.observatory\\outputs'
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'pkl'])
 
-RELATIVE_STATIC_DIR = os.path.join('clientapp', 'build')
-
-app = Flask(__name__, static_folder='clientapp')
-
-STATIC_DIR = os.path.join(app.root_path, RELATIVE_STATIC_DIR)
+sink = Sink()
+app = Flask(__name__)
+app.secret_key = '?secret?'  # this has to change, and be secret
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+api = Api(app)
 
 
-def with_generic_errorhandling(handler):
+def allowed_file(filename):
     """
-    This generates a functions that generates a default error response when
-    the handler unsuccesfully handles the request.
-
-    Parameters:
-    -----------
-    handler : object
-        The function that handles the request
-
+    This method checks filenames to see if the filename is valid.
+    
+    Arguments:
+        filename {str} -- The name of a file
+    
     Returns:
-    --------
-    object
-        A function that produces a standard HTTP 500 error response when the incoming request
-        could not be handled by the provided request handler.
+        Boolean -- The name follows the predetermind ALLOWED_EXTENSIONS
     """
 
-    try:
-        return handler()
-    except Exception as ex:
-        print("Failed to handle request", ex)
-        return jsonify({'status': 'failed', 'message': 'Failed to process request'}), 500
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def with_default_accepted_response(handler):
+class Start(Resource):
     """
-    Generates a function that will produce a default accepted 
-    response when the handler succesfully runs.
+    This class is used to group all logic related to the start of a Run
 
-    Parameters:
-    -----------
-    handler : object
-        The function that handles the request.
-
-    Returns:
-    --------
-    object
-        A function that produces a default HTTP 201 response when the 
-        request handler succesfully handled the incoming request.
-    """
-    def request_handler():
-        handler()
-        return jsonify({'status': 'success'}), 201
-
-    return request_handler
+    There is only a Post method here, because the other operations are irrelevant here.
+    The other operations for this data are covert in other classes, like Run
 
 
-@app.route('/api/models')
-def serve_models():
-    """
-    Serves a list of versions for a particular model
-
-    Returns:
-    --------
-    object
-        The response containing a paged list of versions
-        The response contains the following properties:
-
-         - data : list of experiments
-         - page_index : int
-         - page_size : int
-         - total_items : int
-
-        Each element in the data property will contain the following properties:
-
-         - model : str
-         - date_created : str
-    """
-    def models_handler():
-        page_index = int(request.args.get("page", default=0))
-        return jsonify(queries.find_models(page_index).__dict__)
-
-    return with_generic_errorhandling(models_handler)
-
-
-@app.route('/api/models/<string:model>/versions')
-def serve_versions(model):
-    """
-    Serves a list of versions for a particular model
-
-    Parameters:
-    -----------
-    model : str
-        The name of the model
-
-    Returns:
-    --------
-    object
-        The response containing a paged list of versions
-        The response contains the following properties:
-
-         - data : list of experiments
-         - page_index : int
-         - page_size : int
-         - total_items : int
-
-        Each element in the data property will contain the following properties:
-
-         - model : str
-         - version : int
-         - date_created : str
-    """
-    def versions_handler():
-        page_index = int(request.args.get("page", default=0))
-        return jsonify(queries.find_versions(model, page_index).__dict__)
-
-    return with_generic_errorhandling(versions_handler)
-
-
-@app.route('/api/models/<string:model>/versions/<int:version>/experiments')
-def serve_experiments(model, version):
-    """
-    Serves a list of experiments for a specific model version
-
-    Parameters:
-    -----------
-    model : str
-        The name of the model
-    version : int
-        The version number of the model
-
-    Returns
-    -------
-    object
-        The response containing a paged list of experiments.
-        The response contains the following properties:
-
-         - data : list of experiments
-         - page_index : int
-         - page_size : int
-         - total_items : int
-
-        Each element in the data property will contain the following properties:
-
-         - model : str
-         - version : int
-         - experiment : str
-         - date_created : str
-    """
-    def experiments_handler():
-        page_index = int(request.args.get("page", default=0))
-        return jsonify(queries.find_experiments(model, version, page_index).__dict__)
-
-    return with_generic_errorhandling(experiments_handler)
-
-
-@app.route('/api/models/<string:model>/versions/<int:version>/experiments/<string:experiment>/runs')
-def serve_runs(model, version, experiment):
-    """
-    Serves a list of all runs for a given experiment
-
-    Parameters:
-    -----------
-    model : str
-        The name of the model
-    version : int
-        The version of the model
-    experiment : str
-        The name of the experiment
-
-    Returns:
-    --------
-    object
-        The response containing a paged list of experiments.
-            The response contains the following properties:
-
-            - data : list of runs
-            - page_index : number
-            - page_size : number
-            - total_items : number
-
-            Each element in the data property will contain the following properties:
-
-            - model : str
-            - version : int
-            - run_id : str
-            - date_created : str
-    """
-    def runs_handler():
-        page_index = int(request.args.get("page", default=0))
-        return jsonify(queries.find_runs(model, version, experiment, page_index).__dict__)
-
-    return with_generic_errorhandling(runs_handler)
-
-
-@app.route('/api/models/<string:model>/versions/<int:version>/experiments/<string:experiment>/runs/<string:run_id>/archive', methods=['GET'])
-def serve_model_data(model, version, experiment, run_id):
-    """
-    Allows clients to download all assets of a specific model.
-
-    The download is a tar.gz archive that the client needs to extract in order to use the model data.
-    By default the downloaded tarball contains the outputs, settings and some metadata about the model.
-
-    Parameters:
-    -----------
-    model : str
-        The name of the model
-    version : int
-        The version of the model
-    experiment : str
-        The name of the experiment
-    run_id : str
-        The ID of the run
-
-    Returns:
-    --------
-    obj
-        The HTTP response containing the model data.
+    Arguments:
+        Resource {flask_restful.Resource} -- Represents an abstract RESTful resource
     """
 
-    if not queries.model_data_available(model, version, experiment, run_id):
-        return jsonify({ 'message': 'Model data unavailable. Please record outputs and/or settings for your model.'}), 404
+    def post(self):
+        """
+        This method handles the Post method
+        In this method the start of a run gets registerd, and the data about the
+        model gets saved to disk (ModelName, Version, Experiment and Run_id)
 
-    archive_file = archive.create(settings.base_path, model, version, experiment, run_id)
-    folder, filename = os.path.split(archive_file)
+        Arguments:
+            run {str} -- The ID of a run
 
-    return send_from_directory(folder, filename)
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
+        parser = reqparse.RequestParser()
+        parser.add_argument("model")
+        parser.add_argument("version")
+        parser.add_argument("experiment")
+        parser.add_argument("run")
+        args = parser.parse_args()
+        try:
+            sink.record_session_start(args["model"], args["version"], args["experiment"], args["run"])
+        except Exception:
+            return {'status': 'failure', 'context': 'Run was not started'}, 500
+        return {'status': 'failure'}, 201
 
 
-@app.route('/api/models/<string:model>/versions/<int:version>/experiments/<string:experiment>/runs', methods=['POST'])
-def record_run_start(model, version, experiment):
+class End(Resource):
     """
-    Records the start of a new training session.
-    This handler expects a JSON payload as the body of the HTTP request with a single field `run_id`
+    This class is used to group all logic related to the end of a Run
 
-    Parameters:
-    -----------
-    model : str 
-        The name of the model
-    version : int
-        The version of the model
-    experiment : str
-        The name of the experiment
+    There is only a Post method here, because the other operations are irrelevant here.
+    The other operations for this data are covert in other classes, like Run
 
-    Returns:
-    --------
-    object
-        The HTTP response with status 201 when the session start was sucessfully recorded.
-        Otherwise sends 500 response with a generic error message.
+    Arguments:
+        Resource {flask_restful.Resource} -- Represents an abstract RESTful resource
+
     """
-    def handle_run_start():
-        request_content = request.get_json()
+    def post(self):
+        """
+        This method handles the Post method.
+        In this method the end of a run gets registerd.
 
-        print('Request payload', request_content)
+        Arguments:
+            run {str} -- The ID of a run
 
-        sink.record_session_start(
-            model, version, experiment,
-            request_content['run_id'], int(time.time()))
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
+        parser = reqparse.RequestParser()
+        parser.add_argument("model")
+        parser.add_argument("version")
+        parser.add_argument("experiment")
+        parser.add_argument("run")
+        parser.add_argument("status")
+        args = parser.parse_args()
+        try:
+            sink.record_session_end(args["model"], args["version"], args["experiment"], args["run"], args["status"])
+        except Exception as e:
+            return {'status': 'failure', 'context': 'Run was not Ended'}, 500
+        return {'status': 'failure'}, 201
 
-    return with_generic_errorhandling(with_default_accepted_response(handle_run_start))
 
-
-@app.route('/api/models/<string:model>/versions/<int:version>/experiments/<string:experiment>/runs/<string:run_id>', methods=['PUT'])
-def record_run_completion(model, version, experiment, run_id):
+class Model(Resource):
     """
-    Records the end of a training session.
-    This handler expects a JSON payload as the body of the HTTP request with a single field `status`
+    This class is used to group all logic related to the Model
 
-    Parameters:
-    -----------
-    model : str 
-        The name of the model
-    version : int
-        The version of the model
-    experiment : str
-        The name of the experiment
+    This class only has a get and delete method, because adding just a model
+    never happens.
 
-    Returns:
-    --------
-    object
-        Returns a HTTP response with status 201 when the metric is succesfully recorded.
-        Otherwise returns a HTTP response with status 500.
+    Arguments:
+        Resource {flask_restful.Resource} -- Represents an abstract RESTful resource
+
     """
-    def handle_run_completion():
-        request_content = request.get_json()
+    def get(self, name):
+        """
+        This method handles the Get method
+        It gets all data related to a single model
 
-        sink.record_session_end(model, version, experiment,
-                                run_id, request_content['status'], int(time.time()))
+        Arguments:
+            name {str} -- The name of the model
 
-    return with_generic_errorhandling(with_default_accepted_response(handle_run_completion))
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
+        # querries.getByName()
+        return 500
+
+    def delete(self, name):
+        """
+        This method handles the Delete method
+
+        Arguments:
+            name {str} -- The name of the model
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
+        return 500
 
 
-@app.route('/api/models/<string:model>/versions/<int:version>/experiments/<string:experiment>/runs/<string:run_id>/metrics', methods=['POST'])
-def record_metric(model, version, experiment, run_id):
+class Version(Resource):
     """
-    Records metrics
+    This class is used to group all logic related to the Version
 
-    Parameters:
-    -----------
-    model : str
-        The name of the model
-    version : int
-        The version of the model
-    experiment : str
-        The name of the experiment
-    run_id : str
-        The identifier for the run
+    This class only has a get and delete method, because adding just a Version
+    never happens.
 
-    Returns:
-    --------
-    object
-        Returns a HTTP response with status 201 when the metric is succesfully recorded.
-        Otherwise returns a HTTP response with status 500.
+    Arguments:
+        Resource {flask_restful.Resource} -- Represents an abstract RESTful resource
+
     """
-    def tracking_handler():
-        request_content = request.get_json()
+    def get(self, ID):
+        """
+        This method handles the Get method
 
-        metric_name = request_content['name']
-        metric_value = request_content['value']
+        Arguments:
+            ID {str} -- The version ID
 
-        sink.record_metric(model, version, experiment, run_id, int(
-            time.time()), metric_name, metric_value)
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
+        return 500
 
-    return with_generic_errorhandling(with_default_accepted_response(tracking_handler))
+    def delete(self, ID):
+        """
+        This method handles the Delete method
+
+        Arguments:
+            ID {str} -- The version ID
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
+        return 500
 
 
-@app.route('/api/models/<string:model>/versions/<int:version>/experiments/<string:experiment>/runs/<string:run_id>/outputs/<filename>', methods=['PUT'])
-def record_output(model, version, experiment, run_id, filename):
+class Experiment(Resource):
     """
-    Records the output of an experiment run.
+    This class is used to group all logic related to the Experiment
 
-    Parameters:
-    -----------
-    model : str
-        The name of the model
-    version : int
-        The version of the model
-    experiment : str
-        The name of the experiment
-    run_id : str
-        The identifier for the run
+    This class only has a get and delete method, because adding just an Experiment
+    never happens.
 
-    Returns:
-    --------
-    object
-        Returns a HTTP response with status 201 when the output is succesfully recorded.
-        Otherwise returns a HTTP response with status 500.
+    Arguments:
+        Resource {flask_restful.Resource} -- Represents an abstract RESTful resource
+
     """
 
-    def tracking_handler():
+    def get(self, name):
+        """
+        This method handles the Get method
+
+        Arguments:
+            name {str} -- The experiment name
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
+        return 500
+
+    def delete(self, name):
+        """
+        This method handles the Delete method
+
+        Arguments:
+            name {str} -- The experiment name
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
+        return 500
+
+
+class Run(Resource):
+    """
+    This class is used to group all logic related to the Run
+
+    This class only has a get and delete method, because adding just a Run
+    never happens.
+
+    Arguments:
+        Resource {flask_restful.Resource} -- Represents an abstract RESTful resource
+
+    """
+
+    def get(self, ID):
+        """
+        This method handles the Get method
+
+        Arguments:
+            ID {str} -- The run ID
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
+        return 500
+
+    def delete(self, ID):
+        """
+        This method handles the Delete method
+
+        Arguments:
+            ID {str} -- The run ID
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
+        return 500
+
+
+class Metric(Resource):
+    """
+    This class is used to group all logic related to the Metrics of a Run
+
+    This class has no PUT method because updating data never happens
+
+    Arguments:
+        Resource {flask_restful.Resource} -- Represents an abstract RESTful resource
+
+    """
+
+    def get(self, run):
+        """
+        This method handles the Get method
+
+        Arguments:
+            run {str} -- The run ID
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
+        return 500
+
+    def post(self, run):
+        """
+        This method handles the Post method
+
+        Arguments:
+            run {str} -- The run ID
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
+        parser = reqparse.RequestParser()
+        parser.add_argument("model")
+        parser.add_argument("version")
+        parser.add_argument("experiment")
+        parser.add_argument("name")
+        parser.add_argument("value")
+        args = parser.parse_args()
+
+        try:
+            sink.record_metric(args["model"], args["version"], args["experiment"], run, args["name"], args["value"])
+        except Exception as e:
+            return {'status': 'failure', 'context': 'Session could not be started'}, 500
+        return {'status': 'success'}, 201
+
+    def delete(self, run):
+        """
+        This method handles the Delete method
+
+        Arguments:
+            run {str} -- The run ID
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
+        return 500
+
+
+class Setting(Resource):
+    """
+    This class is used to group all logic related to the Settings of a Run
+
+    This class has no PUT method because updating data never happens
+
+    Arguments:
+        Resource {flask_restful.Resource} -- Represents an abstract RESTful resource
+
+    """
+
+    def get(self, run):
+        """
+        This method handles the Get method
+
+        Arguments:
+            run {str} -- The run ID
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
+        return 500
+
+    def post(self, run):
+        """
+        This method handles the Post method
+
+        Arguments:
+            run {str} -- The run ID
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
+        parser = reqparse.RequestParser()
+        parser.add_argument("model")
+        parser.add_argument("version")
+        parser.add_argument("experiment")
+        parser.add_argument("settings")
+        args = parser.parse_args()
+
+        try:
+            sink.record_settings(args["model"], args["version"], args["experiment"], run, args["settings"])
+        except Exception:
+            return {'status': 'succes', 'context': 'Settings could not be recorded'}, 500
+        return {'status': 'succes'}, 201
+
+    def delete(self, ID):
+        """
+        This method handles the Delete method
+
+        Arguments:
+            run {str} -- The run ID
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
+        return 500
+
+
+class Output(Resource):
+    """
+    This class is used to group all logic related to the Output of a Run
+
+    This class has no PUT method because updating data never happens
+
+    Arguments:
+        Resource {flask_restful.Resource} -- Represents an abstract RESTful resource
+
+    """
+
+    def get(self, run):
+        """
+        This method handles the Get method
+
+        Arguments:
+            run {str} -- The run ID
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
+        return 500
+
+    def post(self, run):
+        """
+        This method handles the Post method
+
+        Arguments:
+            run {str} -- The run ID
+
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
         if 'file' not in request.files:
-            return jsonify({'message': 'Missing file in request'}), 400
-
+            flash('No file part')
+            return {'status': 'failure', 'context': 'File was not found'}, 500
         file = request.files['file']
-
+        # if user does not select file, browser also
+        # submit an empty part without filename
         if file.filename == '':
-            return jsonify({'message': 'Invalid filename'}), 400
+            flash('No selected file')
+            return {'status': 'failure', 'context': 'No valid file name'}, 500
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return {'status': 'succes'}, 201
+        else:
+            return {'status': 'failure', 'context': 'File type not allowed'}, 500
 
-        filename = secure_filename(file.filename)
+    def delete(self, run):
+        """
+        This method handles the Delete method
 
-        sink.record_output(model, version, experiment, run_id, filename, file)
+        Arguments:
+            run {str} -- The run ID
 
-    return with_generic_errorhandling(with_default_accepted_response(tracking_handler))
+        Returns:
+            HTTP request -- When the function finishes it wil return a http status.
+        """
+        return 500
 
-
-@app.route('/api/models/<string:model>/versions/<int:version>/experiments/<string:experiment>/runs/<string:run_id>/settings', methods=['POST'])
-def record_settings(model, version, experiment, run_id):
-    """
-    Records settings for an experiment run.
-
-    Parameters:
-    -----------
-    model : str
-        The name of the model
-    version : int
-        The version of the model
-    experiment : str
-        The name of the experiment
-    run_id : str
-        The identifier for the run
-
-    Returns:
-    --------
-    object
-        Returns a HTTP response with status 201 when the settings is succesfully recorded.
-        Otherwise returns a HTTP response with status 500.
-    """
-    def tracking_handler():
-        request_content = request.get_json()
-        sink.record_settings(model, version, experiment,
-                             run_id, request_content)
-
-    return with_generic_errorhandling(with_default_accepted_response(tracking_handler))
-
-
-@app.route('/static/<path:path>')
-def serve_static_file(path):
-    """
-    Serves static resources from the application
-    """
-    relative_file_path = os.path.join('static', os.path.normpath(path))
-    absolute_file_path = os.path.join(STATIC_DIR, relative_file_path)
-
-    if not os.path.exists(absolute_file_path):
-        print("Warning! Could not find file", absolute_file_path)
-        return jsonify({'message': 'File not found'}), 404
-
-    folder, filename = os.path.split(absolute_file_path)
-
-    return send_from_directory(folder, filename)
-
-
-@app.route('/')
-def serve_index():
-    """
-    Serves the index.html file from the root of the website
-    """
-    return send_from_directory(STATIC_DIR, 'index.html')
-
-
-def run_server(host='[::]', port=8000, es_nodes=None):
-    """
-    Runs the HTTP server for tracking and the dashboard.
-
-    The dashboard will serve a single page application that visualizes models, experiments and runs.
-    You can use it to explore metrics and download models to your computer as an archive.
-
-    The API of the dashboard uses elasticsearch to track and find information about the models, experiments and runs.
-
-    Parameters
-    ----------
-    host : str
-        The hostname to bind on, default '[::]'
-    port : int
-        The port to bind on, default 8000
-    es_nodes: [string]
-        The list of elasticsearch nodes to connect to
-
-    Returns
-    -------
-    int
-        The exit code for the server process.
-    """
-    if es_nodes is None:
-        es_nodes = ['localhost']
-
-    queries.configure(es_nodes)
-    sink.configure(es_nodes)
-
-    # Gunicorn is a webserver that has a much better performance than plain Flask.
-    # However it is not support on Windows and I want this thing to work on Windows too.
-    # So despite that this should be cross-platform, I'm going to find out where I'm running
-    # and switch between crappy flask and awesome gunicorn :(
-    if platform.system() != 'Windows':
-        bind_address = '{}:{}'.format(host, port)
-
-        server_process = subprocess.Popen(
-            ['gunicorn', '-b', bind_address, '-w',
-                '10', 'observatory.dashboard:app'],
-            env=os.environ.copy(),
-            stdout=subprocess.PIPE,
-            stdin=subprocess.PIPE,
-            cwd=app.root_path, universal_newlines=True)
-
-        exit_code = server_process.wait()
-
-        return exit_code
-    else:
-        app.run(host, port)
+api.add_resource(Model, "/api/models/<string:model>")
+api.add_resource(Version, "/api/versions/<string:id>")
+api.add_resource(Experiment, "/api/experiments/<string:name>")
+api.add_resource(Metric, "/api/metrics/<string:run>")
+api.add_resource(Setting, "/api/settings/<string:run>")
+api.add_resource(Output, "/api/output/<string:run>")
+api.add_resource(Start, "/api/start/")
+api.add_resource(End, "/api/end/")
+app.run(debug=True)

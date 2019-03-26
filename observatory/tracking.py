@@ -6,20 +6,23 @@ from os import path
 from time import time
 from uuid import uuid4
 import inspect
+import pdb
 
 import requests
 from observatory import settings
 from observatory.constants import LABEL_PATTERN
-from benchmarks import benchmark_local_saving
+from observatory.sink import Sink
+
+sink = Sink()
 
 
 class TrackingSession:
-    #trackingsession
 
     def __init__(self, name, version, experiment, run_id):
         """
-        Initializes the tracking session with the necessary tracking information
-        and a pre-initialized tracking client for recording the actual metrics.
+        Initializes the tracking session with the necessary
+        tracking information and a pre-initialized tracking
+        client for recording the actual metrics.
 
         Parameters
         ----------
@@ -37,8 +40,15 @@ class TrackingSession:
         self.experiment = experiment
         self.run_id = run_id
         self._state = LocalState()
-    
+
     def change(self, state):
+        """
+        Needed for the implementation of the state pattern, with this it is possilbe
+        to switch betweeen states.
+        
+        Arguments:
+            state {LocalState or RemoteState} -- The current state of the TrackingSession
+        """
         self._state.switch(state)
 
     def record_metric(self, name, value):
@@ -53,9 +63,8 @@ class TrackingSession:
             The value of the metric to records
         """
 
-        # Typechecking in python is a no-go under normal circumstances.
-        # But here we're using it, because the server expects a string and float.
-
+        # ! Typechecking in python is a no-go under normal circumstances.
+        # ! But here we're using it, because the _state expects a string and float.
         if name is None or type(name) != str or name.strip() == '':
             raise AssertionError('Please provide a valid name for the metric.')
 
@@ -122,8 +131,7 @@ class TrackingSession:
                 'sure that the file exists on disk.')
 
         self._state.record_output(
-            self.name, self.version, self.experiment,
-            self.run_id, filename, open(absolute_file_path))
+            self.name, filename, absolute_file_path)
 
     def __enter__(self):
         self._state.record_session_start(
@@ -141,8 +149,8 @@ class TrackingSession:
             self.name, self.version, self.experiment,
             self.run_id, session_status)
 
-
         return exc_type is None
+
 
 class ObservatoryState(ABC):
     def __init__(self):
@@ -152,22 +160,23 @@ class ObservatoryState(ABC):
         self.__class__ = state
 
     @abstractmethod
-    def record_metric(self, name, value):
+    def record_metric(self, model, version, experiment, run_id, value):
         """
-        This method will record a metric.
+        Override this method in a derived class to record a metric.
         """
         pass
 
     @abstractmethod
-    def record_settings(self, settings):
+    def record_settings(self, model, version, experiment, run_id, settings):
         """
         Override this method in a derived class to record a setting.
-        The derived class is required to store the settings as a single dictionary per run.
+        The derived class is required to store the settings as a
+        single dictionary per run.
         """
         pass
 
     @abstractmethod
-    def record_output(self, input_file, filename):
+    def record_output(self, model, version, experiment, input_file, filename):
         """
         Override this method in a derived class to record an output for the run.
         The derived class is required to handle the value of the output as an opaque binary blob.
@@ -191,32 +200,28 @@ class ObservatoryState(ABC):
         """
         pass
 
+
 class LocalState(ObservatoryState):
     """
-    This state is used to record metadata about experiments in the current working directory using the standard data sink. 
+    This state is used to record metadata about experiments in the .obsrevatory directory using the standard data Sink. 
+    LocalState is nothing more than a nice handler that passes data to Sink, this is done because the sever is using the same saving mechanism to save data.
+    So there is a seperate module to handle this.
     """
 
     def record_metric(self, model, version, experiment, run_id, name, value):
-        #sink.save_metric(model, version, experiment, run_id, name, value)
-        #localstate is nothing more than a nice handler that passes data to sink.py
-        #this is because the sever is also going to use sink.py to save data
-        pass
-        
-    def record_settings(self, model, version, experiment, run_id, settings):
-        print("LocalState : record_settings")
+        sink.record_metric(model, version, experiment, run_id, name, value)
 
-    def record_output(self, model, version, experiment, run_id, filename, file):
-        print("LocalState : record_output")
+    def record_settings(self, model, version, experiment, run_id, settings):
+        sink.record_settings(model, version, experiment, run_id, settings)
+
+    def record_output(self, model, filename, file):
+        sink.record_output(model, filename, file)
 
     def record_session_start(self, model, version, experiment, run_id):
-        pass
-        
+        sink.record_session_start(model, version, experiment, run_id)
 
     def record_session_end(self, model, version, experiment, run_id, status):
-        pass
-        
-        
-        
+        sink.record_session_end(model, version, experiment, run_id, status)
 
 
 class RemoteState(ObservatoryState):
@@ -224,7 +229,8 @@ class RemoteState(ObservatoryState):
     Records metric on a remote server that you can run through the command `observatory server`.
     """
 
-    def _verify_response(self, response, expected_status, expected_type='application/json'):
+    def _verify_response(self, response, expected_status, 
+                         expected_type='application/json'):
         """
         Verifies the response received from the tracking client against the expected status code.
         Also verifies that the method contains valid data according to the expected content_type.
@@ -282,8 +288,16 @@ class RemoteState(ObservatoryState):
         requests.Response
             The response from the server
         """
-        handler_url = f'{settings.server_url}/api/models/{model}/versions/{version}/experiments/{experiment}/runs/{run_id}/metrics'
-        self._verify_response(requests.post(handler_url, json={'name': name, 'value': value}), 201)
+        handler_url = f'{settings.server_url}/metrics/{run_id}'
+        payload = {
+            'model': model,
+            'version': version,
+            'experiment': experiment,
+            'name': name,
+            'value': value
+        }
+        headers = {'content-type': 'application/json'}
+        self._verify_response(requests.post(handler_url, data=json.dumps(payload), headers=headers), 201)
 
     def record_settings(self, model, version, experiment, run_id, settings):
         """
@@ -311,12 +325,17 @@ class RemoteState(ObservatoryState):
         requests.Response
             The response from the server
         """
-        handler_url = f'{settings.server_url}/api/models/{model}/versions/{version}/experiments/{experiment}/runs/{run_id}/settings'
-        self._verify_response(requests.post(handler_url, json=settings), 201)
+        handler_url = f'{settings.server_url}/Settings/{model}'
+        payload = {
+            'model': model,
+            'version': version,
+            'experiment': experiment,
+            'settings': settings
+        }
+        headers = {'content-type': 'application/json'}
+        self._verify_response(requests.post(handler_url, data=json.dumps(payload), headers=headers), 201)
         
-
-
-    def record_output(self, model, version, experiment, run_id, filename, value):
+    def record_output(self, model, filename, file):
         """
         Records an output of an experiment run
 
@@ -344,13 +363,14 @@ class RemoteState(ObservatoryState):
         requests.Response
             The response from the servers
         """
-        handler_url = f'{settings.server_url}/api/models/{model}/versions/{version}/experiments/{experiment}/runs/{run_id}/outputs/{filename}'
+        handler_url = f'{settings.server_url}/output/{model}'
+        headers = {'content-type': 'multipart/form-dataitem'}
 
         file_collection = {
             'file': (filename, file, 'application/octet-stream')
         }
 
-        self._verify_response(requests.put(handler_url, files=file_collection), 201)
+        self._verify_response(requests.post(handler_url, headers=headers, files=file_collection), 201)
 
     def record_session_start(self, model, version, experiment, run_id):
         """
@@ -376,8 +396,16 @@ class RemoteState(ObservatoryState):
         requests.Response
             The response from the server
         """
-        handler_url = f'{settings.server_url}/api/models/{model}/versions/{version}/experiments/{experiment}/runs'
-        self._verify_response(requests.post(handler_url, json={'run_id': run_id}), 201)
+        handler_url = f'{settings.server_url}/start/'
+        payload = {
+            'model': model,
+            'version': version,
+            'experiment': experiment,
+            'run': run_id
+        }
+        pdb.set_trace()
+        headers = {'content-type': 'application/json'}
+        self._verify_response(requests.post(handler_url, data=json.dumps(payload), headers=headers), 201)
 
     def record_session_end(self, model, version, experiment, run_id, status):
         """
@@ -405,8 +433,17 @@ class RemoteState(ObservatoryState):
         requests.Response
             The response from the server
         """
-        handler_url = f'{settings.server_url}/api/models/{model}/versions/{version}/experiments/{experiment}/runs/{run_id}'
-        self._verify_response(requests.put(handler_url, json={'status': status}), 201)
+        handler_url = f'{settings.server_url}/end/'
+        payload = {
+            'model': model,
+            'version': version,
+            'experiment': experiment,
+            'run': run_id,
+            'status': status
+        }
+        headers = {'content-type': 'application/json'}
+        self._verify_response(requests.post(handler_url, data=json.dumps(payload), headers=headers), 201)
+
 
 def start_run(model, version, state, experiment='default'):
     """
@@ -440,7 +477,6 @@ def start_run(model, version, state, experiment='default'):
     experiment : string, optional
         The experiment you're working on
     """
-
     if model is None or model.strip() == '':
         raise AssertionError('Please provide a name for your model.')
 
@@ -462,10 +498,6 @@ def start_run(model, version, state, experiment='default'):
     run_id = str(uuid4())
 
     trackingSession = TrackingSession(model, version, experiment, run_id)
-
-    if state != isinstance(state, (LocalState, RemoteState)):
-        trackingSession.change(LocalState)
-    else:
-        trackingSession.change(state)
+    trackingSession.change(state)
 
     return trackingSession
