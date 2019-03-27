@@ -1,91 +1,220 @@
-"""
-This module can be used to download data from the observatory server.
-Typically you first track your model data
-with :func:`start_run <observatory.tracking.start_run>`.
-
-Once you have collected data you can download the model data
-using the :func:`download_model <observatory.serving.download>`
-function.
-
-Please refer to the individual function specs for more information
-on how to use these functions.
-"""
 import re
 import tempfile
+from abc import ABC, abstractmethod
 
 import requests
-from observatory import archive, settings
+from observatory import settings
+from observatory.archive import Archive
 from observatory.constants import LABEL_PATTERN
 
+class ServingClient:
+    
+    def __init__(self):
+        self._path = Archive.check_for_home_directory(self)
+        self._state = LocalState()
 
-def download_model(**kwargs):
-    """
-    Downloads a model from the server and stores it in a local folder.
+    def change(self, state):
+        """
+        Needed for the implementation of the state pattern, with this it is possilbe
+        to switch betweeen states.
+        
+        Arguments:
+            state {LocalState or RemoteState} -- The current state of the TrackingSession
+        """
+        self._state.switch(state)
 
-    This method will download a tarball from the server and extract it
-    in a folder specified with the path argument.
-    The model folder will contain all outputs you stored for the model.
+    # all methods
+    def get_run(self, run_id):
+        if run_id is None:
+            raise AssertionError("no valid run id")
 
-    Additionally a settings.json file is included, which contains the
-    settings that you stored earlier.
-    Finally, a metadata.json file is included, which contains all the
-    necessary metadata for the model,
-    the name, version, experiment ID and run ID.
+        return self._state.get_run(run_id)
 
-    Parameters
-    ----------
-    model : str
-        The name of the model
-    version : int
-        The version number of the model
-    experiment : str, optional
-        The name of the experiment
-    run_id : str
-        The ID of the run
-    path : str, optional
-        The path to store the model, defaults to the current working folder.
+    def get_all_models(self):
+        return self._state.get_all_models()
 
-    Returns
-    -------
-    The path to the model folder. You can access all the files in this folder.
-    """
+    def get_experiment(self, model, version, experiment):
+        return self._state.get_experiment(model, version, experiment, self._path)
+    
+    def get_version(self, model, version):
+        return self._state.get_version(model, version, self._path)
 
-    model = kwargs.get('model', None)
-    version = kwargs.get('version', None)
-    run_id = kwargs.get('run_id', None)
-    experiment = kwargs.get('experiment', 'default')
-    path = kwargs.get('path', '.')
+    def get_model(self, model):
+        return self._state.get_model(model, self._path)
 
-    if model is None:
-        raise AssertionError('Please provide a model to download')
+    def delete_run(self, run_id):
+        return self._state.delete_run(run_id)
 
-    if version is None:
-        raise AssertionError('Please provide a version to download')
+    def delete_all_models(self):
+        # ? not sure if this should be a method
+        return self._state.delete_all_models()
 
-    if run_id is None:
-        raise AssertionError('Please provide the ID of the run to download')
+    def delete_experiment(self, model, version, experiment):
+        return self._state.delete_experiment(model, version, experiment)
+    
+    def delete_version(self, model, version):
+        return self._state.delete_version(model, version)
 
-    if version <= 0:
-        raise AssertionError('Version must be greater than zero')
+    def delete_model(self, model):
+        return self._state.delete_model(model)
 
-    if not re.match(LABEL_PATTERN, model):
-        raise AssertionError('name is invalid. It can contain ' +
-                             'lower-case alpha-numeric characters and dashes.')
+    def compare_runs(self, first_run_id, second_run_id):
+        return self._state.compare_runs(first_run_id, second_run_id)
 
-    if experiment != 'default' and not re.match(LABEL_PATTERN, model):
-        raise AssertionError('experiment is invalid. It can contain ' +
-                             'lower-case alpha-numeric characters and dashes.')
+class ServingState(ABC):
 
-    handler_url = f'{settings.server_url}/api/models/{model}/versions/{version}/experiments/{experiment}/runs/{run_id}/archive'
-    response = requests.get(handler_url)
+    def __init__(self):
+        self.n = None
 
-    if response.status_code == 200:
-        _, temp_filename = tempfile.mkstemp('.tar.gz')
+    def switch(self, state):
+        self.__class__ = state
 
-        with open(temp_filename, 'wb') as archive_file:
-            for chunk in response.iter_content(1024):
-                archive_file.write(chunk)
+    @abstractmethod
+    def get_run(self, run_id):
+        """
+        Override this method in a derived class.
+        """
+        pass
 
-        archive.extract(temp_filename, path)
-    else:
-        raise RuntimeError(f'the server returned status code {response.status_code}:{response.json()["message"]}')
+    @abstractmethod
+    def get_all_models(self):
+        """
+        Override this method in a derived class.
+        """
+        pass
+
+    @abstractmethod
+    def get_experiment(self, model, version, experiment, path):
+        """
+        Override this method in a derived class.
+        """
+        pass
+    
+    @abstractmethod
+    def get_version(self, model, version, path):
+        """
+        Override this method in a derived class.
+        """
+        pass
+
+    @abstractmethod
+    def get_model(self, model, path):
+        """
+        Override this method in a derived class.
+        """
+        pass
+
+    @abstractmethod
+    def delete_run(self, run_id):
+        """
+        Override this method in a derived class.
+        """
+        pass
+
+    @abstractmethod
+    def delete_all_models(self):
+        """
+        Override this method in a derived class.
+        """
+        # ? not sure if this should be a method
+        pass
+
+    @abstractmethod
+    def delete_experiment(self, model, version, experiment):
+        """
+        Override this method in a derived class.
+        """
+        pass
+    
+    @abstractmethod
+    def delete_version(self, model, version):
+        """
+        Override this method in a derived class.
+        """
+        pass
+
+    @abstractmethod
+    def delete_model(self, model):
+        """
+        Override this method in a derived class.
+        """
+        pass
+
+    @abstractmethod
+    def compare_runs(self, first_run_id, second_run_id):
+        """
+        Override this method in a derived class.
+        """
+        pass
+
+class LocalState(ServingState):
+
+    def get_run(self, run_id):
+        Archive.get_run(run_id)
+
+    def get_all_models(self):
+        pass
+
+    def get_experiment(self, model, version, experiment, path):
+        return Archive.get_experiment(self, model, version, experiment, path)
+    
+    def get_version(self, model, version, path):
+        return Archive.get_version(self, model, version, path)
+
+    def get_model(self, model, path):
+        return Archive.get_model(self, model, path)
+
+    def delete_run(self, run_id):
+        pass
+
+    def delete_all_models(self):
+        # ? not sure if this should be a method
+        pass
+
+    def delete_experiment(self, model, version, experiment):
+        pass
+    
+    def delete_version(self, model, version):
+        pass
+
+    def delete_model(self, model):
+        pass
+
+    def compare_runs(self, first_run_id, second_run_id):
+        pass
+
+class RemoteState(ServingState):
+    
+    def get_run(self, run_id):
+        pass
+
+    def get_all_models(self):
+        pass
+
+    def get_experiment(self, model, version, experiment):
+        pass
+    
+    def get_version(self, model, version):
+        pass
+
+    def get_model(self, model):
+        pass
+
+    def delete_run(self, run_id):
+        pass
+
+    def delete_all_models(self):
+        # ? not sure if this should be a method
+        pass
+
+    def delete_experiment(self, model, version, experiment):
+        pass
+    
+    def delete_version(self, model, version):
+        pass
+
+    def delete_model(self, model):
+        pass
+
+    def compare_runs(self, first_run_id, second_run_id):
+        pass

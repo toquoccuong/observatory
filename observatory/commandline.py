@@ -1,5 +1,6 @@
 import click
-import pdb; 
+import pdb
+from observatory.serving import ServingClient, LocalState, RemoteState 
 
 @click.group()
 def cli():
@@ -7,17 +8,6 @@ def cli():
 
 
 @cli.command(help='Runs the tracking server')
-@click.option(
-    '--port',
-    default=5001,
-    help='The port the server should listen on for incoming tracking data. By default the server listens on port 5001. '
-         'Please be aware that you need additional configuration on the client when you change the default port.')
-@click.option(
-    '--es-node',
-    multiple=True,
-    default=['localhost'],
-    help='Pass in one or more ip-addresses/hostnames of elastic search nodes to connect to. '
-         'The application will automatically try to discover more nodes, so in principle you need only set one node.')
 def server():
     pass
 
@@ -42,24 +32,43 @@ def server():
     default=None,
     help='The run that should be returnd'
 )
-def get(m, v, e, r):
+@click.option(
+    '-l',
+    default=None,
+    help="The location where the serving module will look for the data, This can be either 'local' or 'remote'"
+)
+def get(m, v, e, r, l):
+    serving = ServingClient()
+    if(l == None):
+        serving.change(LocalState)
+    elif(l == 'local'):
+        serving.change(LocalState)
+    elif(l == 'remote'):
+        serving.change(RemoteState)
+    elif(l != None):
+        print("Invalid location, -l shoud be either 'local' or 'remote'")
+        return
+
     if(r != None and m == None and v == None and e == None):
-        # return Archives.get_run(r)
+        serving.get_run(r)
         print("r is not None, m is None, v is None, e is None -- succes 1")
     elif(m == None and v == None and e == None and r == None):
-        # return Archives.get_all_models()
+        serving.get_all_models()
         print("r is None, m is  None, v is None, e is none -- succes 8")
     elif(m == None or v == None and e != None and r == None):
         # raise AssertionError("wrong in put")
         print("r is None, m or v is None, v or e is not none --- fail 2")
     elif(m != None and v != None and e != None and r == None):
-        # return Archives.get_experiment(m, v, e)
+        experiments = serving.get_experiment(m, v, e)
+        print(experiments)
         print("r is None, m is not None, v is not None, e is not none -- succes 5")
     elif(m != None and v != None and e == None and r == None):
-        # return Archives.get_version(m, v)
+        versions = serving.get_version(m, v)
+        print(versions)
         print("r is None, m is not None, v is not None, e is none -- succes 6")
     elif (m != None and v == None and e == None and r == None):
-        # return Archives.get_model(m)
+        models = serving.get_model(m)
+        print(models)
         print("r is None, m is not None, v is None, e is none -- succes 7")
     else:
         print("when trying to get model, version, or experiment, -r shouldn't be used")
