@@ -1,6 +1,8 @@
 import click
 import pdb
-from observatory.serving import ServingClient, LocalState, RemoteState 
+from observatory.serving import ServingClient
+from prettytable import PrettyTable
+from tabulate import tabulate
 
 @click.group()
 def cli():
@@ -39,37 +41,32 @@ def server():
 )
 def get(m, v, e, r, l):
     serving = ServingClient()
-    if(l == None):
-        serving.change(LocalState)
-    elif(l == 'local'):
-        serving.change(LocalState)
-    elif(l == 'remote'):
-        serving.change(RemoteState)
-    elif(l != None):
-        print("Invalid location, -l shoud be either 'local' or 'remote'")
-        return
 
     if(r != None and m == None and v == None and e == None):
-        serving.get_run(r)
-        print("r is not None, m is None, v is None, e is None -- succes 1")
+        run = serving.get_run(r)
+        print("| Run: " + r + " | StartDate: " + str(run[0][0]) + " | EndDate: " + str(run[0][1][1]) + " | Status: " + run[0][1][0])
+        print('-' * 115)
+        x = str(len(str(run[0][2][0][1])))
+        print(tabulate(run[0][2], headers=['Metric', 'Value'], floatfmt="."+x+"f"))
     elif(m == None and v == None and e == None and r == None):
-        serving.get_all_models()
-        print("r is None, m is  None, v is None, e is none -- succes 8")
+        models = serving.get_all_models()
+        print('| Models')
+        print('|------------')
+        for m in models:
+            print('| ' + str(m))
     elif(m == None or v == None and e != None and r == None):
-        # raise AssertionError("wrong in put")
+        # raise AssertionError("wrong input")
         print("r is None, m or v is None, v or e is not none --- fail 2")
     elif(m != None and v != None and e != None and r == None):
         experiments = serving.get_experiment(m, v, e)
-        print(experiments)
-        print("r is None, m is not None, v is not None, e is not none -- succes 5")
+        print(tabulate(experiments, headers=['Model', 'Version', 'Experiment', 'Run'], tablefmt='orgtbl'))
     elif(m != None and v != None and e == None and r == None):
         versions = serving.get_version(m, v)
-        print(versions)
+        print(tabulate(versions, headers=['Model', 'Version', 'Experiment', 'Run'], tablefmt='orgtbl'))
         print("r is None, m is not None, v is not None, e is none -- succes 6")
     elif (m != None and v == None and e == None and r == None):
         models = serving.get_model(m)
-        print(models)
-        print("r is None, m is not None, v is None, e is none -- succes 7")
+        print(tabulate(models, headers=['Model', 'Version', 'Experiment', 'Run'], tablefmt='orgtbl'))
     else:
         print("when trying to get model, version, or experiment, -r shouldn't be used")
 

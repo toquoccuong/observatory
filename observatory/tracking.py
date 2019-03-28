@@ -477,8 +477,9 @@ def start_run(model, version, state, experiment='default'):
     experiment : string, optional
         The experiment you're working on
     """
-    if model is None or model.strip() == '':
-        raise AssertionError('Please provide a name for your model.')
+    if model is None or model.strip() == '' or not re.match(LABEL_PATTERN, model):
+        raise AssertionError('Please provide a valid name for your model.It can contain ' +
+                                 'lower-case alpha-numeric characters and dashes only.')
 
     if not re.match(LABEL_PATTERN, model):
         raise AssertionError('name is invalid. It can contain ' +
