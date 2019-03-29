@@ -14,7 +14,21 @@ This module is currently not working.
 As the rework of Obsrevatory progresses this will be fixed.
 """
 
-class Archive():
+class Archive:
+    
+    def structure_data(input, index):
+        output = []
+        for data in input:
+            txt = data.split('_')
+            if index == 0:
+                output.append(txt[0])
+            elif index == 1:
+                output.append(txt[1][1:])
+            elif index == 2:
+                output.append(txt[2])
+            elif index == 3:
+                output.append(txt[3][:8])
+        return output
 
     @staticmethod
     def check_for_home_directory(self):
@@ -46,14 +60,15 @@ class Archive():
 
 
     @staticmethod
-    def get_all_models(path):
+    def get_all_models(self, path):
         models = []
         for file in os.listdir(path):
                 models.append(file)
-        return models
+        just_models = self.structure_data(models, 0)
+        return list(set(just_models))
 
     @staticmethod
-    def get_model(model, path):
+    def get_model(self, model, path):
         """
         Gets the requested model
 
@@ -72,10 +87,11 @@ class Archive():
         for file in os.listdir(path):
             if model + '_' in file:
                 models.append(file)
-        return models
+        just_models = self.structure_data(models, 1)
+        return list(set(just_models))
 
     @staticmethod
-    def get_version(model, version, path):
+    def get_version(self, model, version, path):
         """
         Gets the requested version
 
@@ -95,10 +111,11 @@ class Archive():
             if model in file:
                 if '_v' + version + '_' in file:
                     versions.append(file)
-        return versions
+        just_versions = self.structure_data(versions, 2)
+        return list(set(just_versions))
 
     @staticmethod
-    def get_experiment(model, version, experiment, path):
+    def get_experiment(self, model, version, experiment, path):
         """
         Gets the requested version
 
@@ -119,4 +136,5 @@ class Archive():
                 if '_v' + version + '_' in file:
                     if '_' + experiment + '_' in file:
                         experiments.append(file)
-        return experiments
+        just_experiments = self.structure_data(experiments, 3)
+        return list(set(just_experiments))

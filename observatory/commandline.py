@@ -4,10 +4,21 @@ from observatory.serving import ServingClient
 from prettytable import PrettyTable
 from tabulate import tabulate
 
+def print_to_console(data, title):
+    length = 10
+    for d in data:
+        if d.__len__() > length:
+            length = d.__len__()
+    print('+' + ('-' * length) + '----+')
+    print('| ' + title)
+    print('+' + ('-' * length) + '----+')
+    for d in data:
+        print('| ' + str(d))
+    print('+' + ('-' * length) + '----+')
+
 @click.group()
 def cli():
     pass
-
 
 @cli.command(help='Runs the tracking server')
 def server():
@@ -17,22 +28,22 @@ def server():
 @click.option(
     '-m',
     default=None,
-    help='The model that should be returnd'
+    help='The model that should be returned'
 )
 @click.option(
     '-v',
     default=None,
-    help='The version of a specific model that should be returnd'
+    help='The version of a specific model that should be returned'
 )
 @click.option(
     '-e',
     default=None,
-    help='An experiment of a version that should be returnd'
+    help='An experiment of a version that should be returned'
 )
 @click.option(
     '-r',
     default=None,
-    help='The run that should be returnd'
+    help='The run that should be returned'
 )
 @click.option(
     '-l',
@@ -41,6 +52,35 @@ def server():
 )
 def get(m, v, e, r, l):
     serving = ServingClient()
+    """
+    For the get module there are five possible valid commands.
+
+    - observatory get
+        This command has no paramaters, and returns a list of all models
+
+    - observatory get -m [MODEL_NAME]
+        This command takes one paramater, the model name.
+        It will return a list of all versions associated with the model
+
+    - observatory get -m [MODEL_NAME] -v [VERSION_ID]
+        This command will return a list with all experiments for a specified version
+
+    - obsrevatory get -m [MODEL_NAME] -v [VERSION_ID] -e [EXPERIMENT_NAME]
+        This command will return a list with all runs for a specified experiment
+
+    - observatory get -r [RUN_ID]
+        This command returns the metadata for a specific run.
+        It will show the highest found value, the lowest found value
+        # ? need to look at pandas how they deal with commands line data
+
+    Any other combination of paramaters is not valid.
+    For instance, it is not possible to request a version without specifing a model
+     -[INVALID] observatory get -v [VERSION_ID]
+    
+    
+    Raises:
+        AssertionError -- This gets raised when the input is wrong
+    """
 
     if(r != None and m == None and v == None and e == None):
         run = serving.get_run(r)
@@ -50,23 +90,18 @@ def get(m, v, e, r, l):
         print(tabulate(run[0][2], headers=['Metric', 'Value'], floatfmt="."+x+"f"))
     elif(m == None and v == None and e == None and r == None):
         models = serving.get_all_models()
-        print('| Models')
-        print('|------------')
-        for m in models:
-            print('| ' + str(m))
+        print_to_console(models, 'Models')
     elif(m == None or v == None and e != None and r == None):
-        # raise AssertionError("wrong input")
-        print("r is None, m or v is None, v or e is not none --- fail 2")
+        raise AssertionError("wrong input")
     elif(m != None and v != None and e != None and r == None):
         experiments = serving.get_experiment(m, v, e)
-        print(tabulate(experiments, headers=['Model', 'Version', 'Experiment', 'Run'], tablefmt='orgtbl'))
+        print_to_console(experiments, 'Runs')
     elif(m != None and v != None and e == None and r == None):
         versions = serving.get_version(m, v)
-        print(tabulate(versions, headers=['Model', 'Version', 'Experiment', 'Run'], tablefmt='orgtbl'))
-        print("r is None, m is not None, v is not None, e is none -- succes 6")
+        print_to_console(versions, 'Experiments')
     elif (m != None and v == None and e == None and r == None):
         models = serving.get_model(m)
-        print(tabulate(models, headers=['Model', 'Version', 'Experiment', 'Run'], tablefmt='orgtbl'))
+        print_to_console(models, 'Versions')
     else:
         print("when trying to get model, version, or experiment, -r shouldn't be used")
 
