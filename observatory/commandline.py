@@ -16,6 +16,12 @@ def print_to_console(data, title):
         print('| ' + str(d))
     print('+' + ('-' * length) + '----+')
 
+def print_deleted_status(status):
+    if status == True:
+        print('The File has been deleted succesfully')
+    elif status == None:
+        print('The file could not be deleted or did not exist')
+
 @click.group()
 def cli():
     pass
@@ -45,13 +51,7 @@ def server():
     default=None,
     help='The run that should be returned'
 )
-@click.option(
-    '-l',
-    default=None,
-    help="The location where the serving module will look for the data, This can be either 'local' or 'remote'"
-)
-def get(m, v, e, r, l):
-    serving = ServingClient()
+def get(m, v, e, r):
     """
     For the get module there are five possible valid commands.
 
@@ -81,7 +81,7 @@ def get(m, v, e, r, l):
     Raises:
         AssertionError -- This gets raised when the input is wrong
     """
-
+    serving = ServingClient()
     if(r != None and m == None and v == None and e == None):
         run = serving.get_run(r)
         print("| Run: " + r + " | StartDate: " + str(run[0][0]) + " | EndDate: " + str(run[0][1][1]) + " | Status: " + run[0][1][0])
@@ -106,8 +106,47 @@ def get(m, v, e, r, l):
         print("when trying to get model, version, or experiment, -r shouldn't be used")
 
 @cli.command(help='Deletes the data')
-def delete():
-    pass
+@click.option(
+    '-m',
+    default=None,
+    help='The model that should be deleted'
+)
+@click.option(
+    '-v',
+    default=None,
+    help='The version of a specific model that should be deleted'
+)
+@click.option(
+    '-e',
+    default=None,
+    help='An experiment of a version that should be deleted'
+)
+@click.option(
+    '-r',
+    default=None,
+    help='The run that should be deleted'
+)
+def delete(m, v, e, r):
+    serving = ServingClient()
+    if(r != None and m == None and v == None and e == None):
+        if click.confirm('Are you sure you want to delete this?'):
+            print_deleted_status(serving.delete_run(r))
+    elif(m == None and v == None and e == None and r == None):
+        # ? delete everyting
+        pass
+    elif(m == None or v == None and e != None and r == None):
+        raise AssertionError("wrong input")
+    elif(m != None and v != None and e != None and r == None):
+        if click.confirm('Are you sure you want to delete this?'):
+            print_deleted_status(serving.delete_experiment(m, v, e))
+    elif(m != None and v != None and e == None and r == None):
+        if click.confirm('Are you sure you want to delete this?'):
+            print_deleted_status(serving.delete_version(m, v))
+    elif (m != None and v == None and e == None and r == None):
+        if click.confirm('Are you sure you want to delete this?'):
+            print_deleted_status(serving.delete_model(m))
+    else:
+        print("when trying to get model, version, or experiment, -r shouldn't be used")
 
 @cli.command(help='Compares the data')
 def compare():

@@ -138,3 +138,34 @@ class Archive:
                         experiments.append(file)
         just_experiments = self.structure_data(experiments, 3)
         return list(set(just_experiments))
+
+    @staticmethod
+    def delete_run(self, run_id, path):
+        for file in os.listdir(path):
+            if '_' + run_id + '-' in file:
+                os.remove(path + '\\' + file)
+                return True
+    
+    @staticmethod
+    def delete_experiment(model, version, experiment, path):
+        for file in os.listdir(path):
+            if model + '_' in file:
+                if '_v' + version + '_' in file:
+                    if '_' + experiment + '_' in file:
+                        os.remove(path + '\\' + file)
+                        return True
+    
+    @staticmethod
+    def delete_version(model, version, path):
+        for file in os.listdir(path):
+            if model in file:
+                if '_v' + version + '_' in file:
+                    os.remove(path + '\\' + file)
+                    return True
+
+    @staticmethod
+    def delete_model(model, path):
+        for file in os.listdir(path):
+            if model + '_' in file:
+                os.remove(path + '\\' + file)
+                return True

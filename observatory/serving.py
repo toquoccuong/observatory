@@ -45,16 +45,16 @@ class ServingClient:
         return mdl
 
     def delete_run(self, run_id):
-        return 
+        return Archive.delete_run(Archive, run_id, self._path)
 
     def delete_experiment(self, model, version, experiment):
-        pass
+        return Archive.delete_experiment(model, version, experiment, self._path)
     
     def delete_version(self, model, version):
-        pass
+        return delete_version(model, version, self._path)
 
     def delete_model(self, model):
-        pass
+        return delete_model(model, self._path)
 
     def compare_runs(self, first_run_id, second_run_id):
         pass
