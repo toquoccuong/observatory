@@ -5,6 +5,14 @@ from prettytable import PrettyTable
 from tabulate import tabulate
 
 def print_to_console(data, title):
+    """
+    This method prints data to command line
+    
+    Arguments:
+        data {List} -- Data thats gets printed to command line
+        title {str} -- title of the data
+    """
+
     length = 10
     for d in data:
         if d.__len__() > length:
@@ -83,16 +91,19 @@ def get(m, v, e, r):
     """
     serving = ServingClient()
     if(r != None and m == None and v == None and e == None):
-        run = serving.get_run(r)
-        print("| Run: " + r + " | StartDate: " + str(run[0][0]) + " | EndDate: " + str(run[0][1][1]) + " | Status: " + run[0][1][0])
-        print('-' * 115)
-        x = str(len(str(run[0][2][0][1])))
-        print(tabulate(run[0][2], headers=['Metric', 'Value'], floatfmt="."+x+"f"))
+        if r.__len__() != 8:
+            print('[ERROR]: Invalid run id, it must be 8 characters long')
+        else:
+            run = serving.get_run(r)
+            print("| Run: " + r + " | StartDate: " + str(run[0][0]) + " | EndDate: " + str(run[0][1][1]) + " | Status: " + run[0][1][0])
+            print('-' * 115)
+            x = str(len(str(run[0][2][0][1])))
+            print(tabulate(run[0][2], headers=['Metric', 'Value'], floatfmt="."+x+"f"))    
     elif(m == None and v == None and e == None and r == None):
         models = serving.get_all_models()
         print_to_console(models, 'Models')
     elif(m == None or v == None and e != None and r == None):
-        raise AssertionError("wrong input")
+        print("[ERROR]: The given input is invalid")
     elif(m != None and v != None and e != None and r == None):
         experiments = serving.get_experiment(m, v, e)
         print_to_console(experiments, 'Runs')
@@ -103,7 +114,7 @@ def get(m, v, e, r):
         models = serving.get_model(m)
         print_to_console(models, 'Versions')
     else:
-        print("when trying to get model, version, or experiment, -r shouldn't be used")
+        print("[ERROR]: when trying to get model, version, or experiment, -r shouldn't be used")
 
 @cli.command(help='Deletes the data')
 @click.option(
@@ -127,6 +138,32 @@ def get(m, v, e, r):
     help='The run that should be deleted'
 )
 def delete(m, v, e, r):
+    """
+    For the Delete module there are five possible valid commands.
+
+    - observatory delete
+        This command has no paramaters, and returns a list of all models
+
+    - observatory delete -m [MODEL_NAME]
+        It will delete the model
+
+    - observatory delete -m [MODEL_NAME] -v [VERSION_ID]
+        This command will delete a specified version
+
+    - obsrevatory delete -m [MODEL_NAME] -v [VERSION_ID] -e [EXPERIMENT_NAME]
+        This command will delete a specified experiment
+
+    - observatory delete -r [RUN_ID]
+        This command deletes the metadata for a specific run.
+
+    Any other combination of paramaters is not valid.
+    For instance, it is not possible to delete a version without specifing a model
+     -[INVALID] observatory delete -v [VERSION_ID]
+    
+    Raises:
+        AssertionError -- This gets raised when the input is wrong
+    """
+    serving = ServingClient()
     serving = ServingClient()
     if(r != None and m == None and v == None and e == None):
         if click.confirm('Are you sure you want to delete this?'):
@@ -135,7 +172,7 @@ def delete(m, v, e, r):
         # ? delete everyting
         pass
     elif(m == None or v == None and e != None and r == None):
-        raise AssertionError("wrong input")
+       print("The given input is invalid")
     elif(m != None and v != None and e != None and r == None):
         if click.confirm('Are you sure you want to delete this?'):
             print_deleted_status(serving.delete_experiment(m, v, e))
@@ -150,4 +187,11 @@ def delete(m, v, e, r):
 
 @cli.command(help='Compares the data')
 def compare():
+    """
+    This command is used to compare the data from 2 or more runs
+
+    It will be possible to give a model name, and it will compare all runs for that model.
+    But maybe you want it to be a little more specific, so it is also possible to give a version number or experiment number.
+    """
+
     pass

@@ -2,7 +2,6 @@ import json
 from os import path, makedirs
 import os
 from os.path import expanduser
-from observatory import settings
 import pickle
 from datetime import datetime
 from pathlib import Path

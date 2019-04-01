@@ -23,8 +23,10 @@ class ServingClient:
         return output
 
     def get_run(self, run_id):
+
         if run_id.__len__() != 8:
             raise AssertionError("Invalid run id")
+
         run = Archive.get_run( run_id, self._path)
         return self.structure_metrics(run)
 

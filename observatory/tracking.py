@@ -3,7 +3,6 @@ import json
 import re
 import warnings
 from os import path
-from time import time
 from uuid import uuid4
 import inspect
 import pdb
@@ -18,7 +17,7 @@ sink = Sink()
 
 class TrackingSession:
 
-    def __init__(self, name, version, experiment, run_id):
+    def __init__(self, name, version, experiment, run_id, state):
         """
         Initializes the tracking session with the necessary
         tracking information and a pre-initialized tracking
@@ -39,7 +38,7 @@ class TrackingSession:
         self.version = version
         self.experiment = experiment
         self.run_id = run_id
-        self._state = LocalState()
+        self._state = state
 
     def change(self, state):
         """
@@ -445,7 +444,7 @@ class RemoteState(ObservatoryState):
         self._verify_response(requests.post(handler_url, data=json.dumps(payload), headers=headers), 201)
 
 
-def start_run(model, version, state, experiment='default'):
+def start_run(model, version, experiment='default'):
     """
     Starts a new run for a specific model version.
 
@@ -498,7 +497,9 @@ def start_run(model, version, state, experiment='default'):
     
     run_id = str(uuid4())
 
-    trackingSession = TrackingSession(model, version, experiment, run_id)
-    trackingSession.change(state)
+    if settings.state == 'local':
+        tracking_session = TrackingSession(model, version, experiment, run_id, LocalState())
+    elif settings.state == "remote":
+        tracking_session = TrackingSession(model, version, experiment, run_id, RemoteState())
 
-    return trackingSession
+    return tracking_session
