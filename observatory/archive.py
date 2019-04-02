@@ -8,14 +8,14 @@ import tarfile
 import pickle
 
 
-
 """
 This module is currently not working.
 As the rework of Obsrevatory progresses this will be fixed.
 """
 
+
 class Archive:
-    
+
     def structure_data(input, index):
         output = []
         for data in input:
@@ -50,14 +50,13 @@ class Archive:
         metrics = []
         for file in os.listdir(path):
             if '_' + run_id + '-' in file:
-                with open(path + '\\' +file, 'rb') as f:
+                with open(path + '\\' + file, 'rb') as f:
                     while True:
                         try:
                             metrics.append(pickle.load(f))
                         except EOFError:
                             break
         return metrics
-
 
     @staticmethod
     def get_all_models(self, path):
@@ -73,11 +72,11 @@ class Archive:
         Gets the requested model
 
         Does not have to be perfecht match
-        
+
         Arguments:
             model {str} -- model name
             path {str} -- Path to file destination
-        
+
         Returns:
             list -- list of all found models containing the input value,
                     This might be more than one model, depending on the input
@@ -96,12 +95,12 @@ class Archive:
         Gets the requested version
 
         version has to be perfecht match
-        
+
         Arguments:
             model {str} -- model name
             version {str} -- version number
             path {str} -- Path to file destination
-        
+
         Returns:
             list -- list of all found versions
                     This is always one version
@@ -120,12 +119,12 @@ class Archive:
         Gets the requested version
 
         version has to be perfecht match
-        
+
         Arguments:
             model {str} -- model name
             version {str} -- version number
             path {str} -- Path to file destination
-        
+
         Returns:
             list -- list of all found versions
                     This is always one version
@@ -145,7 +144,7 @@ class Archive:
             if '_' + run_id + '-' in file:
                 os.remove(path + '\\' + file)
                 return True
-    
+
     @staticmethod
     def delete_experiment(model, version, experiment, path):
         for file in os.listdir(path):
@@ -154,7 +153,7 @@ class Archive:
                     if '_' + experiment + '_' in file:
                         os.remove(path + '\\' + file)
                         return True
-    
+
     @staticmethod
     def delete_version(model, version, path):
         for file in os.listdir(path):

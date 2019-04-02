@@ -4,10 +4,11 @@ from observatory.serving import ServingClient
 from prettytable import PrettyTable
 from tabulate import tabulate
 
+
 def print_to_console(data, title):
     """
     This method prints data to command line
-    
+
     Arguments:
         data {List} -- Data thats gets printed to command line
         title {str} -- title of the data
@@ -24,19 +25,23 @@ def print_to_console(data, title):
         print('| ' + str(d))
     print('+' + ('-' * length) + '----+')
 
+
 def print_deleted_status(status):
-    if status == True:
+    if status is True:
         print('The File has been deleted succesfully')
-    elif status == None:
+    elif status is None:
         print('The file could not be deleted or did not exist')
+
 
 @click.group()
 def cli():
     pass
 
+
 @cli.command(help='Runs the tracking server')
 def server():
     pass
+
 
 @cli.command(help='Gets the data')
 @click.option(
@@ -84,37 +89,37 @@ def get(m, v, e, r):
     Any other combination of paramaters is not valid.
     For instance, it is not possible to request a version without specifing a model
      -[INVALID] observatory get -v [VERSION_ID]
-    
-    
+
     Raises:
         AssertionError -- This gets raised when the input is wrong
     """
     serving = ServingClient()
-    if(r != None and m == None and v == None and e == None):
-        if r.__len__() != 8:
+    if(r is not None and m is None and v is None and e is None):
+        if r.__len__() is not 8:
             print('[ERROR]: Invalid run id, it must be 8 characters long')
         else:
             run = serving.get_run(r)
             print("| Run: " + r + " | StartDate: " + str(run[0][0]) + " | EndDate: " + str(run[0][1][1]) + " | Status: " + run[0][1][0])
             print('-' * 115)
             x = str(len(str(run[0][2][0][1])))
-            print(tabulate(run[0][2], headers=['Metric', 'Value'], floatfmt="."+x+"f"))    
-    elif(m == None and v == None and e == None and r == None):
+            print(tabulate(run[0][2], headers=['Metric', 'Value'], floatfmt="." + x + "f"))
+    elif(m is None and v is None and e is None and r is None):
         models = serving.get_all_models()
         print_to_console(models, 'Models')
-    elif(m == None or v == None and e != None and r == None):
+    elif(m is None or v is None and e is not None and r is None):
         print("[ERROR]: The given input is invalid")
-    elif(m != None and v != None and e != None and r == None):
+    elif(m is not None and v is not None and e is not None and r is None):
         experiments = serving.get_experiment(m, v, e)
         print_to_console(experiments, 'Runs')
-    elif(m != None and v != None and e == None and r == None):
+    elif(m is not None and v is not None and e is None and r is None):
         versions = serving.get_version(m, v)
         print_to_console(versions, 'Experiments')
-    elif (m != None and v == None and e == None and r == None):
+    elif (m is not None and v is None and e is None and r is None):
         models = serving.get_model(m)
         print_to_console(models, 'Versions')
     else:
         print("[ERROR]: when trying to get model, version, or experiment, -r shouldn't be used")
+
 
 @cli.command(help='Deletes the data')
 @click.option(
@@ -159,31 +164,31 @@ def delete(m, v, e, r):
     Any other combination of paramaters is not valid.
     For instance, it is not possible to delete a version without specifing a model
      -[INVALID] observatory delete -v [VERSION_ID]
-    
+
     Raises:
         AssertionError -- This gets raised when the input is wrong
     """
     serving = ServingClient()
-    serving = ServingClient()
-    if(r != None and m == None and v == None and e == None):
+    if(r is not None and m is None and v is None and e is None):
         if click.confirm('Are you sure you want to delete this?'):
             print_deleted_status(serving.delete_run(r))
-    elif(m == None and v == None and e == None and r == None):
+    elif(m is None and v is None and e is None and r is None):
         # ? delete everyting
         pass
-    elif(m == None or v == None and e != None and r == None):
-       print("The given input is invalid")
-    elif(m != None and v != None and e != None and r == None):
+    elif(m is None or v is None and e is not None and r is None):
+        print("The given input is invalid")
+    elif(m is not None and v is not None and e is not None and r is None):
         if click.confirm('Are you sure you want to delete this?'):
             print_deleted_status(serving.delete_experiment(m, v, e))
-    elif(m != None and v != None and e == None and r == None):
+    elif(m is not None and v is not None and e is None and r is None):
         if click.confirm('Are you sure you want to delete this?'):
             print_deleted_status(serving.delete_version(m, v))
-    elif (m != None and v == None and e == None and r == None):
+    elif (m is not None and v is None and e is None and r is None):
         if click.confirm('Are you sure you want to delete this?'):
             print_deleted_status(serving.delete_model(m))
     else:
         print("when trying to get model, version, or experiment, -r shouldn't be used")
+
 
 @cli.command(help='Compares the data')
 def compare():
