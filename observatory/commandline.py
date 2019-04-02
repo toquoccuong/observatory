@@ -47,24 +47,34 @@ def server():
 @click.option(
     '-m',
     default=None,
-    help='The model that should be returned'
+    help='The model that should be returned -- [INPUT] = model name'
 )
 @click.option(
     '-v',
     default=None,
-    help='The version of a specific model that should be returned'
+    help='The version of a specific model that should be returned -- [INPUT] = version Id'
 )
 @click.option(
     '-e',
     default=None,
-    help='An experiment of a version that should be returned'
+    help='An experiment of a version that should be returned -- [INPUT] = experiment name'
 )
 @click.option(
     '-r',
     default=None,
-    help='The run that should be returned'
+    help='The run that should be returned -- [INPUT] = run id'
 )
-def get(m, v, e, r):
+@click.option(
+    '-s',
+    default=None,
+    help='The settings that should be returned  -- [INPUT] = run id'
+)
+@click.option(
+    '-o',
+    default=None,
+    help='The output that should be returned  -- [INPUT] = run id'
+)
+def get(m, v, e, r, s, o):
     """
     For the get module there are five possible valid commands.
 
@@ -103,46 +113,71 @@ def get(m, v, e, r):
             print('-' * 115)
             x = str(len(str(run[0][2][0][1])))
             print(tabulate(run[0][2], headers=['Metric', 'Value'], floatfmt="." + x + "f"))
-    elif(m is None and v is None and e is None and r is None):
+        return
+    if(o is not None and m is None and v is None and e is None and r is None and s is None):
+        output = serving.get_output(o)
+        print(output)
+        return
+    if(s is not None and m is None and v is None and e is None and r is None and o is None):
+        settings = serving.get_settings(s)
+        print(settings)
+        return
+    elif(m is None and v is None and e is None and r is None and o is None and s is None):
         models = serving.get_all_models()
         print_to_console(models, 'Models')
+        return
     elif(m is None or v is None and e is not None and r is None):
         print("[ERROR]: The given input is invalid")
-    elif(m is not None and v is not None and e is not None and r is None):
+        return
+    elif(m is not None and v is not None and e is not None and r is None and o is None and s is None):
         experiments = serving.get_experiment(m, v, e)
         print_to_console(experiments, 'Runs')
-    elif(m is not None and v is not None and e is None and r is None):
+        return
+    elif(m is not None and v is not None and e is None and r is None and o is None and s is None):
         versions = serving.get_version(m, v)
         print_to_console(versions, 'Experiments')
-    elif (m is not None and v is None and e is None and r is None):
+        return
+    elif (m is not None and v is None and e is None and r is None and o is None and s is None):
         models = serving.get_model(m)
         print_to_console(models, 'Versions')
+        return
     else:
-        print("[ERROR]: when trying to get model, version, or experiment, -r shouldn't be used")
+        print("[ERROR]: when trying to get model, version, or experiment, no other parameters should be used")
+        return
 
 
 @cli.command(help='Deletes the data')
 @click.option(
     '-m',
     default=None,
-    help='The model that should be deleted'
+    help='The model that should be deleted -- [INPUT] = model name'
 )
 @click.option(
     '-v',
     default=None,
-    help='The version of a specific model that should be deleted'
+    help='The version of a specific model that should be deleted -- [INPUT] = verion id'
 )
 @click.option(
     '-e',
     default=None,
-    help='An experiment of a version that should be deleted'
+    help='An experiment of a version that should be deleted -- [INPUT] = experiment name'
 )
 @click.option(
     '-r',
     default=None,
-    help='The run that should be deleted'
+    help='The run that should be deleted -- [INPUT] = run id'
 )
-def delete(m, v, e, r):
+@click.option(
+    '-s',
+    default=None,
+    help='The settings that should be deleted  -- [INPUT] = run id'
+)
+@click.option(
+    '-o',
+    default=None,
+    help='The output that should be deleted  -- [INPUT] = run id'
+)
+def delete(m, v, e, r, s, o):
     """
     For the Delete module there are five possible valid commands.
 
@@ -169,25 +204,39 @@ def delete(m, v, e, r):
         AssertionError -- This gets raised when the input is wrong
     """
     serving = ServingClient()
-    if(r is not None and m is None and v is None and e is None):
+    if(r is not None and m is None and v is None and e is None and o is None and s is None):
         if click.confirm('Are you sure you want to delete this?'):
             print_deleted_status(serving.delete_run(r))
-    elif(m is None and v is None and e is None and r is None):
+        return
+    if(o is not None and m is None and v is None and e is None and r is None and s is None):
+        if click.confirm('Are you sure you want to delete this?'):
+            print_deleted_status(serving.delete_output(o))
+        return
+    if(s is not None and m is None and v is None and e is None and r is None and o is None):
+        if click.confirm('Are you sure you want to delete this?'):
+            print_deleted_status(serving.delete_settings(s))
+        return
+    elif(m is None and v is None and e is None and r is None and o is None and s is None):
         # ? delete everyting
         pass
-    elif(m is None or v is None and e is not None and r is None):
+    elif(m is None or v is None and e is not None and r is None and o is None and s is None):
         print("The given input is invalid")
-    elif(m is not None and v is not None and e is not None and r is None):
+        return
+    elif(m is not None and v is not None and e is not None and r is None and o is None and s is None):
         if click.confirm('Are you sure you want to delete this?'):
             print_deleted_status(serving.delete_experiment(m, v, e))
-    elif(m is not None and v is not None and e is None and r is None):
+        return
+    elif(m is not None and v is not None and e is None and r is None and o is None and s is None):
         if click.confirm('Are you sure you want to delete this?'):
             print_deleted_status(serving.delete_version(m, v))
-    elif (m is not None and v is None and e is None and r is None):
+        return
+    elif (m is not None and v is None and e is None and r is None and o is None and s is None):
         if click.confirm('Are you sure you want to delete this?'):
             print_deleted_status(serving.delete_model(m))
+        return
     else:
         print("when trying to get model, version, or experiment, -r shouldn't be used")
+        return
 
 
 @cli.command(help='Compares the data')

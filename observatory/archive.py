@@ -40,7 +40,7 @@ class Archive:
             self._path = (home + "\\.observatory\\metrics")
             return self._path
         elif os.path.exists("\\.observatory"):
-            self._path = (home + "\\.observatory\\")
+            self._path = ("\\.observatory\\")
             return self._path
         else:
             print("no home directory found")
@@ -78,8 +78,7 @@ class Archive:
             path {str} -- Path to file destination
 
         Returns:
-            list -- list of all found models containing the input value,
-                    This might be more than one model, depending on the input
+            list -- list of all found versions for the input model,
         """
 
         models = []
@@ -92,7 +91,7 @@ class Archive:
     @staticmethod
     def get_version(self, model, version, path):
         """
-        Gets the requested version
+        Gets the requested experiments
 
         version has to be perfecht match
 
@@ -102,8 +101,7 @@ class Archive:
             path {str} -- Path to file destination
 
         Returns:
-            list -- list of all found versions
-                    This is always one version
+            list -- list of all found experiments
         """
         versions = []
         for file in os.listdir(path):
@@ -116,9 +114,7 @@ class Archive:
     @staticmethod
     def get_experiment(self, model, version, experiment, path):
         """
-        Gets the requested version
-
-        version has to be perfecht match
+        Gets the requested runs
 
         Arguments:
             model {str} -- model name
@@ -126,8 +122,7 @@ class Archive:
             path {str} -- Path to file destination
 
         Returns:
-            list -- list of all found versions
-                    This is always one version
+            list -- list of all found runs
         """
         experiments = []
         for file in os.listdir(path):
@@ -168,3 +163,69 @@ class Archive:
             if model + '_' in file:
                 os.remove(path + '\\' + file)
                 return True
+
+    @staticmethod
+    def get_settings(run_id):
+        home = expanduser('~')
+        if os.path.exists(home + "\\.observatory"):
+            path = home + "\\.observatory\\settings\\"
+        else:
+            return
+        settings = []
+        for file in os.listdir(path):
+            if '_' + run_id + '-' in file:
+                with open(path + '\\' + file, 'rb') as f:
+                    while True:
+                        try:
+                            settings.append(pickle.load(f))
+                        except EOFError:
+                            break
+        return settings        
+
+
+    @staticmethod
+    def delete_settings(run_id):
+        home = expanduser('~')
+        if os.path.exists(home + "\\.observatory"):
+            path = home + "\\.observatory\\settings\\"
+        else:
+            return False
+
+        for file in os.listdir(path):
+            if '_' + run_id + '-' in file:
+                os.remove(path + file)
+                return True
+           
+
+    @staticmethod
+    def get_output(run_id):
+        home = expanduser('~')
+        if os.path.exists(home + "\\.observatory"):
+            path = home + "\\.observatory\\outputs\\"
+        else:
+            return
+
+        output = []
+        for file in os.listdir(path):
+            if '_' + run_id + '-' in file:
+                with open(path + '\\' + file, 'rb') as f:
+                    while True:
+                        try:
+                            output.append(pickle.load(f))
+                        except EOFError:
+                            break
+        return output 
+
+    @staticmethod
+    def delete_output(run_id):
+        home = expanduser('~')
+        if os.path.exists(home + "\\.observatory"):
+            path = home + "\\.observatory\\outputs\\"
+        else:
+            return False
+
+        for file in os.listdir(path):
+            if '_' + run_id + '-' in file:
+                os.remove(path + file)
+                return True
+        

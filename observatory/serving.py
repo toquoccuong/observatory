@@ -53,10 +53,22 @@ class ServingClient:
         return Archive.delete_experiment(model, version, experiment, self._path)
 
     def delete_version(self, model, version):
-        return delete_version(model, version, self._path)
+        return Archive.delete_version(model, version, self._path)
 
     def delete_model(self, model):
-        return delete_model(model, self._path)
+        return Archive.delete_model(model, self._path)
+
+    def get_settings(self, run_id):
+        return Archive.get_settings(run_id)
+
+    def get_output(self, run_id):
+        return Archive.get_output(run_id)
+
+    def delete_settings(self, run_id):
+        return Archive.delete_settings(run_id)
+
+    def delete_output(self, run_id):
+        return Archive.delete_output(run_id)
 
     def compare_runs(self, first_run_id, second_run_id):
         pass

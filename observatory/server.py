@@ -130,10 +130,13 @@ class Model(Resource):
         Returns:
             HTTP request -- When the function finishes it wil return a http status.
         """
-        if model is not None:
-            data = serving.get_model(model)
-        elif model is None:
-            data = serving.get_all_models()
+        try:
+            if model is not None:
+                data = serving.get_model(model)
+            elif model is None:
+                data = serving.get_all_models()
+        except Exception:
+            return {'status': 'failure', 'context': 'Could not find model'}, 500
         return {'status': 'succes', 'data': data}, 201
 
     def delete(self, name):
@@ -260,7 +263,10 @@ class Run(Resource):
         Returns:
             HTTP request -- When the function finishes it wil return a http status.
         """
-        data = serving.get_run(run)
+        try:
+            data = serving.get_run(run)
+        except Exception:
+            {'status': 'failure', 'context': 'Run was not found'}, 500
         return {'status': 'succes', 'data': data}, 201
 
     def delete(self, run):
@@ -334,6 +340,7 @@ class Setting(Resource):
         Returns:
             HTTP request -- When the function finishes it wil return a http status.
         """
+        
         return 500
 
     def post(self, run):
