@@ -14,13 +14,19 @@ class ServingClient:
         self._path = Archive.check_for_home_directory(self)
 
     def structure_metrics(self, input):
-        output = []
+        data = []
+        params = []
         startTime = str(input[0][4])
         input.pop(0)
-        end = [input[-1][0], str(input[-1][1])]
+        endTime = str(input[-1][1])
+        status = input[-1][0]
+        title = input[0][0]
         del input[-1]
-        output.append([startTime, end, input])
-        return output
+        for i in range(input.__len__()):
+            data.append(input[i][1])
+        
+        params.append([title, startTime, endTime, status])
+        return [data, params]
 
     def get_run(self, run_id):
 

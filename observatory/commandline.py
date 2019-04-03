@@ -3,6 +3,7 @@ import pdb
 from observatory.serving import ServingClient
 from prettytable import PrettyTable
 from tabulate import tabulate
+import pandas as pd
 
 
 def print_to_console(data, title):
@@ -25,6 +26,16 @@ def print_to_console(data, title):
         print('| ' + str(d))
     print('+' + ('-' * length) + '----+')
 
+def print_runs(params, data, r):
+    pd.set_option("display.precision", len(str(data[0])))
+    df = pd.DataFrame(data, columns=[params[0][0]])
+    df.round(len(str(data[1])))
+    print("| Run: " + r + " | StartDate: " + str(params[0][1]) + " | EndDate: " + str(params[0][2]) + " | Status: " + params[0][3])
+    print('-' * 115)
+    # x = str(len(str(run[0][2][0][1])))
+    # print(tabulate(run[0][2], headers=['Metric', 'Value'], floatfmt="." + x + "f"))
+    print('Hightest value   : ' + str(df[params[0][0]].max()))
+    print('Lowest value     : ' + str(df[params[0][0]].min()))
 
 def print_deleted_status(status):
     if status is True:
@@ -109,10 +120,7 @@ def get(m, v, e, r, s, o):
             print('[ERROR]: Invalid run id, it must be 8 characters long')
         else:
             run = serving.get_run(r)
-            print("| Run: " + r + " | StartDate: " + str(run[0][0]) + " | EndDate: " + str(run[0][1][1]) + " | Status: " + run[0][1][0])
-            print('-' * 115)
-            x = str(len(str(run[0][2][0][1])))
-            print(tabulate(run[0][2], headers=['Metric', 'Value'], floatfmt="." + x + "f"))
+            print_runs(run[1], run[0], r)
         return
     if(o is not None and m is None and v is None and e is None and r is None and s is None):
         output = serving.get_output(o)

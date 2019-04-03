@@ -8,12 +8,6 @@ import tarfile
 import pickle
 
 
-"""
-This module is currently not working.
-As the rework of Obsrevatory progresses this will be fixed.
-"""
-
-
 class Archive:
 
     def structure_data(input, index):
@@ -182,7 +176,6 @@ class Archive:
                             break
         return settings        
 
-
     @staticmethod
     def delete_settings(run_id):
         home = expanduser('~')
@@ -196,7 +189,6 @@ class Archive:
                 os.remove(path + file)
                 return True
            
-
     @staticmethod
     def get_output(run_id):
         home = expanduser('~')
