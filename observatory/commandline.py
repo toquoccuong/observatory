@@ -27,15 +27,17 @@ def print_to_console(data, title):
     print('+' + ('-' * length) + '----+')
 
 def print_runs(params, data, r):
-    pd.set_option("display.precision", len(str(data[0])))
-    df = pd.DataFrame(data, columns=[params[0][0]])
-    df.round(len(str(data[1])))
+    print('+' + ('-' * 115))
     print("| Run: " + r + " | StartDate: " + str(params[0][1]) + " | EndDate: " + str(params[0][2]) + " | Status: " + params[0][3])
-    print('-' * 115)
-    # x = str(len(str(run[0][2][0][1])))
-    # print(tabulate(run[0][2], headers=['Metric', 'Value'], floatfmt="." + x + "f"))
-    print('Hightest value   : ' + str(df[params[0][0]].max()))
-    print('Lowest value     : ' + str(df[params[0][0]].min()))
+    print('+' + ('-' * 115))
+    i = 0
+    for d in data:
+        print('| Recorded metric : ' + str(params[0][0][i]))
+        print('| Hightest value  : ' + str(max(d)))
+        print('| Lowest value    : ' + str(min(d)))
+        print('+' + ('-' * 40))
+        i += 1
+
 
 def print_deleted_status(status):
     if status is True:

@@ -1,6 +1,8 @@
 import re
 import tempfile
 from abc import ABC, abstractmethod
+import numpy as np
+from itertools import chain 
 
 import requests
 from observatory import settings
@@ -13,19 +15,34 @@ class ServingClient:
     def __init__(self):
         self._path = Archive.check_for_home_directory(self)
 
+    def check_for_metrics(self, data):
+        x = []
+        for d in data:
+            x.append(d[0])
+        metrics = list(set(x))
+        return metrics
+
+    def separate_data(self, data, metrics):
+        collection = []
+        for m in metrics:
+            mlist = []
+            for d in data:
+                if d[0] == m:
+                    mlist.append(d[1])
+            collection.append(mlist)
+        return collection
+        
+
     def structure_metrics(self, input):
-        data = []
         params = []
         startTime = str(input[0][4])
         input.pop(0)
         endTime = str(input[-1][1])
         status = input[-1][0]
-        title = input[0][0]
         del input[-1]
-        for i in range(input.__len__()):
-            data.append(input[i][1])
-        
-        params.append([title, startTime, endTime, status])
+        metrics = self.check_for_metrics(input)
+        data = self.separate_data(input, metrics)
+        params.append([metrics, startTime, endTime, status])
         return [data, params]
 
     def get_run(self, run_id):
