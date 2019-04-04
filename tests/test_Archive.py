@@ -8,15 +8,37 @@ from observatory.archive import Archive
 
 @pytest.fixture(scope="session")
 def test_file():
-    os.remove(expanduser('~' + '\\.observatory\\metrics\\test_v1_test_test.pkl'))
-    path = expanduser('~') + "\\.observatory\\metrics\\test_v1_test_12345678-017f-41ce-b4b7-735bf7123332.pkl"
+    home = expanduser("~")
+    if os.path.exists(home + "\\.observatory"):
+        # if it exists the path will be set
+        try:
+            os.remove('\\.observatory\\metrics\\test_v1_test_test.pkl')
+        except Exception:
+            pass
+        path = (home + "\\.observatory\\metrics\\test_v1_test_12345678-017f-41ce-b4b7-735bf7123332.pkl")
+    else:
+        try:
+            # if it doesn't exist, then it will be created,
+            # along with subfolders for metrics, outputs and settings.
+            os.makedirs(home + "\\.observatory\\metrics\\")
+            path = (home + "\\.observatory\\metrics\\test_v1_test_12345678-017f-41ce-b4b7-735bf7123332.pkl")
+        except PermissionError as e:
+            # if the acces to the home directory is denied,
+            # a folder in the current repo will be made and used.
+            os.makedirs("\\.observatory\\metrics\\")
+            path = ("\\.observatory\\metrics\\test_v1_test_12345678-017f-41ce-b4b7-735bf7123332.pkl")
     data = []
     data.append(['loss', 255])
     with open(path, 'wb') as f:
         pickle.dump(data, f)
     yield path
-
-    os.remove(expanduser('~') + "\\.observatory\\metrics\\test_v1_test_12345678-017f-41ce-b4b7-735bf7123332.pkl")
+    try:
+        os.remove(home + "\\.observatory\\metrics\\test_v1_test_12345678-017f-41ce-b4b7-735bf7123332.pkl")
+    except Exception:
+        try:
+            os.remove("\\.observatory\\metrics\\test_v1_test_12345678-017f-41ce-b4b7-735bf7123332.pkl")
+        except Exception:
+            pass
 
 def test_get_model(test_file):
     data = Archive.get_model(Archive, 'test', test_file[:-53])
