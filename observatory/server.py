@@ -5,6 +5,7 @@ from flask_restful import Api, Resource, reqparse, request
 from flask_jsonpify import jsonify
 from werkzeug import datastructures, secure_filename
 from observatory.sink import Sink
+from observatory.serving import ServingClient
 import os
 from os.path import expanduser
 
@@ -12,6 +13,7 @@ UPLOAD_FOLDER = expanduser('~') + '\\.observatory\\outputs'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'pkl'])
 
 sink = Sink()
+serving = ServingClient()
 app = Flask(__name__)
 app.secret_key = '?secret?'  # this has to change, and be secret
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -21,10 +23,10 @@ api = Api(app)
 def allowed_file(filename):
     """
     This method checks filenames to see if the filename is valid.
-    
+
     Arguments:
         filename {str} -- The name of a file
-    
+
     Returns:
         Boolean -- The name follows the predetermind ALLOWED_EXTENSIONS
     """
@@ -117,7 +119,7 @@ class Model(Resource):
         Resource {flask_restful.Resource} -- Represents an abstract RESTful resource
 
     """
-    def get(self, name):
+    def get(self, model):
         """
         This method handles the Get method
         It gets all data related to a single model
@@ -128,8 +130,14 @@ class Model(Resource):
         Returns:
             HTTP request -- When the function finishes it wil return a http status.
         """
-        # querries.getByName()
-        return 500
+        try:
+            if model is not None:
+                data = serving.get_model(model)
+            elif model is None:
+                data = serving.get_all_models()
+        except Exception:
+            return {'status': 'failure', 'context': 'Could not find model'}, 500
+        return {'status': 'succes', 'data': data}, 201
 
     def delete(self, name):
         """
@@ -141,7 +149,7 @@ class Model(Resource):
         Returns:
             HTTP request -- When the function finishes it wil return a http status.
         """
-        return 500
+        return serving.delete_model(name)
 
 
 class Version(Resource):
@@ -155,7 +163,7 @@ class Version(Resource):
         Resource {flask_restful.Resource} -- Represents an abstract RESTful resource
 
     """
-    def get(self, ID):
+    def get(self, id):
         """
         This method handles the Get method
 
@@ -165,9 +173,13 @@ class Version(Resource):
         Returns:
             HTTP request -- When the function finishes it wil return a http status.
         """
-        return 500
+        parser = reqparse.RequestParser()
+        parser.add_argument('model')
+        args = parser.parse_args()
+        data = serving.get_version(args['model'], id)
+        return {'status': 'succes', 'data': data}, 201
 
-    def delete(self, ID):
+    def delete(self, id):
         """
         This method handles the Delete method
 
@@ -177,7 +189,10 @@ class Version(Resource):
         Returns:
             HTTP request -- When the function finishes it wil return a http status.
         """
-        return 500
+        parser = reqparse.RequestParser()
+        parser.add_argument('model')
+        args = parser.parse_args()
+        return serving.delete_version(args['model'], id)
 
 
 class Experiment(Resource):
@@ -202,7 +217,12 @@ class Experiment(Resource):
         Returns:
             HTTP request -- When the function finishes it wil return a http status.
         """
-        return 500
+        parser = reqparse.RequestParser()
+        parser.add_argument('model')
+        parser.add_argument('version')
+        args = parser.parse_args()
+        data = serving.get_experiment(args['model'], args['version'], name)
+        return {'status': 'succes', 'data': data}, 201
 
     def delete(self, name):
         """
@@ -214,7 +234,11 @@ class Experiment(Resource):
         Returns:
             HTTP request -- When the function finishes it wil return a http status.
         """
-        return 500
+        parser = reqparse.RequestParser()
+        parser.add_argument('model')
+        parser.add_argument('version')
+        args = parser.parse_args()
+        return serving.get_version(args['model'], args['version'], name)        
 
 
 class Run(Resource):
@@ -229,7 +253,7 @@ class Run(Resource):
 
     """
 
-    def get(self, ID):
+    def get(self, run):
         """
         This method handles the Get method
 
@@ -239,9 +263,13 @@ class Run(Resource):
         Returns:
             HTTP request -- When the function finishes it wil return a http status.
         """
-        return 500
+        try:
+            data = serving.get_run(run)
+        except Exception:
+            {'status': 'failure', 'context': 'Run was not found'}, 500
+        return {'status': 'succes', 'data': data}, 201
 
-    def delete(self, ID):
+    def delete(self, run):
         """
         This method handles the Delete method
 
@@ -251,31 +279,20 @@ class Run(Resource):
         Returns:
             HTTP request -- When the function finishes it wil return a http status.
         """
-        return 500
+        return serving.delete_run(run)
+        
 
 
 class Metric(Resource):
     """
     This class is used to group all logic related to the Metrics of a Run
 
-    This class has no PUT method because updating data never happens
+    This class has no PUT, GET or Delete method because updating/deleting/getting a single metric never happens
 
     Arguments:
         Resource {flask_restful.Resource} -- Represents an abstract RESTful resource
 
     """
-
-    def get(self, run):
-        """
-        This method handles the Get method
-
-        Arguments:
-            run {str} -- The run ID
-
-        Returns:
-            HTTP request -- When the function finishes it wil return a http status.
-        """
-        return 500
 
     def post(self, run):
         """
@@ -301,18 +318,6 @@ class Metric(Resource):
             return {'status': 'failure', 'context': 'Session could not be started'}, 500
         return {'status': 'success'}, 201
 
-    def delete(self, run):
-        """
-        This method handles the Delete method
-
-        Arguments:
-            run {str} -- The run ID
-
-        Returns:
-            HTTP request -- When the function finishes it wil return a http status.
-        """
-        return 500
-
 
 class Setting(Resource):
     """
@@ -335,6 +340,7 @@ class Setting(Resource):
         Returns:
             HTTP request -- When the function finishes it wil return a http status.
         """
+        
         return 500
 
     def post(self, run):
@@ -437,6 +443,7 @@ class Output(Resource):
 api.add_resource(Model, "/api/models/<string:model>")
 api.add_resource(Version, "/api/versions/<string:id>")
 api.add_resource(Experiment, "/api/experiments/<string:name>")
+api.add_resource(Run, "/api/run/<string:run>")
 api.add_resource(Metric, "/api/metrics/<string:run>")
 api.add_resource(Setting, "/api/settings/<string:run>")
 api.add_resource(Output, "/api/output/<string:run>")

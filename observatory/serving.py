@@ -1,91 +1,97 @@
-"""
-This module can be used to download data from the observatory server.
-Typically you first track your model data
-with :func:`start_run <observatory.tracking.start_run>`.
-
-Once you have collected data you can download the model data
-using the :func:`download_model <observatory.serving.download>`
-function.
-
-Please refer to the individual function specs for more information
-on how to use these functions.
-"""
 import re
 import tempfile
+from abc import ABC, abstractmethod
+import numpy as np
+from itertools import chain 
 
 import requests
-from observatory import archive, settings
+from observatory import settings
+from observatory.archive import Archive
 from observatory.constants import LABEL_PATTERN
 
 
-def download_model(**kwargs):
-    """
-    Downloads a model from the server and stores it in a local folder.
+class ServingClient:
 
-    This method will download a tarball from the server and extract it
-    in a folder specified with the path argument.
-    The model folder will contain all outputs you stored for the model.
+    def __init__(self):
+        self._path = Archive.check_for_home_directory(self)
 
-    Additionally a settings.json file is included, which contains the
-    settings that you stored earlier.
-    Finally, a metadata.json file is included, which contains all the
-    necessary metadata for the model,
-    the name, version, experiment ID and run ID.
+    def check_for_metrics(self, data):
+        x = []
+        for d in data:
+            x.append(d[0])
+        metrics = list(set(x))
+        return metrics
 
-    Parameters
-    ----------
-    model : str
-        The name of the model
-    version : int
-        The version number of the model
-    experiment : str, optional
-        The name of the experiment
-    run_id : str
-        The ID of the run
-    path : str, optional
-        The path to store the model, defaults to the current working folder.
+    def separate_data(self, data, metrics):
+        collection = []
+        for m in metrics:
+            mlist = []
+            for d in data:
+                if d[0] == m:
+                    mlist.append(d[1])
+            collection.append(mlist)
+        return collection
+        
 
-    Returns
-    -------
-    The path to the model folder. You can access all the files in this folder.
-    """
+    def structure_metrics(self, input):
+        params = []
+        startTime = str(input[0][4])
+        input.pop(0)
+        endTime = str(input[-1][1])
+        status = input[-1][0]
+        del input[-1]
+        metrics = self.check_for_metrics(input)
+        data = self.separate_data(input, metrics)
+        params.append([metrics, startTime, endTime, status])
+        return [data, params]
 
-    model = kwargs.get('model', None)
-    version = kwargs.get('version', None)
-    run_id = kwargs.get('run_id', None)
-    experiment = kwargs.get('experiment', 'default')
-    path = kwargs.get('path', '.')
+    def get_run(self, run_id):
 
-    if model is None:
-        raise AssertionError('Please provide a model to download')
+        if run_id.__len__() != 8:
+            raise AssertionError("Invalid run id")
 
-    if version is None:
-        raise AssertionError('Please provide a version to download')
+        run = Archive.get_run(run_id, self._path)
+        return self.structure_metrics(run)
 
-    if run_id is None:
-        raise AssertionError('Please provide the ID of the run to download')
+    def get_all_models(self):
+        models = Archive.get_all_models(Archive, self._path)
+        return models
 
-    if version <= 0:
-        raise AssertionError('Version must be greater than zero')
+    def get_experiment(self, model, version, experiment):
+        exp = Archive.get_experiment(Archive, model, version, experiment, self._path)
+        return exp
 
-    if not re.match(LABEL_PATTERN, model):
-        raise AssertionError('name is invalid. It can contain ' +
-                             'lower-case alpha-numeric characters and dashes.')
+    def get_version(self, model, version):
+        versions = Archive.get_version(Archive, model, version, self._path)
+        return versions
 
-    if experiment != 'default' and not re.match(LABEL_PATTERN, model):
-        raise AssertionError('experiment is invalid. It can contain ' +
-                             'lower-case alpha-numeric characters and dashes.')
+    def get_model(self, model):
+        mdl = Archive.get_model(Archive, model, self._path)
+        return mdl
 
-    handler_url = f'{settings.server_url}/api/models/{model}/versions/{version}/experiments/{experiment}/runs/{run_id}/archive'
-    response = requests.get(handler_url)
+    def delete_run(self, run_id):
+        return Archive.delete_run(Archive, run_id, self._path)
 
-    if response.status_code == 200:
-        _, temp_filename = tempfile.mkstemp('.tar.gz')
+    def delete_experiment(self, model, version, experiment):
+        return Archive.delete_experiment(model, version, experiment, self._path)
 
-        with open(temp_filename, 'wb') as archive_file:
-            for chunk in response.iter_content(1024):
-                archive_file.write(chunk)
+    def delete_version(self, model, version):
+        return Archive.delete_version(model, version, self._path)
 
-        archive.extract(temp_filename, path)
-    else:
-        raise RuntimeError(f'the server returned status code {response.status_code}:{response.json()["message"]}')
+    def delete_model(self, model):
+        return Archive.delete_model(model, self._path)
+
+    def get_settings(self, run_id):
+        return Archive.get_settings(run_id)
+
+    def get_output(self, run_id):
+        return Archive.get_output(run_id)
+
+    def delete_settings(self, run_id):
+        return Archive.delete_settings(run_id)
+
+    def delete_output(self, run_id):
+        return Archive.delete_output(run_id)
+
+    def compare_runs(self, first_run_id, second_run_id):
+        pass

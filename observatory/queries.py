@@ -8,6 +8,6 @@ es = None
 
 
 """
-This module is currently not working.
-As the rework of Obsrevatory progresses this will be fixed.
+This module is currently empty
+In the future it won't even exist
 """

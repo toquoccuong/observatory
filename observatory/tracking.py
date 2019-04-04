@@ -3,7 +3,6 @@ import json
 import re
 import warnings
 from os import path
-from time import time
 from uuid import uuid4
 import inspect
 import pdb
@@ -18,7 +17,7 @@ sink = Sink()
 
 class TrackingSession:
 
-    def __init__(self, name, version, experiment, run_id):
+    def __init__(self, name, version, experiment, run_id, state):
         """
         Initializes the tracking session with the necessary
         tracking information and a pre-initialized tracking
@@ -39,13 +38,13 @@ class TrackingSession:
         self.version = version
         self.experiment = experiment
         self.run_id = run_id
-        self._state = LocalState()
+        self._state = state
 
     def change(self, state):
         """
         Needed for the implementation of the state pattern, with this it is possilbe
         to switch betweeen states.
-        
+
         Arguments:
             state {LocalState or RemoteState} -- The current state of the TrackingSession
         """
@@ -90,12 +89,12 @@ class TrackingSession:
             A dictionary containing all settings used for the run.
             This can be passed in as `key=value` pairs.
         """
-        
+
         if settings is None:
             warnings.warn(
-                'Trying to record empty settings. ' + 
+                'Trying to record empty settings. ' +
                 'To prevent risk of settings loss on the server, ' +
-                'the empty settings collection is discarded.', 
+                'the empty settings collection is discarded.',
                 RuntimeWarning)
 
         self._state.record_settings(
@@ -180,7 +179,7 @@ class ObservatoryState(ABC):
         """
         Override this method in a derived class to record an output for the run.
         The derived class is required to handle the value of the output as an opaque binary blob.
-        It must not read the blob to validate it. 
+        It must not read the blob to validate it.
         """
         pass
 
@@ -203,7 +202,7 @@ class ObservatoryState(ABC):
 
 class LocalState(ObservatoryState):
     """
-    This state is used to record metadata about experiments in the .obsrevatory directory using the standard data Sink. 
+    This state is used to record metadata about experiments in the .obsrevatory directory using the standard data Sink.
     LocalState is nothing more than a nice handler that passes data to Sink, this is done because the sever is using the same saving mechanism to save data.
     So there is a seperate module to handle this.
     """
@@ -229,7 +228,7 @@ class RemoteState(ObservatoryState):
     Records metric on a remote server that you can run through the command `observatory server`.
     """
 
-    def _verify_response(self, response, expected_status, 
+    def _verify_response(self, response, expected_status,
                          expected_type='application/json'):
         """
         Verifies the response received from the tracking client against the expected status code.
@@ -334,7 +333,7 @@ class RemoteState(ObservatoryState):
         }
         headers = {'content-type': 'application/json'}
         self._verify_response(requests.post(handler_url, data=json.dumps(payload), headers=headers), 201)
-        
+
     def record_output(self, model, filename, file):
         """
         Records an output of an experiment run
@@ -445,7 +444,7 @@ class RemoteState(ObservatoryState):
         self._verify_response(requests.post(handler_url, data=json.dumps(payload), headers=headers), 201)
 
 
-def start_run(model, version, state, experiment='default'):
+def start_run(model, version, experiment='default'):
     """
     Starts a new run for a specific model version.
 
@@ -477,8 +476,9 @@ def start_run(model, version, state, experiment='default'):
     experiment : string, optional
         The experiment you're working on
     """
-    if model is None or model.strip() == '':
-        raise AssertionError('Please provide a name for your model.')
+    if model is None or model.strip() == '' or not re.match(LABEL_PATTERN, model):
+        raise AssertionError('Please provide a valid name for your model.It can contain ' +
+                             'lower-case alpha-numeric characters and dashes only.')
 
     if not re.match(LABEL_PATTERN, model):
         raise AssertionError('name is invalid. It can contain ' +
@@ -494,10 +494,12 @@ def start_run(model, version, state, experiment='default'):
 
     if version <= 0:
         raise AssertionError('version must be greater than zero')
-    
+
     run_id = str(uuid4())
 
-    trackingSession = TrackingSession(model, version, experiment, run_id)
-    trackingSession.change(state)
+    if settings.state == 'local':
+        tracking_session = TrackingSession(model, version, experiment, run_id, LocalState())
+    elif settings.state == "remote":
+        tracking_session = TrackingSession(model, version, experiment, run_id, RemoteState())
 
-    return trackingSession
+    return tracking_session
