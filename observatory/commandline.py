@@ -37,7 +37,38 @@ def print_runs(params, data, r):
         print('| Lowest value    : ' + str(min(d)))
         print('+' + ('-' * 40))
         i += 1
+        
 
+def print_comparison(left_run, right_run, metrics, r):
+    for i in range(left_run[1][0][0].__len__()):
+        try:
+            if left_run[1][0][0][i] not in metrics:
+                left_run[0].pop(i)
+                left_run[1][0][0].pop(i)
+        except IndexError:
+            pass
+    for i in range(right_run[1][0][0].__len__()):
+        try:
+            if right_run[1][0][0][i] not in metrics:
+                right_run[0].pop(i)
+                right_run[1][0][0].pop(i)
+        except IndexError:
+            pass
+    print('Left is ' + r[0]+ ', Right is ' + r[1])
+    print('| Metric            | Highest            | Mean               | Lowest')
+    print('+' + ('-' * 80))
+    i = 0
+    for d in left_run:
+        try:
+            leftavg = str((sum(left_run[0][i])/left_run[0][i].__len__()))
+            rightavg = str((sum(right_run[0][i])/right_run[0][i].__len__()))
+            print('| ' + left_run[1][0][0][i] + (' ' * (20 - left_run[1][0][0][i].__len__())) + str(max(left_run[0][i])) + ' | ' + str(max(right_run[0][i])) + '       ' + leftavg + ' | ' + rightavg + '       ' + str(min(left_run[0][i])) + ' | ' + str(min(right_run[0][i])))
+            i += 1
+        except IndexError:
+            pass
+
+    # print_runs(left_run[1], left_run[0], '1')
+    # print_runs(right_run[1], right_run[0], '2')
 
 def print_deleted_status(status):
     if status is True:
@@ -250,12 +281,27 @@ def delete(m, v, e, r, s, o):
 
 
 @cli.command(help='Compares the data')
-def compare():
+@click.option(
+    '-r',
+    default=None,
+    help='The run that should be deleted -- [INPUT] = run id',
+    multiple=True
+)
+def compare(r):
     """
     This command is used to compare the data from 2 or more runs
 
     It will be possible to give a model name, and it will compare all runs for that model.
     But maybe you want it to be a little more specific, so it is also possible to give a version number or experiment number.
     """
-
-    pass
+    serving = ServingClient()
+    if r is not None and r.__len__() == 2:
+        runs = []
+        
+        for x in r:
+            runs.append(serving.get_run(x))
+        metrics = serving.filter_metrics(runs[0][1][0][0], runs[1][1][0][0])
+        print_comparison(runs[0], runs[1], metrics, r)
+    else:
+        print("invalid input")   
+    

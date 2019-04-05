@@ -32,7 +32,6 @@ class ServingClient:
             collection.append(mlist)
         return collection
         
-
     def structure_metrics(self, input):
         params = []
         startTime = str(input[0][4])
@@ -93,5 +92,16 @@ class ServingClient:
     def delete_output(self, run_id):
         return Archive.delete_output(run_id)
 
-    def compare_runs(self, first_run_id, second_run_id):
-        pass
+    def filter_metrics(self, left, right):
+        metric_matches = set(left) & set(right)
+        return metric_matches
+
+    def remove_non_matches(self, data, matches):
+        output = []
+        for d in data:
+            md = []
+            for r in d:
+                if any(x in matches for x in r):
+                    md.append(r)
+            output.append(md)
+        return output                            
