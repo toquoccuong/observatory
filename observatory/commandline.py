@@ -67,9 +67,6 @@ def print_comparison(left_run, right_run, metrics, r):
         except IndexError:
             pass
 
-    # print_runs(left_run[1], left_run[0], '1')
-    # print_runs(right_run[1], right_run[0], '2')
-
 def print_deleted_status(status):
     if status is True:
         print('The File has been deleted succesfully')
@@ -297,7 +294,6 @@ def compare(r):
     serving = ServingClient()
     if r is not None and r.__len__() == 2:
         runs = []
-        
         for x in r:
             runs.append(serving.get_run(x))
         metrics = serving.filter_metrics(runs[0][1][0][0], runs[1][1][0][0])

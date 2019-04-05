@@ -2,7 +2,6 @@ import re
 import tempfile
 from abc import ABC, abstractmethod
 import numpy as np
-from itertools import chain 
 
 import requests
 from observatory import settings
@@ -90,18 +89,4 @@ class ServingClient:
         return Archive.delete_settings(run_id)
 
     def delete_output(self, run_id):
-        return Archive.delete_output(run_id)
-
-    def filter_metrics(self, left, right):
-        metric_matches = set(left) & set(right)
-        return metric_matches
-
-    def remove_non_matches(self, data, matches):
-        output = []
-        for d in data:
-            md = []
-            for r in d:
-                if any(x in matches for x in r):
-                    md.append(r)
-            output.append(md)
-        return output                            
+        return Archive.delete_output(run_id)                            
