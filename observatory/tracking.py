@@ -1,11 +1,11 @@
-from abc import ABC, abstractmethod
+import inspect
 import json
+import pdb
 import re
 import warnings
+from abc import ABC, abstractmethod
 from os import path
 from uuid import uuid4
-import inspect
-import pdb
 
 import requests
 from observatory import settings
@@ -33,6 +33,8 @@ class TrackingSession:
             Name of the experiment
         run_id : string
             ID of the run
+        state : ObservatoryState
+            state in which the TrackingSession will operate
         """
         self.name = name
         self.version = version

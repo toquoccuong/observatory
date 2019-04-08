@@ -1,16 +1,17 @@
 import json
 import os
+import pickle
 from os.path import expanduser
 from tempfile import mkstemp
-import pickle
 
-from observatory.tracking import TrackingSession, start_run, LocalState, RemoteState
-from observatory.constants import LABEL_PATTERN
-from observatory.sink import Sink
-from hypothesis import example, given, strategies, assume
+import pytest
 import requests
 import requests.exceptions
-import pytest
+from hypothesis import assume, example, given, strategies
+from observatory.constants import LABEL_PATTERN
+from observatory.sink import Sink
+from observatory.tracking import (LocalState, RemoteState, TrackingSession,
+                                  start_run)
 
 INVALID_LABELS = ['test!', 'TEst', 'Test', 'Test 123', '', '  ', 'test!']
 
@@ -78,19 +79,20 @@ def test_record_metrics_local(metric_name, metric_value):
                 session.record_metric(metric_name, metric_value)
     except AssertionError:
         print ('error')
-"""
-This method does not work on travis. therefore it is disabled.
-# ? this has to be fixed sometime
 
+
+# ! this method is skipped because in travis it will never connect to a server
+# ! When testing locally, comment out the @pytest.mark.skip line and be sure to run te server.
+@pytest.mark.skip(reason='The server is not running on travis')
 @given(
     metric_name=strategies.from_regex(LABEL_PATTERN),
     metric_value=strategies.floats(min_value=0.0, max_value=10.000)
 )
 def test_record_metrics_remote(metric_name, metric_value):
-    ""
+    """
     You can record metrics during your run.
     The number of times doesn't matter, we record all of them.
-    ""
+    """
     assume(metric_name.strip() != '')
     assume(metric_name != None)
 
@@ -98,7 +100,6 @@ def test_record_metrics_remote(metric_name, metric_value):
         session.change(RemoteState)
 
         session.record_metric(metric_name, metric_value)
-"""
 
 @pytest.mark.parametrize('metric_name', INVALID_LABELS)
 def test_record_metric_with_invalid_name(metric_name):
