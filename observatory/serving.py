@@ -89,4 +89,8 @@ class ServingClient:
         return Archive.delete_settings(run_id)
 
     def delete_output(self, run_id):
-        return Archive.delete_output(run_id)                            
+        return Archive.delete_output(run_id)
+
+    def filter_metrics(self, left, right):
+        metric_matches = set(left) & set(right)
+        return metric_matches                            

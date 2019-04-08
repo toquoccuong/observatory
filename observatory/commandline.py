@@ -8,7 +8,7 @@ import pandas as pd
 
 def print_to_console(data, title):
     """
-    This method prints data to command line
+    This method prints data to commandline
 
     Arguments:
         data {List} -- Data thats gets printed to command line
@@ -19,14 +19,23 @@ def print_to_console(data, title):
     for d in data:
         if d.__len__() > length:
             length = d.__len__()
-    print('+' + ('-' * length) + '----+')
+    print('+' + ('-' * length) + '--+')
     print('| ' + title)
-    print('+' + ('-' * length) + '----+')
+    print('+' + ('-' * length) + '--+')
     for d in data:
         print('| ' + str(d))
-    print('+' + ('-' * length) + '----+')
+    print('+' + ('-' * length) + '--+')
 
 def print_runs(params, data, r):
+    """
+    This method prints data to commandline
+    
+    Arguments:
+        params {List} -- List of the parameters, ex. starttime, endtime, status
+        data {List} -- List of the metrics
+        r {str} -- run id
+    """
+
     print('+' + ('-' * 115))
     print("| Run: " + r + " | StartDate: " + str(params[0][1]) + " | EndDate: " + str(params[0][2]) + " | Status: " + params[0][3])
     print('+' + ('-' * 115))
@@ -40,34 +49,50 @@ def print_runs(params, data, r):
         
 
 def print_comparison(left_run, right_run, metrics, r):
-    for i in range(left_run[1][0][0].__len__()):
-        try:
-            if left_run[1][0][0][i] not in metrics:
-                left_run[0].pop(i)
-                left_run[1][0][0].pop(i)
-        except IndexError:
-            pass
-    for i in range(right_run[1][0][0].__len__()):
-        try:
-            if right_run[1][0][0][i] not in metrics:
-                right_run[0].pop(i)
-                right_run[1][0][0].pop(i)
-        except IndexError:
-            pass
+    """
+    This method prints the comparion so commandline
+    
+    Arguments:
+        left_run {List} -- First run to compare
+        right_run {List} -- Second run to compare
+        metrics {List} -- List of metrics both runs have in common
+        r {List} -- Run id's
+    """
+
     print('Left is ' + r[0]+ ', Right is ' + r[1])
-    print('| Metric            | Highest            | Mean               | Lowest')
+    print('| Metric             | Highest            | Mean               | Lowest')
     print('+' + ('-' * 80))
     i = 0
     for d in left_run:
         try:
             leftavg = str((sum(left_run[0][i])/left_run[0][i].__len__()))
             rightavg = str((sum(right_run[0][i])/right_run[0][i].__len__()))
-            print('| ' + left_run[1][0][0][i] + (' ' * (20 - left_run[1][0][0][i].__len__())) + str(max(left_run[0][i])) + ' | ' + str(max(right_run[0][i])) + '       ' + leftavg + ' | ' + rightavg + '       ' + str(min(left_run[0][i])) + ' | ' + str(min(right_run[0][i])))
+                  # Metric name
+            print('| ' + left_run[1][0][0][i] + 
+                   # White Space
+                  (' ' * (21 - left_run[1][0][0][i].__len__())) +
+                   # Max metric value
+                  str(max(left_run[0][i])) + ' | ' + str(max(right_run[0][i])) + 
+                   # White Space
+                  (' ' * (18 - ((len(str(max(left_run[0][i])))) + (len(str(max(right_run[0][i]))))))) +
+                   # Avg metric value
+                  leftavg + ' | ' + rightavg + 
+                   # White Space
+                  (' ' * (18 - (((len(str(leftavg)))) + (len(str(rightavg)))))) + 
+                   # Min metric value
+                  str(min(left_run[0][i])) + ' | ' + str(min(right_run[0][i])))
             i += 1
         except IndexError:
             pass
 
 def print_deleted_status(status):
+    """
+    This method prints the delete status to commandline
+    
+    Arguments:
+        status {Boolean} -- Delete Status
+    """
+
     if status is True:
         print('The File has been deleted succesfully')
     elif status is None:
@@ -81,7 +106,7 @@ def cli():
 
 @cli.command(help='Runs the tracking server')
 def server():
-    pass
+    import observatory.server
 
 
 @cli.command(help='Gets the data')
@@ -135,7 +160,6 @@ def get(m, v, e, r, s, o):
     - observatory get -r [RUN_ID]
         This command returns the metadata for a specific run.
         It will show the highest found value, the lowest found value
-        # ? need to look at pandas how they deal with commands line data
 
     Any other combination of paramaters is not valid.
     For instance, it is not possible to request a version without specifing a model
@@ -297,6 +321,20 @@ def compare(r):
         for x in r:
             runs.append(serving.get_run(x))
         metrics = serving.filter_metrics(runs[0][1][0][0], runs[1][1][0][0])
+        for i in range(runs[0][1][0][0].__len__()):
+            try:
+                if runs[0][1][0][0][i] not in metrics:
+                    runs[0][0].pop(i)
+                    runs[0][1][0][0].pop(i)
+            except IndexError:
+                pass
+        for i in range(runs[1][1][0][0].__len__()):
+            try:
+                if runs[1][1][0][0][i] not in metrics:
+                    runs[1][0].pop(i)
+                    runs[1][1][0][0].pop(i)
+            except IndexError:
+                pass
         print_comparison(runs[0], runs[1], metrics, r)
     else:
         print("invalid input")   
