@@ -61,8 +61,9 @@ def print_comparison(left_run, right_run, metrics, r):
     """
 
     print('Left is ' + r[0]+ ', Right is ' + r[1])
-    print('| Metric             | Highest            | Mean               | Lowest')
-    print('+' + ('-' * 80))
+    print('+' + ('-' * 83) + '+')
+    print('| Metric             | Highest            | Mean               | Lowest             |')
+    print('+' + ('-' * 83)  + '+')
     i = 0
     for d in left_run:
         try:
@@ -79,12 +80,14 @@ def print_comparison(left_run, right_run, metrics, r):
                    # Avg metric value
                   leftavg + ' | ' + rightavg + 
                    # White Space
-                  (' ' * (18 - (((len(str(leftavg)))) + (len(str(rightavg)))))) + 
+                  (' ' * (18 - ((len(str(leftavg))) + len(str(rightavg))))) +
                    # Min metric value
-                  str(round(min(left_run[0][i]), 4)) + ' | ' + str(round(min(right_run[0][i]), 4)))
+                  str(round(min(left_run[0][i]), 4)) + ' | ' + str(round(min(right_run[0][i]), 4)) +
+                  (' ' * (16 - ((len(str(round(min(left_run[0][i]), 4)))) + len(str(round(min(right_run[0][i]), 4)))))) + '|')
             i += 1
         except IndexError:
             pass
+    print('+' + ('-' * 83)  + '+')
 
 def print_deleted_status(status):
     """
