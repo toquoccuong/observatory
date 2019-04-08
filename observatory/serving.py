@@ -75,7 +75,7 @@ class ServingClient:
         return True
 
     def validate_run(self, run):
-        if run.__len__() != 8:
+        if len(run) != 8:
             raise AssertionError("Run_id to long or to short, it should be 8 charslong")
         if run is run.strip() == ''  or not re.match('^[a-z0-9]*$', run):
             raise AssertionError('Run_id cannot contain uppercase letters/dashes/underscores')

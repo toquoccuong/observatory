@@ -18,8 +18,8 @@ def print_to_console(data, title):
 
     length = 10
     for d in data:
-        if d.__len__() > length:
-            length = d.__len__()
+        if len(d)> length:
+            length = len(d)
     print('+' + ('-' * length) + '--+')
     print('| ' + title)
     print('+' + ('-' * length) + '--+')
@@ -69,12 +69,12 @@ def print_comparison(left_run, right_run, metrics, r):
     i = 0
     for d in left_run:
         try:
-            leftavg = str(round(sum(left_run[0][i])/left_run[0][i].__len__(), 4))
-            rightavg = str(round(sum(right_run[0][i])/right_run[0][i].__len__(), 4))
+            leftavg = str(round(sum(left_run[0][i])/len(left_run[0][i]), 4))
+            rightavg = str(round(sum(right_run[0][i])/len(right_run[0][i]), 4))
                   # Metric name
             print('| ' + left_run[1][0][0][i] + 
                    # White Space
-                  (' ' * (21 - left_run[1][0][0][i].__len__())) +
+                  (' ' * (21 - len(left_run[1][0][0][i]))) +
                    # Max metric value
                   str(round(max(left_run[0][i]), 4)) + ' | ' + str(round(max(right_run[0][i]), 4)) + 
                    # White Space
@@ -321,22 +321,22 @@ def compare(r):
     But maybe you want it to be a little more specific, so it is also possible to give a version number or experiment number.
     """
     serving = ServingClient()
-    if r is not None and r.__len__() == 2:
+    if r is not None and len(r) == 2:
         runs = []
         for x in r:
             runs.append(serving.get_run(x))
         metrics = serving.filter_metrics(runs[0][1][0][0], runs[1][1][0][0])
-        if metrics.__len__() == 0:
+        if len(metrics) == 0:
             print('No common metics found')
             return
-        for i in range(runs[0][1][0][0].__len__()):
+        for i in range(len(runs[0][1][0][0])):
             try:
                 if runs[0][1][0][0][i] not in metrics:
                     runs[0][0].pop(i)
                     runs[0][1][0][0].pop(i)
             except IndexError:
                 pass
-        for i in range(runs[1][1][0][0].__len__()):
+        for i in range(len(runs[1][1][0][0])):
             try:
                 if runs[1][1][0][0][i] not in metrics:
                     runs[1][0].pop(i)
