@@ -9,14 +9,12 @@ from observatory.serving import ServingClient
 import os
 from os.path import expanduser
 
-UPLOAD_FOLDER = expanduser('~') + '\\.observatory\\outputs'
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'pkl'])
+
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'pkl', '.json'])
 
 sink = Sink()
 serving = ServingClient()
 app = Flask(__name__)
-app.secret_key = '?secret?'  # this has to change, and be secret
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 api = Api(app)
 
 
