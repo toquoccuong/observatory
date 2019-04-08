@@ -149,7 +149,11 @@ class Model(Resource):
         Returns:
             HTTP request -- When the function finishes it wil return a http status.
         """
-        return serving.delete_model(name)
+        data = serving.delete_model(name)
+        if data is None:
+            return 500
+        elif data is True:
+            return 201
 
 
 class Version(Resource):
@@ -192,7 +196,11 @@ class Version(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('model')
         args = parser.parse_args()
-        return serving.delete_version(args['model'], id)
+        data = serving.delete_version(args['model'], id)
+        if data is None:
+            return 500
+        elif data is True:
+            return 201
 
 
 class Experiment(Resource):
@@ -238,7 +246,11 @@ class Experiment(Resource):
         parser.add_argument('model')
         parser.add_argument('version')
         args = parser.parse_args()
-        return serving.get_version(args['model'], args['version'], name)        
+        data = serving.get_version(args['model'], args['version'], name)
+        if data is None:
+            return 500
+        elif data is True:
+            return 201        
 
 
 class Run(Resource):
@@ -279,9 +291,12 @@ class Run(Resource):
         Returns:
             HTTP request -- When the function finishes it wil return a http status.
         """
-        return serving.delete_run(run)
+        data = serving.delete_run(run)
+        if data is None:
+            return 500
+        elif data is True:
+            return 201
         
-
 
 class Metric(Resource):
     """
@@ -378,7 +393,11 @@ class Setting(Resource):
         Returns:
             HTTP request -- When the function finishes it wil return a http status.
         """
-        return serving.delete_settings(run)
+        data = serving.delete_settings(run) 
+        if data is None:
+            return 500
+        elif data is True:
+            return 201
 
 
 class Output(Resource):
@@ -444,7 +463,11 @@ class Output(Resource):
         Returns:
             HTTP request -- When the function finishes it wil return a http status.
         """
-        return serving.delete_output(run)
+        data = serving.delete_output(run)
+        if data is None:
+            return 500
+        elif data is True:
+            return 201
 
 api.add_resource(Model, "/api/models/<string:model>")
 api.add_resource(Version, "/api/versions/<string:id>")
