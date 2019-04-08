@@ -51,6 +51,7 @@ def print_runs(params, data, r):
 def print_comparison(left_run, right_run, metrics, r):
     """
     This method prints the comparion so commandline
+    It rounds long numers to 4 digits
     
     Arguments:
         left_run {List} -- First run to compare
@@ -65,22 +66,22 @@ def print_comparison(left_run, right_run, metrics, r):
     i = 0
     for d in left_run:
         try:
-            leftavg = str((sum(left_run[0][i])/left_run[0][i].__len__()))
-            rightavg = str((sum(right_run[0][i])/right_run[0][i].__len__()))
+            leftavg = str(round(sum(left_run[0][i])/left_run[0][i].__len__(), 4))
+            rightavg = str(round(sum(right_run[0][i])/right_run[0][i].__len__(), 4))
                   # Metric name
             print('| ' + left_run[1][0][0][i] + 
                    # White Space
                   (' ' * (21 - left_run[1][0][0][i].__len__())) +
                    # Max metric value
-                  str(max(left_run[0][i])) + ' | ' + str(max(right_run[0][i])) + 
+                  str(round(max(left_run[0][i]), 4)) + ' | ' + str(round(max(right_run[0][i]), 4)) + 
                    # White Space
-                  (' ' * (18 - ((len(str(max(left_run[0][i])))) + (len(str(max(right_run[0][i]))))))) +
+                  (' ' * (18 - ((len(str(round(max(left_run[0][i]), 4)))) + (len(str(round(max(right_run[0][i]), 4))))))) +
                    # Avg metric value
                   leftavg + ' | ' + rightavg + 
                    # White Space
                   (' ' * (18 - (((len(str(leftavg)))) + (len(str(rightavg)))))) + 
                    # Min metric value
-                  str(min(left_run[0][i])) + ' | ' + str(min(right_run[0][i])))
+                  str(round(min(left_run[0][i]), 4)) + ' | ' + str(round(min(right_run[0][i]), 4)))
             i += 1
         except IndexError:
             pass
@@ -305,7 +306,7 @@ def delete(m, v, e, r, s, o):
 @click.option(
     '-r',
     default=None,
-    help='The run that should be deleted -- [INPUT] = run id',
+    help='The run you want to compare -- [INPUT] = run id',
     multiple=True
 )
 def compare(r):
@@ -321,6 +322,9 @@ def compare(r):
         for x in r:
             runs.append(serving.get_run(x))
         metrics = serving.filter_metrics(runs[0][1][0][0], runs[1][1][0][0])
+        if metrics.__len__() == 0:
+            print('No common metics found')
+            return
         for i in range(runs[0][1][0][0].__len__()):
             try:
                 if runs[0][1][0][0][i] not in metrics:
