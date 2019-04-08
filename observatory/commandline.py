@@ -1,9 +1,10 @@
-import click
 import pdb
+
+import click
+import pandas as pd
 from observatory.serving import ServingClient
 from prettytable import PrettyTable
 from tabulate import tabulate
-import pandas as pd
 
 
 def print_to_console(data, title):
@@ -35,15 +36,16 @@ def print_runs(params, data, r):
         data {List} -- List of the metrics
         r {str} -- run id
     """
-
     print('+' + ('-' * 115))
     print("| Run: " + r + " | StartDate: " + str(params[0][1]) + " | EndDate: " + str(params[0][2]) + " | Status: " + params[0][3])
     print('+' + ('-' * 115))
     i = 0
     for d in data:
+        avg = sum(d)/len(d)
         print('| Recorded metric : ' + str(params[0][0][i]))
         print('| Hightest value  : ' + str(max(d)))
         print('| Lowest value    : ' + str(min(d)))
+        print('| Average value    : ' + str(round(avg, 4)))
         print('+' + ('-' * 40))
         i += 1
         
@@ -170,12 +172,11 @@ def get(m, v, e, r, s, o):
         AssertionError -- This gets raised when the input is wrong
     """
     serving = ServingClient()
+    # ? there has to be a better way to do this
+    # ? the if statement is really ugly
     if(r is not None and m is None and v is None and e is None):
-        if r.__len__() is not 8:
-            print('[ERROR]: Invalid run id, it must be 8 characters long')
-        else:
-            run = serving.get_run(r)
-            print_runs(run[1], run[0], r)
+        run = serving.get_run(r)
+        print_runs(run[1], run[0], r)
         return
     if(o is not None and m is None and v is None and e is None and r is None and s is None):
         output = serving.get_output(o)
