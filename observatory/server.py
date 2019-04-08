@@ -329,7 +329,6 @@ class Setting(Resource):
         Resource {flask_restful.Resource} -- Represents an abstract RESTful resource
 
     """
-
     def get(self, run):
         """
         This method handles the Get method
@@ -340,8 +339,11 @@ class Setting(Resource):
         Returns:
             HTTP request -- When the function finishes it wil return a http status.
         """
-        
-        return 500
+        try:
+            data = serving.get_settings(run)
+        except Exception:
+            {'status': 'failure', 'context': 'Settings were not found'}, 500
+        return {'status': 'succes', 'data': data}, 201
 
     def post(self, run):
         """
@@ -366,7 +368,7 @@ class Setting(Resource):
             return {'status': 'succes', 'context': 'Settings could not be recorded'}, 500
         return {'status': 'succes'}, 201
 
-    def delete(self, ID):
+    def delete(self, run):
         """
         This method handles the Delete method
 
@@ -376,7 +378,7 @@ class Setting(Resource):
         Returns:
             HTTP request -- When the function finishes it wil return a http status.
         """
-        return 500
+        return serving.delete_settings(run)
 
 
 class Output(Resource):
@@ -400,7 +402,11 @@ class Output(Resource):
         Returns:
             HTTP request -- When the function finishes it wil return a http status.
         """
-        return 500
+        try:
+            data = serving.get_output(run)
+        except Exception:
+            {'status': 'failure', 'context': 'Output was not found'}, 500
+        return {'status': 'succes', 'data': data}, 201
 
     def post(self, run):
         """
@@ -438,7 +444,7 @@ class Output(Resource):
         Returns:
             HTTP request -- When the function finishes it wil return a http status.
         """
-        return 500
+        return serving.delete_output(run)
 
 api.add_resource(Model, "/api/models/<string:model>")
 api.add_resource(Version, "/api/versions/<string:id>")
