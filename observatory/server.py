@@ -134,7 +134,7 @@ class Model(Resource):
             elif model is None:
                 data = serving.get_all_models()
         except Exception:
-            return {'status': 'failure', 'context': 'Could not find model'}, 500
+            return {'status': 'failure', 'context': 'Experiment was not found'}, 500
         return {'status': 'succes', 'data': data}, 201
 
     def delete(self, name):
@@ -149,9 +149,9 @@ class Model(Resource):
         """
         data = serving.delete_model(name)
         if data is None:
-            return 500
+            return {'status': 'failure', 'context': 'Model was not found'}, 500
         elif data is True:
-            return 201
+            return {'status': 'succes'}, 201
 
 
 class Version(Resource):
@@ -178,7 +178,10 @@ class Version(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('model')
         args = parser.parse_args()
-        data = serving.get_version(args['model'], id)
+        try:
+            data = serving.get_version(args['model'], id)
+        except Exception:
+            return {'status': 'failure', 'context': 'Version was not found'}, 500
         return {'status': 'succes', 'data': data}, 201
 
     def delete(self, id):
@@ -196,9 +199,9 @@ class Version(Resource):
         args = parser.parse_args()
         data = serving.delete_version(args['model'], id)
         if data is None:
-            return 500
+            return {'status': 'failure', 'context': 'Version was not found'}, 500
         elif data is True:
-            return 201
+            return {'status': 'succes'}, 201
 
 
 class Experiment(Resource):
@@ -227,7 +230,10 @@ class Experiment(Resource):
         parser.add_argument('model')
         parser.add_argument('version')
         args = parser.parse_args()
-        data = serving.get_experiment(args['model'], args['version'], name)
+        try:
+            data = serving.get_experiment(args['model'], args['version'], name)
+        except Exception:
+            return {'status': 'failure', 'context': 'Experiment was not found'}, 500
         return {'status': 'succes', 'data': data}, 201
 
     def delete(self, name):
@@ -246,9 +252,9 @@ class Experiment(Resource):
         args = parser.parse_args()
         data = serving.get_version(args['model'], args['version'], name)
         if data is None:
-            return 500
+            return {'status': 'failure', 'context': 'Experiment was not found'}, 500
         elif data is True:
-            return 201        
+            return {'status': 'succes'}, 201        
 
 
 class Run(Resource):
@@ -276,7 +282,7 @@ class Run(Resource):
         try:
             data = serving.get_run(run)
         except Exception:
-            {'status': 'failure', 'context': 'Run was not found'}, 500
+            return {'status': 'failure', 'context': 'Run was not found'}, 500
         return {'status': 'succes', 'data': data}, 201
 
     def delete(self, run):
@@ -291,9 +297,9 @@ class Run(Resource):
         """
         data = serving.delete_run(run)
         if data is None:
-            return 500
+            return {'status': 'failure', 'context': 'Run was not found'}, 500
         elif data is True:
-            return 201
+            return {'status': 'succes'}, 201
         
 
 class Metric(Resource):
@@ -355,7 +361,7 @@ class Setting(Resource):
         try:
             data = serving.get_settings(run)
         except Exception:
-            {'status': 'failure', 'context': 'Settings were not found'}, 500
+            return {'status': 'failure', 'context': 'Settings were not found'}, 500
         return {'status': 'succes', 'data': data}, 201
 
     def post(self, run):
@@ -393,9 +399,9 @@ class Setting(Resource):
         """
         data = serving.delete_settings(run) 
         if data is None:
-            return 500
+            return {'status': 'failure', 'context': 'Settings were not found'}, 500
         elif data is True:
-            return 201
+            return {'status': 'succes'}, 201
 
 
 class Output(Resource):
@@ -463,9 +469,9 @@ class Output(Resource):
         """
         data = serving.delete_output(run)
         if data is None:
-            return 500
+            return {'status': 'failure', 'context': 'File was not found, or does not exsist'}, 500
         elif data is True:
-            return 201
+            return {'status': 'succes'}, 201
 
 api.add_resource(Model, "/api/models/<string:model>")
 api.add_resource(Version, "/api/versions/<string:id>")
