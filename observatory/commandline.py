@@ -50,7 +50,7 @@ def print_runs(params, data, r):
         i += 1
         
 
-def print_comparison(left_run, right_run, metrics, r):
+def print_comparison(left_run, right_run, r):
     """
     This method prints the comparion so commandline
     It rounds long numers to 4 digits
