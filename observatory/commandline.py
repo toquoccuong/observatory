@@ -9,7 +9,7 @@ from tabulate import tabulate
 
 def print_to_console(data, title):
     """
-    This method prints data to commandline
+    This method prints data to command-line
 
     Arguments:
         data {List} -- Data thats gets printed to command line
@@ -43,7 +43,7 @@ def print_runs(params, data, r):
     for d in data:
         avg = sum(d)/len(d)
         print('| Recorded metric : ' + str(params[0][0][i]))
-        print('| Hightest value  : ' + str(max(d)))
+        print('| Highest value  : ' + str(max(d)))
         print('| Lowest value    : ' + str(min(d)))
         print('| Average value    : ' + str(round(avg, 4)))
         print('+' + ('-' * 40))
@@ -52,7 +52,7 @@ def print_runs(params, data, r):
 
 def print_comparison(left_run, right_run, r):
     """
-    This method prints the comparion so commandline
+    This method prints the compared data to command-line
     It rounds long numers to 4 digits
     
     Arguments:
