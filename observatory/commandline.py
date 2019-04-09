@@ -9,7 +9,7 @@ from tabulate import tabulate
 
 def print_to_console(data, title):
     """
-    This method prints data to command line
+    This method prints data to command-line
 
     Arguments:
         data {List} -- Data thats gets printed to command line
@@ -18,17 +18,24 @@ def print_to_console(data, title):
 
     length = 10
     for d in data:
-        if d.__len__() > length:
-            length = d.__len__()
-    print('+' + ('-' * length) + '----+')
+        if len(d)> length:
+            length = len(d)
+    print('+' + ('-' * length) + '--+')
     print('| ' + title)
-    print('+' + ('-' * length) + '----+')
+    print('+' + ('-' * length) + '--+')
     for d in data:
         print('| ' + str(d))
-    print('+' + ('-' * length) + '----+')
+    print('+' + ('-' * length) + '--+')
 
 def print_runs(params, data, r):
+    """
+    This method prints data to commandline
     
+    Arguments:
+        params {List} -- List of the parameters, ex. starttime, endtime, status
+        data {List} -- List of the metrics
+        r {str} -- run id
+    """
     print('+' + ('-' * 115))
     print("| Run: " + r + " | StartDate: " + str(params[0][1]) + " | EndDate: " + str(params[0][2]) + " | Status: " + params[0][3])
     print('+' + ('-' * 115))
@@ -36,14 +43,62 @@ def print_runs(params, data, r):
     for d in data:
         avg = sum(d)/len(d)
         print('| Recorded metric : ' + str(params[0][0][i]))
-        print('| Hightest value  : ' + str(max(d)))
+        print('| Highest value  : ' + str(max(d)))
         print('| Lowest value    : ' + str(min(d)))
         print('| Average value    : ' + str(round(avg, 4)))
         print('+' + ('-' * 40))
         i += 1
+        
 
+def print_comparison(left_run, right_run, r):
+    """
+    This method prints the compared data to command-line
+    It rounds long numers to 4 digits
+    
+    Arguments:
+        left_run {List} -- First run to compare
+        right_run {List} -- Second run to compare
+        metrics {List} -- List of metrics both runs have in common
+        r {List} -- Run id's
+    """
+
+    print('Left is ' + r[0]+ ', Right is ' + r[1])
+    print('+' + ('-' * 83) + '+')
+    print('| Metric             | Highest            | Mean               | Lowest             |')
+    print('+' + ('-' * 83)  + '+')
+    i = 0
+    for d in left_run:
+        try:
+            leftavg = str(round(sum(left_run[0][i])/len(left_run[0][i]), 4))
+            rightavg = str(round(sum(right_run[0][i])/len(right_run[0][i]), 4))
+                  # Metric name
+            print('| ' + left_run[1][0][0][i] + 
+                   # White Space
+                  (' ' * (21 - len(left_run[1][0][0][i]))) +
+                   # Max metric value
+                  str(round(max(left_run[0][i]), 4)) + ' | ' + str(round(max(right_run[0][i]), 4)) + 
+                   # White Space
+                  (' ' * (18 - ((len(str(round(max(left_run[0][i]), 4)))) + (len(str(round(max(right_run[0][i]), 4))))))) +
+                   # Avg metric value
+                  leftavg + ' | ' + rightavg + 
+                   # White Space
+                  (' ' * (18 - ((len(str(leftavg))) + len(str(rightavg))))) +
+                   # Min metric value
+                  str(round(min(left_run[0][i]), 4)) + ' | ' + str(round(min(right_run[0][i]), 4)) +
+                  (' ' * (16 - ((len(str(round(min(left_run[0][i]), 4)))) + len(str(round(min(right_run[0][i]), 4)))))) + '|')
+            i += 1
+        except IndexError:
+            pass
+    print('+' + ('-' * 83)  + '+')
 
 def print_deleted_status(status):
+    """
+    This method prints the delete status to commandline
+    
+    Arguments:
+        status {Boolean} -- Delete Status
+    """
+
     if status is True:
         print('The File has been deleted succesfully')
     elif status is None:
@@ -57,7 +112,7 @@ def cli():
 
 @cli.command(help='Runs the tracking server')
 def server():
-    pass
+    import observatory.server
 
 
 @cli.command(help='Gets the data')
@@ -111,7 +166,6 @@ def get(m, v, e, r, s, o):
     - observatory get -r [RUN_ID]
         This command returns the metadata for a specific run.
         It will show the highest found value, the lowest found value
-        # ? need to look at pandas how they deal with commands line data
 
     Any other combination of paramaters is not valid.
     For instance, it is not possible to request a version without specifing a model
@@ -253,12 +307,43 @@ def delete(m, v, e, r, s, o):
 
 
 @cli.command(help='Compares the data')
-def compare():
+@click.option(
+    '-r',
+    default=None,
+    help='The run you want to compare -- [INPUT] = run id',
+    multiple=True
+)
+def compare(r):
     """
     This command is used to compare the data from 2 or more runs
 
     It will be possible to give a model name, and it will compare all runs for that model.
     But maybe you want it to be a little more specific, so it is also possible to give a version number or experiment number.
     """
-
-    pass
+    serving = ServingClient()
+    if r is not None and len(r) == 2:
+        runs = []
+        for x in r:
+            runs.append(serving.get_run(x))
+        metrics = serving.filter_metrics(runs[0][1][0][0], runs[1][1][0][0])
+        if len(metrics) == 0:
+            print('No common metics found')
+            return
+        for i in range(len(runs[0][1][0][0])):
+            try:
+                if runs[0][1][0][0][i] not in metrics:
+                    runs[0][0].pop(i)
+                    runs[0][1][0][0].pop(i)
+            except IndexError:
+                pass
+        for i in range(len(runs[1][1][0][0])):
+            try:
+                if runs[1][1][0][0][i] not in metrics:
+                    runs[1][0].pop(i)
+                    runs[1][1][0][0].pop(i)
+            except IndexError:
+                pass
+        print_comparison(runs[0], runs[1], metrics, r)
+    else:
+        print("invalid input")   
+    

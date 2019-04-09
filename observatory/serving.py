@@ -2,7 +2,6 @@ import re
 import tempfile
 from abc import ABC, abstractmethod
 import numpy as np
-from itertools import chain 
 
 import requests
 from observatory import settings
@@ -76,7 +75,7 @@ class ServingClient:
         return True
 
     def validate_run(self, run):
-        if run.__len__() != 8:
+        if len(run) != 8:
             raise AssertionError("Run_id to long or to short, it should be 8 charslong")
         if run is run.strip() == ''  or not re.match('^[a-z0-9]*$', run):
             raise AssertionError('Run_id cannot contain uppercase letters/dashes/underscores')
@@ -140,5 +139,6 @@ class ServingClient:
         if self.validate_run(run_id):
             return Archive.delete_output(run_id)
 
-    def compare_runs(self, first_run_id, second_run_id):
-        pass
+    def filter_metrics(self, left, right):
+        metric_matches = set(left) & set(right)
+        return metric_matches                            
