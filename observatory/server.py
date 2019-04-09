@@ -134,7 +134,7 @@ class Model(Resource):
             elif model is None:
                 data = serving.get_all_models()
         except Exception:
-            return {'status': 'failure', 'context': 'Experiment was not found'}, 500
+            return {'status': 'failure', 'context': 'Model was not found'}, 500
         return {'status': 'succes', 'data': data}, 201
 
     def delete(self, name):
